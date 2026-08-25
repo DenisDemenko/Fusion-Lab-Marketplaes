@@ -29,6 +29,20 @@ npm run typecheck
 Пакетний менеджер — npm workspaces (не pnpm — див.
 [ADR 0003](docs/adr/0003-nestjs-and-monorepo.md) чому).
 
+## Перший запуск / деплой
+
+Кроки, що вимагають акаунтів чи зовнішніх дашбордів (Docker Desktop,
+Firebase service account, GitHub, Vercel, Railway, DNS для
+`fusionlab.in.ua`), проведе інтерактивний скрипт:
+
+```bash
+./scripts/setup-handoff.sh
+```
+
+Ідемпотентний — можна зупинити (Ctrl-C) і перезапустити пізніше, він
+пам'ятає вже збережені значення. Деталі й контекст кожного кроку — в
+`ROADMAP.md` → "Хендофф".
+
 ## Стан
 
 Скелет проєкту (фаза 0 з `ROADMAP.md`). Дивись `ROADMAP.md` для повного
