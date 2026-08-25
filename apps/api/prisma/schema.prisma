@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  buyer
+  seller
+  admin
+}
+
+// Identity lives in Firebase Auth (email/password + Google). This table
+// holds domain data keyed by the Firebase UID — created lazily on first
+// authenticated request. See docs/adr/0002-postgres-over-firestore.md.
+model User {
+  id          String   @id @default(uuid())
+  firebaseUid String   @unique
+  email       String   @unique
+  role        UserRole @default(buyer)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
