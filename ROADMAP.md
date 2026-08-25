@@ -14,11 +14,21 @@ npm workspaces + Turborepo monorepo. Деталі й обґрунтування 
 - [x] `docker-compose.yml` — Postgres + Redis для локальної розробки
 - [x] `CONTEXT.md` + перші ADR (0001–0003)
 - [x] Book_Creality — git-репозиторій ініціалізовано, перший комміт
-- [ ] CI (GitHub Actions): lint + typecheck + test на обидва apps
-- [ ] Firebase Auth: verify ID token у NestJS (guard + декоратор), таблиця
-      `users` у Postgres, синхронізація по першому вході
-- [ ] Деплой-скелет: Vercel (`apps/web`) + Railway/Render (`apps/api` +
-      Postgres + Redis), домен `fusionlab.in.ua`
+- [x] CI (GitHub Actions, `.github/workflows/ci.yml`): lint + typecheck +
+      build + test на обидва apps, з Postgres service-контейнером
+- [x] Firebase Auth: `FirebaseAuthGuard` + `@CurrentUser()` у NestJS,
+      Prisma-модель `User` (keyed за Firebase UID), `UsersService.syncFromFirebase`
+      на кожен верифікований запит; тестовий роут `GET /me`. Prisma 7
+      виявився стабільною версією — знадобився driver adapter
+      (`@prisma/adapter-pg`) замість schema-level URL, див. ADR 0004
+- [x] `apps/api/Dockerfile` (для Railway) + `.env.example` з усіма
+      потрібними змінними
+- [ ] Перша Prisma-міграція (`npx prisma migrate dev --name init`) — не
+      виконано: на цій машині немає Docker, отже немає локального Postgres.
+      Потрібно на машині користувача: `docker compose up -d`, тоді міграція
+- [ ] Реальний деплой: Vercel-акаунт (`apps/web`) + Railway/Render-акаунт
+      (`apps/api` + Postgres + Redis) + DNS для `fusionlab.in.ua` — вимагає
+      дій користувача (створення акаунтів), див. розділ "Хендофф" нижче
 
 ## Фаза 1 — MVP Marketplace
 
@@ -57,6 +67,27 @@ npm workspaces + Turborepo monorepo. Деталі й обґрунтування 
 - [ ] Event-driven нотатки: BullMQ (вже є через Redis) → Kafka/RabbitMQ
       як задокументований наступний крок
 - [ ] Навантажувальне тестування, нотатки з horizontal scaling
+
+## Хендофф — дії, які потребують вас особисто
+
+Акаунти й секрети — я не можу і не повинен їх створювати сам:
+
+1. **Docker Desktop** — встановити локально, тоді `docker compose up -d`
+   і `cd apps/api && npx prisma migrate dev --name init` (перша міграція
+   ще не застосована — на цій машині Docker не встановлено).
+2. **Firebase service account** — у консолі `fusionlab-acc2d`
+   (Project settings → Service accounts → Generate new private key),
+   заповнити `FIREBASE_PROJECT_ID`/`FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY`
+   у `apps/api/.env` (локально) і в майбутньому Railway-проєкті.
+3. **GitHub-репозиторій** — створити (наприклад `fusion-lab-marketplace`),
+   `git remote add origin ...` і `git push` — зараз репо лише локальний.
+4. **Vercel-акаунт** — імпортувати репо, обрати `apps/web` як root
+   directory, підключити `fusionlab.in.ua`.
+5. **Railway/Render-акаунт** — задеплоїти `apps/api` (є `Dockerfile`),
+   підняти керовані Postgres + Redis, прописати `DATABASE_URL`/`REDIS_URL`
+   і Firebase-змінні з п. 2.
+6. **DNS для `fusionlab.in.ua`** — A/CNAME записи на Vercel (і сабдомен
+   на Railway для API, напр. `api.fusionlab.in.ua`).
 
 ## Супутнє
 
