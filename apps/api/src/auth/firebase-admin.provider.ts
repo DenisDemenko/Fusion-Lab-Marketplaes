@@ -20,7 +20,9 @@ export const firebaseAdminProvider: Provider = {
     // exactly (seen on Railway — DECODER routines::unsupported). Base64
     // is opaque ASCII, immune to that class of corruption.
     const privateKey = process.env.FIREBASE_PRIVATE_KEY_B64
-      ? Buffer.from(process.env.FIREBASE_PRIVATE_KEY_B64, 'base64').toString('utf8')
+      ? Buffer.from(process.env.FIREBASE_PRIVATE_KEY_B64, 'base64').toString(
+          'utf8',
+        )
       : process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
     if (!projectId || !clientEmail || !privateKey) {

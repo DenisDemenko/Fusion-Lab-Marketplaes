@@ -27,9 +27,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - run: npm ci
+      # Generate the Prisma client before lint/typecheck — type-aware
+      # ESLint rules (@typescript-eslint/no-unsafe-*) see PrismaClient
+      # methods as unresolved `any` without it.
+      - run: npx prisma generate --schema apps/api/prisma/schema.prisma
       - run: npm run lint
       - run: npm run typecheck
       - run: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma

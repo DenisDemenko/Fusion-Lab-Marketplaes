@@ -8,7 +8,7 @@ export class UsersService {
   // Called from FirebaseAuthGuard on every verified request. Cheap upsert:
   // Firebase already did the hard work of proving identity, this just
   // makes sure a domain-side row exists to hang role/seller data off of.
-  async syncFromFirebase(input: { firebaseUid: string; email: string }) {
+  syncFromFirebase(input: { firebaseUid: string; email: string }) {
     return this.prisma.user.upsert({
       where: { firebaseUid: input.firebaseUid },
       update: { email: input.email },

@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
-import { FIREBASE_ADMIN_APP, firebaseAdminProvider } from './firebase-admin.provider';
+import {
+  FIREBASE_ADMIN_APP,
+  firebaseAdminProvider,
+} from './firebase-admin.provider';
 import { FirebaseAuthGuard } from './firebase-auth.guard';
 import { UsersModule } from '../users/users.module';
 
