@@ -45,5 +45,7 @@ Firebase service account, GitHub, Vercel, Railway, DNS для
 
 ## Стан
 
-Скелет проєкту (фаза 0 з `ROADMAP.md`). Дивись `ROADMAP.md` для повного
-плану фаз і `CONTEXT.md` для термінології домену.
+Фаза 0 (фундамент) — майже завершена: живий деплой на Vercel + Railway,
+CI зелений, Postgres-міграції застосовуються автоматично перед кожним
+деплоєм (`preDeployCommand`). Дивись `ROADMAP.md` для повного плану фаз
+і `CONTEXT.md` для термінології домену.
