@@ -23,12 +23,38 @@ npm workspaces + Turborepo monorepo. Деталі й обґрунтування 
       (`@prisma/adapter-pg`) замість schema-level URL, див. ADR 0004
 - [x] `apps/api/Dockerfile` (для Railway) + `.env.example` з усіма
       потрібними змінними
-- [ ] Перша Prisma-міграція (`npx prisma migrate dev --name init`) — не
-      виконано: на цій машині немає Docker, отже немає локального Postgres.
-      Потрібно на машині користувача: `docker compose up -d`, тоді міграція
-- [ ] Реальний деплой: Vercel-акаунт (`apps/web`) + Railway/Render-акаунт
-      (`apps/api` + Postgres + Redis) + DNS для `fusionlab.in.ua` — вимагає
-      дій користувача (створення акаунтів), див. розділ "Хендофф" нижче
+- [x] Перша Prisma-міграція `20260826184547_init` — застосована локально
+      і в production (Railway Postgres, БД `railway`)
+- [x] `GET /health` — реальний запит до БД (`user.count()`), а не `SELECT 1`:
+      розрізняє «база недоступна» (`ECONNREFUSED`/`P1000`) і «база є, схеми
+      немає» (`P2021`). Причина появи — див. «Витягнуті уроки» нижче
+- [x] Деплой живий: `apps/web` на Vercel, `apps/api` на Railway
+      (`fusion-labweb-production.up.railway.app`), Postgres — Railway-плагін.
+      Перевірено: `/health` → `{"database":"up","schema":"ready"}`
+- [ ] Vercel: `NEXT_PUBLIC_API_URL` досі заглушка — замінити на реальний
+      URL API і зробити Redeploy
+- [ ] DNS для `fusionlab.in.ua` → Vercel, `api.fusionlab.in.ua` → Railway
+- [ ] Redis — **свідомо не створений**: жоден рядок коду його поки не
+      використовує (черги/кеш — Фаза 1–2). Створити разом із першим
+      реальним споживачем, щоб не палити пробний баланс
+
+### Витягнуті уроки (Фаза 0)
+
+- **Railway-проєкт: `adventurous-tranquility`.** Сервіс, який хостить
+  **API**, історично називається `@fusion-lab/web` — назва оманлива,
+  але робоча. Є ще покинутий проєкт `comfortable-caring` з першими
+  невдалими спробами — його варто видалити.
+- **`preDeployCommand` з `prisma migrate deploy` не працює** — падає
+  навіть тоді, коли той самий контейнер із тими самими змінними успішно
+  ходить у базу (доведено через `/health`). Railway не показує вивід цієї
+  фази взагалі, тож діагностувати нічим. Прибрано; міграції поки вручну
+  через Console. Повернутись, коли стане зрозуміло, чим pre-deploy
+  оточення відрізняється мережево.
+- **Три «зелені» перевірки брехали одночасно.** З мертвим `DATABASE_URL`
+  Nest пише `successfully started` (pg-адаптер підключається ліниво),
+  `GET /` віддає 200 (не торкається БД), `GET /me` віддає 401 (гард
+  відсіює запит без токена ще до запиту). Звідси правило: **перевірка,
+  яка не робить реального запиту до залежності, нічого не доводить.**
 
 ## Фаза 1 — MVP Marketplace
 
@@ -70,24 +96,21 @@ npm workspaces + Turborepo monorepo. Деталі й обґрунтування 
 
 ## Хендофф — дії, які потребують вас особисто
 
-Акаунти й секрети — я не можу і не повинен їх створювати сам:
+Виконано (2026-08-27): Docker Desktop, Firebase service account,
+GitHub-репозиторій (`DenisDemenko/Fusion-Lab-Marketplaes`, гілка
+`master`), Vercel, Railway + Postgres, перша міграція в production.
 
-1. **Docker Desktop** — встановити локально, тоді `docker compose up -d`
-   і `cd apps/api && npx prisma migrate dev --name init` (перша міграція
-   ще не застосована — на цій машині Docker не встановлено).
-2. **Firebase service account** — у консолі `fusionlab-acc2d`
-   (Project settings → Service accounts → Generate new private key),
-   заповнити `FIREBASE_PROJECT_ID`/`FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY`
-   у `apps/api/.env` (локально) і в майбутньому Railway-проєкті.
-3. **GitHub-репозиторій** — створити (наприклад `fusion-lab-marketplace`),
-   `git remote add origin ...` і `git push` — зараз репо лише локальний.
-4. **Vercel-акаунт** — імпортувати репо, обрати `apps/web` як root
-   directory, підключити `fusionlab.in.ua`.
-5. **Railway/Render-акаунт** — задеплоїти `apps/api` (є `Dockerfile`),
-   підняти керовані Postgres + Redis, прописати `DATABASE_URL`/`REDIS_URL`
-   і Firebase-змінні з п. 2.
-6. **DNS для `fusionlab.in.ua`** — A/CNAME записи на Vercel (і сабдомен
-   на Railway для API, напр. `api.fusionlab.in.ua`).
+Лишилось:
+
+1. **Vercel → Settings → Environment Variables** — замінити
+   `NEXT_PUBLIC_API_URL` (зараз заглушка) на
+   `https://fusion-labweb-production.up.railway.app`, потім
+   Deployments → Redeploy (Vercel не перебудовує сам після зміни змінної).
+2. **DNS для `fusionlab.in.ua`** — A/CNAME на Vercel; сабдомен
+   `api.fusionlab.in.ua` → CNAME на Railway-сервіс. Після підключення
+   домену оновити `NEXT_PUBLIC_API_URL` ще раз, уже на `api.fusionlab.in.ua`.
+3. **Видалити покинутий Railway-проєкт `comfortable-caring`** — там
+   лишились невдалі перші спроби, які їдять пробний баланс.
 
 ## Супутнє
 
