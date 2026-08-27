@@ -31,9 +31,12 @@ npm workspaces + Turborepo monorepo. Деталі й обґрунтування 
 - [x] Деплой живий: `apps/web` на Vercel, `apps/api` на Railway
       (`fusion-labweb-production.up.railway.app`), Postgres — Railway-плагін.
       Перевірено: `/health` → `{"database":"up","schema":"ready"}`
-- [ ] Vercel: `NEXT_PUBLIC_API_URL` досі заглушка — замінити на реальний
-      URL API і зробити Redeploy
-- [ ] DNS для `fusionlab.in.ua` → Vercel, `api.fusionlab.in.ua` → Railway
+- [x] Фронт↔бек з'єднані й перевірені наскрізь: `NEXT_PUBLIC_API_URL`
+      (Vercel) → API, `WEB_ORIGIN` (Railway) → Vercel-домен. CORS
+      віддає правильний origin, preflight з `authorization` проходить
+- [ ] DNS для `fusionlab.in.ua` → Vercel, `api.fusionlab.in.ua` → Railway.
+      Після підключення домену **додати його до `WEB_ORIGIN`** через кому,
+      інакше CORS заблокує фронтенд на новому домені
 - [ ] Redis — **свідомо не створений**: жоден рядок коду його поки не
       використовує (черги/кеш — Фаза 1–2). Створити разом із першим
       реальним споживачем, щоб не палити пробний баланс
@@ -50,6 +53,11 @@ npm workspaces + Turborepo monorepo. Деталі й обґрунтування 
   фази взагалі, тож діагностувати нічим. Прибрано; міграції поки вручну
   через Console. Повернутись, коли стане зрозуміло, чим pre-deploy
   оточення відрізняється мережево.
+- **Змінні оточення вказують навхрест, і їх легко переплутати.**
+  `NEXT_PUBLIC_*` читає **тільки** Next.js на Vercel (вони вшиваються в
+  браузерний бандл, тому в Vercel їх тип — `Config`, не `Secret`).
+  `WEB_ORIGIN`/`DATABASE_URL`/`FIREBASE_*` читає **тільки** NestJS на
+  Railway. Покладені не на той хост, вони мовчки нічого не роблять.
 - **Три «зелені» перевірки брехали одночасно.** З мертвим `DATABASE_URL`
   Nest пише `successfully started` (pg-адаптер підключається ліниво),
   `GET /` віддає 200 (не торкається БД), `GET /me` віддає 401 (гард
