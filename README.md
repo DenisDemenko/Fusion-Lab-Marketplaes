@@ -45,7 +45,15 @@ Firebase service account, GitHub, Vercel, Railway, DNS для
 
 ## Стан
 
-Фаза 0 (фундамент) — майже завершена: живий деплой на Vercel + Railway,
-CI зелений, Postgres-міграції застосовуються автоматично перед кожним
-деплоєм (`preDeployCommand`). Дивись `ROADMAP.md` для повного плану фаз
-і `CONTEXT.md` для термінології домену.
+**Фаза 0 (фундамент) завершена.** Живі адреси:
+
+| Що | Адреса |
+|---|---|
+| Маркетплейс | https://app.fusionlab.in.ua |
+| API | https://api.fusionlab.in.ua |
+| Стан системи | https://api.fusionlab.in.ua/health |
+
+Готово: monorepo, CI (GitHub Actions), Firebase Auth з синхронізацією
+користувачів у Postgres, Prisma-міграції, деплой на Vercel + Railway,
+власні домени. Далі — Фаза 1 (каталог, продавці, кошик, платежі):
+дивись `ROADMAP.md` для повного плану і `CONTEXT.md` для термінології.

@@ -8,7 +8,17 @@ Marketplace/SaaS, що відповідає вакансії Strong Middle/Senio
 Стек: Next.js (App Router) + NestJS + PostgreSQL + Redis + Firebase Auth,
 npm workspaces + Turborepo monorepo. Деталі й обґрунтування — `docs/adr/`.
 
-## Фаза 0 — Фундамент (виконано 2026-08-25)
+## Фаза 0 — Фундамент ✅ завершено 2026-08-28
+
+Живі адреси:
+
+| Що | Адреса |
+|---|---|
+| Маркетплейс (фронтенд) | https://app.fusionlab.in.ua |
+| API | https://api.fusionlab.in.ua |
+| Перевірка стану | https://api.fusionlab.in.ua/health |
+| Старий грантовий сайт | https://fusionlab.in.ua *(Firebase, не чіпаємо)* |
+
 
 - [x] Monorepo: `apps/web` (Next.js), `apps/api` (NestJS), `packages/shared-types`
 - [x] `docker-compose.yml` — Postgres + Redis для локальної розробки
@@ -34,9 +44,13 @@ npm workspaces + Turborepo monorepo. Деталі й обґрунтування 
 - [x] Фронт↔бек з'єднані й перевірені наскрізь: `NEXT_PUBLIC_API_URL`
       (Vercel) → API, `WEB_ORIGIN` (Railway) → Vercel-домен. CORS
       віддає правильний origin, preflight з `authorization` проходить
-- [ ] DNS для `fusionlab.in.ua` → Vercel, `api.fusionlab.in.ua` → Railway.
-      Після підключення домену **додати його до `WEB_ORIGIN`** через кому,
-      інакше CORS заблокує фронтенд на новому домені
+- [x] Власні домени (DNS на HostIQ, cPanel → Редактор зон):
+      **`app.fusionlab.in.ua`** → Vercel (CNAME),
+      **`api.fusionlab.in.ua`** → Railway (CNAME + TXT `_railway-verify.api`).
+      Корінь `fusionlab.in.ua` свідомо лишено на **старому Firebase-сайті** —
+      перемкнемо його на маркетплейс, коли Фаза 1 буде наповнена контентом,
+      щоб не замінити робочий грантовий сайт порожнім скафолдом.
+      `WEB_ORIGIN` містить обидва фронтенд-походження через кому.
 - [ ] Redis — **свідомо не створений**: жоден рядок коду його поки не
       використовує (черги/кеш — Фаза 1–2). Створити разом із першим
       реальним споживачем, щоб не палити пробний баланс
