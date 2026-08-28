@@ -45,7 +45,7 @@ Firebase service account, GitHub, Vercel, Railway, DNS для
 
 ## Стан
 
-**Фаза 0 (фундамент) завершена.** Живі адреси:
+**Фаза 0 (фундамент) в проді.** Живі адреси:
 
 | Що | Адреса |
 |---|---|
@@ -53,7 +53,11 @@ Firebase service account, GitHub, Vercel, Railway, DNS для
 | API | https://api.fusionlab.in.ua |
 | Стан системи | https://api.fusionlab.in.ua/health |
 
-Готово: monorepo, CI (GitHub Actions), Firebase Auth з синхронізацією
-користувачів у Postgres, Prisma-міграції, деплой на Vercel + Railway,
-власні домени. Далі — Фаза 1 (каталог, продавці, кошик, платежі):
-дивись `ROADMAP.md` для повного плану і `CONTEXT.md` для термінології.
+**Фаза 1 (MVP marketplace) готова в коді, ще не задеплоєна.** Каталог,
+пошук, кошик, checkout, LiqPay, кабінети покупця/продавця, admin-панель,
+сповіщення, AI-асистент, міст до Book_Creality — усе реалізоване й
+покрите 48 e2e + 10 unit тестами (`npm test` та `npm run test:e2e` в
+`apps/api`). Живі адреси вище поки що показують Фазу 0; після деплою
+Фази 1 запустіть `npm run db:seed` в `apps/api`, щоб наповнити каталог.
+Повний перелік зробленого і `test`-based підтвердження якості —
+`ROADMAP.md` → «Фаза 1».
