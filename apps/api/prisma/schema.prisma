@@ -12,14 +12,316 @@ enum UserRole {
   admin
 }
 
+enum SellerStatus {
+  pending
+  approved
+  rejected
+}
+
+enum ListingKind {
+  course
+  product
+  book
+}
+
+// draft -> pending_review -> published is the seller's path; an admin sends
+// it on to published or rejected. archived hides a listing from the catalog
+// without deleting order history that points at it.
+enum ListingStatus {
+  draft
+  pending_review
+  published
+  rejected
+  archived
+}
+
+enum MediaKind {
+  cover
+  attachment
+  video
+}
+
+// public = catalog imagery, served to anyone. entitled = the paid payload
+// (course materials, STL files, video), served only to a buyer who owns
+// the listing, its seller, or an admin. See MediaService.assertCanDownload.
+enum MediaAccess {
+  public
+  entitled
+}
+
+enum OrderStatus {
+  pending
+  paid
+  failed
+  cancelled
+}
+
+enum PaymentStatus {
+  pending
+  success
+  failure
+}
+
+enum NotificationType {
+  listing_submitted
+  listing_approved
+  listing_rejected
+  order_placed
+  order_paid
+  seller_application
+  seller_approved
+}
+
 // Identity lives in Firebase Auth (email/password + Google). This table
-// holds domain data keyed by the Firebase UID — created lazily on first
+// holds domain data keyed by the Firebase UID - created lazily on first
 // authenticated request. See docs/adr/0002-postgres-over-firestore.md.
 model User {
   id          String   @id @default(uuid())
   firebaseUid String   @unique
   email       String   @unique
+  displayName String?
   role        UserRole @default(buyer)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  sellerProfile SellerProfile?
+  cart          Cart?
+  orders        Order[]
+  entitlements  Entitlement[]
+  notifications Notification[]
+  uploads       MediaAsset[]      @relation("MediaUploader")
+  threads       AssistantThread[]
+}
+
+model SellerProfile {
+  id          String       @id @default(uuid())
+  userId      String       @unique
+  displayName String
+  slug        String       @unique
+  bio         String?
+  status      SellerStatus @default(pending)
+  // Marketplace's cut, applied per order item at checkout and frozen into
+  // OrderItem.commissionMinor so a later rate change cannot rewrite history.
+  commissionPercent Int    @default(15)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listings Listing[]
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  slug     String    @unique
+  name     String
+  listings Listing[]
+}
+
+model Listing {
+  id       String        @id @default(uuid())
+  slug     String        @unique
+  sellerId String
+  kind     ListingKind
+  status   ListingStatus @default(draft)
+
+  title       String
+  subtitle    String?
+  summary     String?
+  description String?
+  highlights  String[] @default([])
+  // Course modules/lessons as authored - deeply nested, read whole, never
+  // queried field by field. A JSON column keeps it in one row instead of
+  // three join tables that would only ever be selected together.
+  curriculum  Json?
+
+  // Money is stored in minor units (kopecks) - integers only, so no float
+  // rounding can creep into a total. Formatting happens at the edge.
+  priceMinor Int
+  currency   String @default("UAH")
+
+  coverUrl   String?
+  stock      Int?
+  categoryId String?
+
+  // Book listings are mirrored from Book_Creality through the bridge API;
+  // this pair identifies the upstream record so re-publishing updates the
+  // same listing instead of creating duplicates. See ADR 0001.
+  externalSource String?
+  externalId     String?
+
+  // Maintained by Postgres as a STORED generated column (see the
+  // phase1_marketplace migration). Declared here only so Prisma does not
+  // read the column as drift and try to drop it; nothing writes to it.
+  searchVector Unsupported("tsvector")?
+
+  publishedAt     DateTime?
+  rejectionReason String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  seller       SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category     Category?     @relation(fields: [categoryId], references: [id])
+  media        MediaAsset[]
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+  entitlements Entitlement[]
+
+  @@unique([externalSource, externalId])
+  @@index([status, kind])
+  @@index([sellerId])
+}
+
+model MediaAsset {
+  id         String      @id @default(uuid())
+  listingId  String?
+  uploaderId String
+  kind       MediaKind
+  access     MediaAccess @default(entitled)
+  filename   String
+  mimeType   String
+  sizeBytes  Int
+  // Opaque key handed to the storage driver - a relative path on disk
+  // today, an object key in S3 later. Never a URL: what serves the bytes
+  // is the driver's business, not the database's.
+  storageKey    String
+  downloadCount Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  listing  Listing? @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  uploader User     @relation("MediaUploader", fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String
+  listingId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, listingId])
+}
+
+model Order {
+  id       String      @id @default(uuid())
+  number   String      @unique
+  buyerId  String
+  status   OrderStatus @default(pending)
+  currency String      @default("UAH")
+
+  subtotalMinor   Int
+  totalMinor      Int
+  commissionMinor Int @default(0)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  paidAt    DateTime?
+
+  buyer        User          @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  items        OrderItem[]
+  payment      Payment?
+  entitlements Entitlement[]
+
+  @@index([buyerId, status])
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  listingId String
+  sellerId  String
+
+  // Snapshots: an order line must keep reading correctly after the seller
+  // renames or reprices the listing it points at.
+  titleSnapshot   String
+  kind            ListingKind
+  unitPriceMinor  Int
+  quantity        Int         @default(1)
+  commissionMinor Int         @default(0)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id])
+
+  @@index([sellerId])
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  orderId           String        @unique
+  provider          String        @default("liqpay")
+  status            PaymentStatus @default(pending)
+  providerPaymentId String?
+  amountMinor       Int
+  currency          String        @default("UAH")
+  raw               Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+// The permanent record of "this user owns this listing" - what gates
+// downloads and course access. Separate from OrderItem because an
+// entitlement can also be granted without a purchase (admin grant, gift).
+model Entitlement {
+  id        String   @id @default(uuid())
+  userId    String
+  listingId String
+  orderId   String?
+  grantedAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  order   Order?  @relation(fields: [orderId], references: [id])
+
+  @@unique([userId, listingId])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  payload   Json?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+}
+
+model AssistantThread {
+  id        String   @id @default(uuid())
+  userId    String?
+  createdAt DateTime @default(now())
+
+  user     User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  messages AssistantMessage[]
+}
+
+model AssistantMessage {
+  id        String   @id @default(uuid())
+  threadId  String
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+
+  thread AssistantThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, createdAt])
 }

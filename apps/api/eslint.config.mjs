@@ -32,4 +32,19 @@ export default tseslint.config(
       "prettier/prettier": ["error", { endOfLine: "auto" }],
     },
   },
+  {
+    // supertest hands back `response.body` as `any` by design: the point of
+    // an end-to-end test is to assert on what the wire actually carried,
+    // with no DTO in between telling it what to expect. Typing every
+    // response would restate the production types and make a broken
+    // contract look fine, so the unsafe-* family is off for tests rather
+    // than silenced line by line.
+    files: ['test/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+    },
+  },
 );
