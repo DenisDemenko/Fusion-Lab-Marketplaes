@@ -10,3 +10,7 @@ coverage/
 .env.*.local
 .DS_Store
 *.tsbuildinfo
+
+# Local disk storage driver's upload directory (apps/api/src/storage) —
+# real seller-uploaded files, never fixtures worth committing.
+storage/

@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
+/* One light palette, deliberately. A marketplace that renders differently
+   depending on an OS switch doubles every screenshot in a design review
+   and halves the attention each one gets. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fbfbfa;
+  --surface: #ffffff;
+  --foreground: #18181b;
+  --muted: #71717a;
+  --line: #e4e4e7;
+  --accent: #b45309;
+  --accent-soft: #fef3c7;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* A small set of component classes for the few shapes that repeat on every
+   screen. Anything used once stays inline. */
+@layer components {
+  .card {
+    @apply rounded-2xl border border-[var(--line)] bg-[var(--surface)];
+  }
+
+  /* Tailwind v4 only lets @apply reach real utilities, not another custom
+     class defined the same way — so the shared button shape is repeated
+     in each variant rather than composed through a base `.btn`. */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+      text-sm font-medium transition-colors disabled:cursor-not-allowed
+      disabled:opacity-50 bg-zinc-900 text-white hover:bg-zinc-700;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+      text-sm font-medium transition-colors disabled:cursor-not-allowed
+      disabled:opacity-50 bg-[var(--accent)] text-white hover:bg-amber-800;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+      text-sm font-medium transition-colors disabled:cursor-not-allowed
+      disabled:opacity-50 border border-[var(--line)] bg-white text-zinc-700
+      hover:bg-zinc-50;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+      text-sm font-medium transition-colors disabled:cursor-not-allowed
+      disabled:opacity-50 border border-red-200 bg-white text-red-700
+      hover:bg-red-50;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-[var(--line)] bg-white px-3.5 py-2.5
+      text-sm outline-none placeholder:text-zinc-400
+      focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-zinc-700;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+
+  .section-title {
+    @apply text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl;
+  }
 }

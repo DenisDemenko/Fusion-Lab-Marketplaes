@@ -12,8 +12,8 @@ import { StorageService } from '../storage/storage.service';
 import { uniqueSlug } from '../common/slug';
 import {
   toListingCard,
-  toListingDetail,
   toMediaSummary,
+  toOwnerListingDetail,
 } from '../catalog/listing.mapper';
 import {
   ApplySellerDto,
@@ -173,7 +173,7 @@ export class SellersService {
 
   async getListing(userId: string, id: string) {
     const listing = await this.ownedListing(userId, id);
-    return toListingDetail(listing);
+    return toOwnerListingDetail(listing);
   }
 
   async createListing(userId: string, dto: CreateListingDto) {
@@ -203,7 +203,7 @@ export class SellersService {
       include: listingInclude,
     });
 
-    return toListingDetail(listing);
+    return toOwnerListingDetail(listing);
   }
 
   async updateListing(userId: string, id: string, dto: UpdateListingDto) {
@@ -245,7 +245,7 @@ export class SellersService {
       include: listingInclude,
     });
 
-    return toListingDetail(updated);
+    return toOwnerListingDetail(updated);
   }
 
   // The publish button. It does not publish — it submits for review, and
@@ -279,7 +279,7 @@ export class SellersService {
       payload: { listingId: listing.id },
     });
 
-    return toListingDetail(updated);
+    return toOwnerListingDetail(updated);
   }
 
   async withdraw(userId: string, id: string) {
@@ -297,7 +297,7 @@ export class SellersService {
       include: listingInclude,
     });
 
-    return toListingDetail(updated);
+    return toOwnerListingDetail(updated);
   }
 
   async archive(userId: string, id: string) {
@@ -309,7 +309,7 @@ export class SellersService {
       include: listingInclude,
     });
 
-    return toListingDetail(updated);
+    return toOwnerListingDetail(updated);
   }
 
   // Deletion is refused once a listing has been bought: order history and

@@ -14,12 +14,25 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "incremental": true,
+    // Off deliberately: nest-cli.json sets deleteOutDir, which wipes dist/
+    // on every watch restart without invalidating the incremental cache —
+    // tsc then trusts the cache, decides nothing changed, and skips
+    // re-emitting into the now-empty directory. The project is small
+    // enough that incremental builds buy nothing worth that failure mode.
+    "incremental": false,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  // nest start --watch compiles with tsconfig.build.json, which pins
+  // rootDir to "./src" — so any .ts file living outside it, like
+  // prisma.config.ts and prisma/seed.ts, has to be excluded there (and
+  // here, since tsc --noEmit -p tsconfig.json is the typecheck script) or
+  // the compiler refuses to start at all. Both files run standalone via
+  // ts-node (prisma CLI, npm run db:seed) and were never meant to be part
+  // of the compiled Nest app.
+  "exclude": ["node_modules", "dist", "prisma.config.ts", "prisma"]
 }

@@ -72,6 +72,30 @@ export function toListingDetail(listing: ListingWithRelations) {
   };
 }
 
+// The seller's own view of their listing. Unlike toListingDetail (built
+// for anonymous buyers, who must not see a download link for something
+// they have not paid for), the owner is allowed to see and manage every
+// file regardless of access level — full MediaSummary, cover and paid
+// attachments alike, so the cabinet can show file size, download counts,
+// and offer deletion.
+export function toOwnerListingDetail(listing: ListingWithRelations) {
+  const media = listing.media ?? [];
+
+  return {
+    ...toListingCard(listing),
+    description: listing.description,
+    curriculum: listing.curriculum,
+    externalSource: listing.externalSource,
+    rejectionReason: listing.rejectionReason,
+    cover: media.find((asset) => asset.kind === 'cover')
+      ? toMediaSummary(media.find((asset) => asset.kind === 'cover')!)
+      : null,
+    attachments: media
+      .filter((asset) => asset.kind !== 'cover')
+      .map(toMediaSummary),
+  };
+}
+
 export function toMediaSummary(asset: MediaAsset) {
   return {
     id: asset.id,

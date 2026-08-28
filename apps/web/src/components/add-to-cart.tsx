@@ -1,0 +1,99 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import type { ListingDetail } from "@fusion-lab/shared-types";
+import { ApiError } from "@/lib/api-client";
+import { useAuth } from "@/lib/auth-context";
+import { useCart } from "@/lib/cart-context";
+
+export function AddToCart({ listing }: { listing: ListingDetail }) {
+  const { firebaseUser, loading } = useAuth();
+  const { cart, add } = useCart();
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [owned, setOwned] = useState(false);
+
+  const inCart = cart?.items.some((item) => item.listing.id === listing.id);
+  const soldOut = listing.stock !== null && listing.stock <= 0;
+
+  async function handleAdd() {
+    setBusy(true);
+    setError(null);
+
+    try {
+      await add(listing.id);
+    } catch (caught) {
+      // 409 from the cart means one specific thing: this account already
+      // owns the listing. Saying so — and linking to where the files are —
+      // is more useful than repeating the raw message.
+      if (caught instanceof ApiError && caught.status === 409) {
+        setOwned(true);
+      } else {
+        setError(
+          caught instanceof Error ? caught.message : "Не вдалося додати в кошик",
+        );
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (owned) {
+    return (
+      <div className="space-y-2">
+        <p className="text-sm text-emerald-700">Ви вже маєте доступ до цього.</p>
+        <Link href="/account/library" className="btn-primary w-full">
+          Відкрити «Мої матеріали»
+        </Link>
+      </div>
+    );
+  }
+
+  if (!loading && !firebaseUser) {
+    return (
+      <Link
+        href={`/login?next=${encodeURIComponent(`/catalog/${listing.slug}`)}`}
+        className="btn-primary w-full"
+      >
+        Увійти, щоб купити
+      </Link>
+    );
+  }
+
+  if (soldOut) {
+    return (
+      <button type="button" className="btn-ghost w-full" disabled>
+        Немає в наявності
+      </button>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {inCart ? (
+        <button
+          type="button"
+          className="btn-accent w-full"
+          onClick={() => router.push("/cart")}
+        >
+          Уже в кошику — оформити
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="btn-primary w-full"
+          onClick={() => void handleAdd()}
+          disabled={busy || loading}
+          data-testid="add-to-cart"
+        >
+          {busy ? "Додаю…" : "Додати в кошик"}
+        </button>
+      )}
+
+      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+    </div>
+  );
+}
