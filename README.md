@@ -13,6 +13,7 @@ apps/web              Next.js (App Router, TS, Tailwind)
 apps/api              NestJS (TS)
 packages/shared-types  DTO/типи спільні для web і api
 docs/adr/              архітектурні рішення
+docs/case-study-ai-orchestration.md   як велася AI-орієнтована розробка
 CONTEXT.md             глосарій домену
 ROADMAP.md             фазований план побудови
 ```
