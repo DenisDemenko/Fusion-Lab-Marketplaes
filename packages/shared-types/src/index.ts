@@ -7,7 +7,20 @@
 // units (копійки); every `*Label` field is the same number preformatted by
 // the server, so the two sides can never disagree on rounding.
 
-export type UserRole = "buyer" | "seller" | "admin";
+// buyer/seller/admin are the original three; the other five are the
+// self-selectable roles from docs/migration-plan.md (Phase A).
+export type UserRole =
+  | "buyer"
+  | "seller"
+  | "admin"
+  | "writer"
+  | "expert"
+  | "sales_manager"
+  | "instruction_engineer"
+  | "student";
+
+// Mirrors apps/api/src/auth/permissions.ts's PERMISSIONS catalog.
+export type Permission = "listings:write" | "sales:access" | "books:write";
 export type SellerStatus = "pending" | "approved" | "rejected";
 export type ListingKind = "course" | "product" | "book";
 export type ListingStatus =
@@ -207,6 +220,11 @@ export interface CurrentUser {
   firebaseUid: string;
   email: string;
   role: UserRole;
+  // false only for a brand-new account that authenticated but hasn't
+  // called POST /me/role yet — the frontend gates onboarding on this.
+  roleChosen: boolean;
+  salesApproved: boolean;
+  permissions: Permission[];
   displayName: string | null;
   referralCode: string | null;
   seller: {
@@ -215,6 +233,26 @@ export interface CurrentUser {
     displayName: string;
     status: SellerStatus;
   } | null;
+}
+
+// Self-selectable at signup — "admin" is granted only through the admin
+// panel, never through POST /me/role.
+export const SELF_SELECTABLE_ROLES: readonly UserRole[] = [
+  "buyer",
+  "seller",
+  "writer",
+  "expert",
+  "sales_manager",
+  "instruction_engineer",
+  "student",
+];
+
+export interface UserPermissionsAdminView {
+  role: UserRole;
+  rolePreset: Permission[];
+  salesApproved: boolean;
+  effective: Permission[];
+  overrides: { permission: Permission; granted: boolean }[];
 }
 
 export interface SellerProfile {

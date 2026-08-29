@@ -178,6 +178,43 @@
       "cancelled": "Cancelled"
     }
   },
+  "roleGate": {
+    "title": "Choose your role",
+    "subtitle": "This decides what's available in your account. You can only choose once — after that, only an admin can change it.",
+    "submit": "Confirm",
+    "submitting": "Saving…",
+    "failed": "Could not save your role",
+    "roles": {
+      "buyer": {
+        "label": "Buyer",
+        "description": "Buy courses, books, and goods"
+      },
+      "seller": {
+        "label": "Seller",
+        "description": "Sell your own courses, books, or goods"
+      },
+      "writer": {
+        "label": "Writer",
+        "description": "Write books and sell them yourself"
+      },
+      "expert": {
+        "label": "Expert",
+        "description": "Create and publish courses"
+      },
+      "sales_manager": {
+        "label": "Sales manager",
+        "description": "Manage a seller's products, cart, and orders"
+      },
+      "instruction_engineer": {
+        "label": "Instruction engineer",
+        "description": "Prepare build instructions for lab products"
+      },
+      "student": {
+        "label": "Student",
+        "description": "Coursework and thesis projects"
+      }
+    }
+  },
   "common": {
     "loading": "Loading…",
     "save": "Save",
@@ -388,7 +425,31 @@
     "colOrders": "Orders",
     "colEntitlements": "Materials",
     "colRole": "Role",
-    "sellerStatusLabel": "seller: {status}"
+    "colSalesApproved": "Sales access",
+    "sellerStatusLabel": "seller: {status}",
+    "approved": "Approved",
+    "notApproved": "Not approved",
+    "showPermissions": "Permissions →",
+    "hidePermissions": "Hide permissions",
+    "effectivePermissions": "Effective permissions",
+    "noPermissions": "No permissions",
+    "fromRolePreset": "from role preset",
+    "notInRolePreset": "not in role preset",
+    "overrideGrant": "manually granted",
+    "overrideRevoke": "manually revoked",
+    "grant": "Grant",
+    "revoke": "Revoke",
+    "resetOverride": "Reset",
+    "roleLabels": {
+      "buyer": "Buyer",
+      "seller": "Seller",
+      "admin": "Admin",
+      "writer": "Writer",
+      "expert": "Expert",
+      "sales_manager": "Sales manager",
+      "instruction_engineer": "Instruction engineer",
+      "student": "Student"
+    }
   },
   "cartPage": {
     "title": "Cart",

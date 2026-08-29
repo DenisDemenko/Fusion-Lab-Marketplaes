@@ -48,6 +48,10 @@ describe('AppController', () => {
     it('reports the seller profile when there is one', async () => {
       usersService.findById.mockResolvedValue({
         displayName: 'Майстерня',
+        role: 'seller',
+        salesApproved: false,
+        roleChosenAt: new Date(),
+        permissionOverrides: [],
         sellerProfile: {
           id: 'seller-1',
           slug: 'maisternia',
@@ -67,12 +71,17 @@ describe('AppController', () => {
     it('returns a null seller for an account that never applied', async () => {
       usersService.findById.mockResolvedValue({
         displayName: null,
+        role: 'buyer',
+        salesApproved: false,
+        roleChosenAt: null,
+        permissionOverrides: [],
         sellerProfile: null,
       });
 
       await expect(appController.getMe(user)).resolves.toMatchObject({
         seller: null,
         displayName: null,
+        roleChosen: false,
       });
     });
   });

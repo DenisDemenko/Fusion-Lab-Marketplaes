@@ -100,7 +100,10 @@ async function main() {
   // Seeded accounts carry a `seed:` firebaseUid instead of a real one. A
   // person who later signs in with the same email claims the row — see
   // UsersService.syncFromFirebase — so the demo data has an owner before
-  // anyone has ever logged in.
+  // anyone has ever logged in. roleChosenAt is set here, not left null:
+  // their role is intentionally pre-assigned by this script, not something
+  // they still need to pick — leaving it null would trap the admin account
+  // itself behind RoleGate's onboarding screen on first real login.
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
     update: { role: 'admin' },
@@ -108,6 +111,7 @@ async function main() {
       email: adminEmail,
       firebaseUid: `seed:${adminEmail}`,
       role: 'admin',
+      roleChosenAt: new Date(),
       displayName: 'Адміністратор Fusion Lab',
       referralCode: randomReferralCode(),
     },
@@ -120,6 +124,7 @@ async function main() {
       email: sellerEmail,
       firebaseUid: `seed:${sellerEmail}`,
       role: 'seller',
+      roleChosenAt: new Date(),
       displayName: 'Fusion Lab',
       referralCode: randomReferralCode(),
     },

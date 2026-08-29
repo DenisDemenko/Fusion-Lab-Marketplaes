@@ -15,6 +15,11 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { toListingCard } from '../catalog/listing.mapper';
 import { formatUah } from '../common/money';
 import { uniqueSlug } from '../common/slug';
+import {
+  effectivePermissions,
+  isPermission,
+  ROLE_PERMISSIONS,
+} from '../auth/permissions';
 
 @Injectable()
 export class AdminService {
@@ -233,6 +238,79 @@ export class AdminService {
     }
 
     return this.prisma.user.update({ where: { id: userId }, data: { role } });
+  }
+
+  // Effective permissions plus the raw override rows, so the admin panel
+  // can show both "what this person can actually do right now" and "what
+  // an admin specifically changed" without recomputing the latter itself.
+  async userPermissions(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { permissionOverrides: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Користувача не знайдено');
+    }
+
+    return {
+      role: user.role,
+      rolePreset: ROLE_PERMISSIONS[user.role],
+      salesApproved: user.salesApproved,
+      effective: [...effectivePermissions(user)],
+      overrides: user.permissionOverrides.map((override) => ({
+        permission: override.permission,
+        granted: override.granted,
+      })),
+    };
+  }
+
+  // Gates `sales:access` regardless of role preset — see
+  // src/auth/permissions.ts for why a role someone picked for themselves
+  // must not, on its own, open access to other people's orders/cart.
+  async setSalesApproval(userId: string, approved: boolean) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('Користувача не знайдено');
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { salesApproved: approved },
+    });
+  }
+
+  // `granted: null` deletes the override, falling back to the role
+  // preset — the explicit way to undo a previous override rather than
+  // guessing what "reset" should mean.
+  async setPermissionOverride(
+    userId: string,
+    permission: string,
+    granted: boolean | null,
+  ) {
+    if (!isPermission(permission)) {
+      throw new BadRequestException(`Unknown permission: ${permission}`);
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('Користувача не знайдено');
+    }
+
+    if (granted === null) {
+      await this.prisma.userPermissionOverride.deleteMany({
+        where: { userId, permission },
+      });
+      return this.userPermissions(userId);
+    }
+
+    await this.prisma.userPermissionOverride.upsert({
+      where: { userId_permission: { userId, permission } },
+      update: { granted },
+      create: { userId, permission, granted },
+    });
+
+    return this.userPermissions(userId);
   }
 
   // --- orders ----------------------------------------------------------

@@ -90,6 +90,27 @@ export class AdminController {
     return this.admin.setRole(id, body.role, actor.id);
   }
 
+  @Get('users/:id/permissions')
+  userPermissions(@Param('id') id: string) {
+    return this.admin.userPermissions(id);
+  }
+
+  @Patch('users/:id/sales-approval')
+  setSalesApproval(
+    @Param('id') id: string,
+    @Body() body: { approved: boolean },
+  ) {
+    return this.admin.setSalesApproval(id, body.approved);
+  }
+
+  @Patch('users/:id/permissions')
+  setPermissionOverride(
+    @Param('id') id: string,
+    @Body() body: { permission: string; granted: boolean | null },
+  ) {
+    return this.admin.setPermissionOverride(id, body.permission, body.granted);
+  }
+
   @Get('orders')
   orders(@Query('status') status?: OrderStatus) {
     return this.admin.orders(status);

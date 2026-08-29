@@ -6,10 +6,20 @@ datasource db {
   provider = "postgresql"
 }
 
+// buyer/seller/admin are the original three (Phase 1/2). The five added
+// for the migration-plan role model (docs/migration-plan.md, Phase A)
+// each start with an empty or narrow permission preset — see
+// src/auth/permissions.ts for what each one actually grants; the enum
+// alone says nothing about capability.
 enum UserRole {
   buyer
   seller
   admin
+  writer
+  expert
+  sales_manager
+  instruction_engineer
+  student
 }
 
 enum SellerStatus {
@@ -104,20 +114,37 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // Set the first (and, per the migration plan, only) time a user chooses
+  // their own role via POST /me/role. A fresh Firebase sign-in creates the
+  // row with the schema default (buyer) before the person has picked
+  // anything — this timestamp is what tells "hasn't chosen yet" apart from
+  // "chose buyer on purpose", and is what POST /me/role checks to refuse a
+  // second, silent self-reassignment. Admin's PATCH /admin/users/:id/role
+  // is unaffected — it does not touch this field.
+  roleChosenAt DateTime?
+
+  // Gates the `sales:access` permission regardless of role preset (see
+  // src/auth/permissions.ts). Exists because a role picked freely at
+  // signup (roleChosenAt above) must not itself grant access to other
+  // sellers' orders/cart data — an admin has to turn this on first, the
+  // same trust boundary SellerProfile.status already enforces for sellers.
+  salesApproved Boolean @default(false)
+
   // Stable, unique, short — handed out at account creation so a referral
   // link exists from a user's very first session, before they've done
   // anything else worth linking to. See ReferralsService.
   referralCode String @unique
 
-  sellerProfile  SellerProfile?
-  cart           Cart?
-  orders         Order[]
-  entitlements   Entitlement[]
-  notifications  Notification[]
-  uploads        MediaAsset[]      @relation("MediaUploader")
-  threads        AssistantThread[]
-  loyaltyAccount LoyaltyAccount?
-  reviews        Review[]
+  sellerProfile       SellerProfile?
+  cart                Cart?
+  orders              Order[]
+  entitlements        Entitlement[]
+  notifications       Notification[]
+  uploads             MediaAsset[]              @relation("MediaUploader")
+  threads             AssistantThread[]
+  loyaltyAccount      LoyaltyAccount?
+  reviews             Review[]
+  permissionOverrides UserPermissionOverride[]
 
   // A referral is a fact about two users, not one — kept as two named
   // relations so "who referred me" and "who I referred" are both direct
@@ -128,6 +155,24 @@ model User {
   chatThreadsAsBuyer  ChatThread[]  @relation("ChatThreadsAsBuyer")
   chatThreadsAsSeller ChatThread[]  @relation("ChatThreadsAsSeller")
   chatMessages        ChatMessage[]
+}
+
+// Point exceptions to the static role -> permission presets in
+// src/auth/permissions.ts. `granted: false` revokes something the role
+// preset would otherwise give (e.g. suspending one writer's sales
+// access without changing their role); `granted: true` adds something
+// their role preset doesn't. One row per (user, permission) — a second
+// PATCH for the same permission replaces the first rather than stacking.
+model UserPermissionOverride {
+  id         String   @id @default(uuid())
+  userId     String
+  permission String
+  granted    Boolean
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permission])
 }
 
 model SellerProfile {

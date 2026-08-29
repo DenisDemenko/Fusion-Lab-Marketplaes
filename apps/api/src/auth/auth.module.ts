@@ -5,6 +5,7 @@ import {
 } from './firebase-admin.provider';
 import { FirebaseAuthGuard, OptionalAuthGuard } from './firebase-auth.guard';
 import { RolesGuard } from './roles.guard';
+import { PermissionsGuard } from './permissions.guard';
 import { FirebaseTokenVerifier, TOKEN_VERIFIER } from './token-verifier';
 import { UsersModule } from '../users/users.module';
 
@@ -16,6 +17,7 @@ import { UsersModule } from '../users/users.module';
     FirebaseAuthGuard,
     OptionalAuthGuard,
     RolesGuard,
+    PermissionsGuard,
   ],
   // The guards' own dependencies must be exported too, not just the guards:
   // when a guard is referenced via @UseGuards() on a controller in another
@@ -25,6 +27,7 @@ import { UsersModule } from '../users/users.module';
     FirebaseAuthGuard,
     OptionalAuthGuard,
     RolesGuard,
+    PermissionsGuard,
     TOKEN_VERIFIER,
     FIREBASE_ADMIN_APP,
     UsersModule,

@@ -12,6 +12,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { AssistantWidget } from "@/components/assistant-widget";
 import { ReferralCapture } from "@/components/referral-capture";
+import { RoleGate } from "@/components/role-gate";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -84,7 +85,9 @@ export default async function LocaleLayout({
                   <SiteHeader />
                 </Suspense>
 
-                <main className="flex-1">{children}</main>
+                <main className="flex-1">
+                  <RoleGate>{children}</RoleGate>
+                </main>
 
                 <SiteFooter />
                 <AssistantWidget />

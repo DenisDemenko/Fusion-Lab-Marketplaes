@@ -178,6 +178,43 @@
       "cancelled": "Скасовано"
     }
   },
+  "roleGate": {
+    "title": "Оберіть вашу роль",
+    "subtitle": "Це визначає, що вам буде доступно в акаунті. Обрати можна лише один раз — надалі змінити роль може тільки адміністратор.",
+    "submit": "Підтвердити",
+    "submitting": "Зберігаю…",
+    "failed": "Не вдалося зберегти роль",
+    "roles": {
+      "buyer": {
+        "label": "Покупець",
+        "description": "Купувати курси, книги та вироби"
+      },
+      "seller": {
+        "label": "Продавець",
+        "description": "Продавати власні курси, книги чи вироби"
+      },
+      "writer": {
+        "label": "Письменник",
+        "description": "Писати книги та продавати їх самостійно"
+      },
+      "expert": {
+        "label": "Експерт",
+        "description": "Створювати й публікувати курси"
+      },
+      "sales_manager": {
+        "label": "Менеджер продажів",
+        "description": "Керувати товарами, кошиком і замовленнями продавця"
+      },
+      "instruction_engineer": {
+        "label": "Інженер зі складання інструкцій",
+        "description": "Готувати інструкції для виробів лабораторії"
+      },
+      "student": {
+        "label": "Студент",
+        "description": "Складання курсових і дипломних робіт"
+      }
+    }
+  },
   "common": {
     "loading": "Завантаження…",
     "save": "Зберегти",
@@ -388,7 +425,31 @@
     "colOrders": "Замовлень",
     "colEntitlements": "Матеріалів",
     "colRole": "Роль",
-    "sellerStatusLabel": "продавець: {status}"
+    "colSalesApproved": "Доступ до продажів",
+    "sellerStatusLabel": "продавець: {status}",
+    "approved": "Схвалено",
+    "notApproved": "Не схвалено",
+    "showPermissions": "Права →",
+    "hidePermissions": "Сховати права",
+    "effectivePermissions": "Чинні права",
+    "noPermissions": "Немає жодних прав",
+    "fromRolePreset": "з пресету ролі",
+    "notInRolePreset": "не з пресету ролі",
+    "overrideGrant": "видано вручну",
+    "overrideRevoke": "відкликано вручну",
+    "grant": "Видати",
+    "revoke": "Відкликати",
+    "resetOverride": "Скинути",
+    "roleLabels": {
+      "buyer": "Покупець",
+      "seller": "Продавець",
+      "admin": "Адмін",
+      "writer": "Письменник",
+      "expert": "Експерт",
+      "sales_manager": "Менеджер продажів",
+      "instruction_engineer": "Інженер зі складання інструкцій",
+      "student": "Студент"
+    }
   },
   "cartPage": {
     "title": "Кошик",

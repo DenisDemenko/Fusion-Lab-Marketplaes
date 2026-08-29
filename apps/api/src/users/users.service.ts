@@ -2,6 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { Prisma, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { randomReferralCode } from '../common/referral-code';
+import { effectivePermissions } from '../auth/permissions';
 
 // Rows created by prisma/seed.ts have no Firebase account behind them yet,
 // so they carry this prefix instead of a real UID.
@@ -102,12 +103,45 @@ export class UsersService {
   findById(id: string) {
     return this.prisma.user.findUnique({
       where: { id },
-      include: { sellerProfile: true },
+      include: { sellerProfile: true, permissionOverrides: true },
     });
   }
 
   setRole(id: string, role: UserRole) {
     return this.prisma.user.update({ where: { id }, data: { role } });
+  }
+
+  // Self-service role pick at signup (docs/migration-plan.md, П36/П37):
+  // free choice, but exactly once — roleChosenAt is what tells "picked
+  // buyer on purpose" apart from "never picked anything, still on the
+  // schema default". After this, only an admin (PATCH
+  // /admin/users/:id/role) can change it.
+  async chooseRole(id: string, role: UserRole) {
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { id } });
+
+    if (user.roleChosenAt) {
+      throw new ConflictException(
+        'Роль уже обрано — змінити її може лише адміністратор',
+      );
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: { role, roleChosenAt: new Date() },
+    });
+  }
+
+  // Effective permissions for the current request's user, computed from
+  // a fresh read (role + salesApproved + overrides) rather than trusting
+  // anything cached on the request — see PermissionsGuard for why the
+  // JWT-attached AuthUser can't carry this itself.
+  async effectivePermissionsFor(id: string) {
+    const full = await this.prisma.user.findUniqueOrThrow({
+      where: { id },
+      include: { permissionOverrides: true },
+    });
+
+    return [...effectivePermissions(full)];
   }
 }
 
