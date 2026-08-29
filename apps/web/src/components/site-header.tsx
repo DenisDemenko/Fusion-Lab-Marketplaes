@@ -1,13 +1,16 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { NotificationsBell } from "./notifications-bell";
+import { LocaleSwitcher } from "./locale-switcher";
 
 export function SiteHeader() {
+  const t = useTranslations("nav");
   const { profile, firebaseUser, signOut, loading } = useAuth();
   const { cart } = useCart();
   const router = useRouter();
@@ -43,14 +46,18 @@ export function SiteHeader() {
           className="flex flex-1 items-center"
           onSubmit={(event) => {
             event.preventDefault();
-            router.push(query.trim() ? `/catalog?q=${encodeURIComponent(query.trim())}` : "/catalog");
+            router.push(
+              query.trim()
+                ? `/catalog?q=${encodeURIComponent(query.trim())}`
+                : "/catalog",
+            );
           }}
         >
           <input
             type="search"
             name="q"
-            aria-label="Пошук у каталозі"
-            placeholder="Пошук курсів, книг і виробів"
+            aria-label={t("searchLabel")}
+            placeholder={t("searchPlaceholder")}
             className="input"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -62,15 +69,15 @@ export function SiteHeader() {
             href="/catalog"
             className="hidden rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 md:block"
           >
-            Каталог
+            {t("catalog")}
           </Link>
 
           <Link
             href="/cart"
             className="relative rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
-            aria-label="Кошик"
+            aria-label={t("cart")}
           >
-            Кошик
+            {t("cart")}
             {cart && cart.count > 0 ? (
               <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-[var(--accent)] px-1 text-[11px] font-semibold text-white">
                 {cart.count}
@@ -79,6 +86,8 @@ export function SiteHeader() {
           </Link>
 
           {mounted && firebaseUser ? <NotificationsBell /> : null}
+
+          <LocaleSwitcher />
 
           {!mounted || loading ? (
             <span className="px-3 py-2 text-sm text-zinc-400">…</span>
@@ -91,7 +100,7 @@ export function SiteHeader() {
                 aria-expanded={menuOpen}
                 aria-haspopup="menu"
               >
-                {profile?.displayName || profile?.email?.split("@")[0] || "Акаунт"}
+                {profile?.displayName || profile?.email?.split("@")[0] || t("account")}
               </button>
 
               {menuOpen ? (
@@ -101,29 +110,29 @@ export function SiteHeader() {
                   onMouseLeave={() => setMenuOpen(false)}
                 >
                   <MenuLink href="/account" onClick={() => setMenuOpen(false)}>
-                    Мій кабінет
+                    {t("myAccount")}
                   </MenuLink>
                   <MenuLink href="/account/library" onClick={() => setMenuOpen(false)}>
-                    Мої матеріали
+                    {t("myMaterials")}
                   </MenuLink>
                   <MenuLink href="/account/orders" onClick={() => setMenuOpen(false)}>
-                    Замовлення
+                    {t("orders")}
                   </MenuLink>
                   <MenuLink href="/account/loyalty" onClick={() => setMenuOpen(false)}>
-                    Мої бали
+                    {t("loyalty")}
                   </MenuLink>
                   <MenuLink href="/account/referrals" onClick={() => setMenuOpen(false)}>
-                    Запросити друга
+                    {t("referrals")}
                   </MenuLink>
                   <MenuLink href="/chat" onClick={() => setMenuOpen(false)}>
-                    Повідомлення
+                    {t("messages")}
                   </MenuLink>
                   <MenuLink href="/seller" onClick={() => setMenuOpen(false)}>
-                    {isSeller ? "Кабінет продавця" : "Стати продавцем"}
+                    {isSeller ? t("sellerCabinet") : t("becomeSeller")}
                   </MenuLink>
                   {isAdmin ? (
                     <MenuLink href="/admin" onClick={() => setMenuOpen(false)}>
-                      Адмінпанель
+                      {t("adminPanel")}
                     </MenuLink>
                   ) : null}
                   <button
@@ -136,14 +145,14 @@ export function SiteHeader() {
                       router.push("/");
                     }}
                   >
-                    Вийти
+                    {t("signOut")}
                   </button>
                 </div>
               ) : null}
             </div>
           ) : (
             <Link href="/login" className="btn-primary">
-              Увійти
+              {t("signIn")}
             </Link>
           )}
         </nav>

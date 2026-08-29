@@ -1,0 +1,99 @@
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import type { PayoutLedger } from "@fusion-lab/shared-types";
+import type { Locale } from "@/i18n/routing";
+import { RequireAuth } from "@/components/require-auth";
+import { api } from "@/lib/api-client";
+import { formatDate, formatUah } from "@/lib/format";
+
+export default function SellerPayoutsPage() {
+  return (
+    <RequireAuth>
+      <PayoutsScreen />
+    </RequireAuth>
+  );
+}
+
+function uaLabel(label: string, locale: Locale) {
+  return locale === "en" ? label.replace("грн", "UAH") : label;
+}
+
+function PayoutsScreen() {
+  const t = useTranslations("sellerPayouts");
+  const tCommon = useTranslations("common");
+  const locale = useLocale() as Locale;
+  const [ledger, setLedger] = useState<PayoutLedger | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    api
+      .get<PayoutLedger>("/seller/payouts")
+      .then(setLedger)
+      .catch((caught: unknown) =>
+        setError(caught instanceof Error ? caught.message : tCommon("loadError")),
+      );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (error) {
+    return <p className="mx-auto max-w-3xl px-4 py-16 text-center text-red-700">{error}</p>;
+  }
+
+  if (!ledger) {
+    return (
+      <p className="mx-auto max-w-3xl px-4 py-16 text-zinc-500">{tCommon("loading")}</p>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-10">
+      <h1 className="section-title">{t("title")}</h1>
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+        <div className="card p-5">
+          <p className="text-sm text-zinc-500">{t("totalEarned")}</p>
+          <p className="mt-1 text-xl font-semibold text-zinc-900">
+            {uaLabel(ledger.earnedLabel, locale)}
+          </p>
+        </div>
+        <div className="card p-5">
+          <p className="text-sm text-zinc-500">{t("totalPaidOut")}</p>
+          <p className="mt-1 text-xl font-semibold text-zinc-900">
+            {uaLabel(ledger.paidOutLabel, locale)}
+          </p>
+        </div>
+        <div className="card border-[var(--accent)] p-5">
+          <p className="text-sm text-zinc-500">{t("outstanding")}</p>
+          <p className="mt-1 text-xl font-semibold text-[var(--accent)]">
+            {uaLabel(ledger.outstandingLabel, locale)}
+          </p>
+        </div>
+      </div>
+
+      {ledger.entries.length === 0 ? (
+        <p className="card mt-6 p-8 text-center text-zinc-500">{t("emptyHistory")}</p>
+      ) : (
+        <div className="card mt-6 divide-y divide-[var(--line)]">
+          {ledger.entries.map((entry, index) => (
+            <div key={index} className="flex items-center justify-between gap-3 p-4">
+              <div>
+                <p className="font-medium text-zinc-900">{entry.description}</p>
+                <p className="text-xs text-zinc-500">{formatDate(entry.date, locale)}</p>
+              </div>
+              <span
+                className={`font-semibold ${
+                  entry.amountMinor >= 0 ? "text-emerald-700" : "text-zinc-600"
+                }`}
+              >
+                {entry.amountMinor >= 0 ? "+" : ""}
+                {formatUah(entry.amountMinor, locale)}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,14 +1,15 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { ListingDetail } from "@fusion-lab/shared-types";
+import { Link, useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 
 export function AddToCart({ listing }: { listing: ListingDetail }) {
+  const t = useTranslations("addToCart");
   const { firebaseUser, loading } = useAuth();
   const { cart, add } = useCart();
   const router = useRouter();
@@ -32,9 +33,7 @@ export function AddToCart({ listing }: { listing: ListingDetail }) {
       if (caught instanceof ApiError && caught.status === 409) {
         setOwned(true);
       } else {
-        setError(
-          caught instanceof Error ? caught.message : "Не вдалося додати в кошик",
-        );
+        setError(caught instanceof Error ? caught.message : t("addFailed"));
       }
     } finally {
       setBusy(false);
@@ -44,9 +43,9 @@ export function AddToCart({ listing }: { listing: ListingDetail }) {
   if (owned) {
     return (
       <div className="space-y-2">
-        <p className="text-sm text-emerald-700">Ви вже маєте доступ до цього.</p>
+        <p className="text-sm text-emerald-700">{t("alreadyOwned")}</p>
         <Link href="/account/library" className="btn-primary w-full">
-          Відкрити «Мої матеріали»
+          {t("openLibrary")}
         </Link>
       </div>
     );
@@ -58,7 +57,7 @@ export function AddToCart({ listing }: { listing: ListingDetail }) {
         href={`/login?next=${encodeURIComponent(`/catalog/${listing.slug}`)}`}
         className="btn-primary w-full"
       >
-        Увійти, щоб купити
+        {t("signInToBuy")}
       </Link>
     );
   }
@@ -66,7 +65,7 @@ export function AddToCart({ listing }: { listing: ListingDetail }) {
   if (soldOut) {
     return (
       <button type="button" className="btn-ghost w-full" disabled>
-        Немає в наявності
+        {t("soldOut")}
       </button>
     );
   }
@@ -79,7 +78,7 @@ export function AddToCart({ listing }: { listing: ListingDetail }) {
           className="btn-accent w-full"
           onClick={() => router.push("/cart")}
         >
-          Уже в кошику — оформити
+          {t("alreadyInCart")}
         </button>
       ) : (
         <button
@@ -89,7 +88,7 @@ export function AddToCart({ listing }: { listing: ListingDetail }) {
           disabled={busy || loading}
           data-testid="add-to-cart"
         >
-          {busy ? "Додаю…" : "Додати в кошик"}
+          {busy ? t("adding") : t("addToCart")}
         </button>
       )}
 

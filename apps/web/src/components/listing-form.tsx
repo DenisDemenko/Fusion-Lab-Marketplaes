@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import type {
   CategorySummary,
@@ -92,6 +93,7 @@ export function ListingFormFields({
   values: ListingFormValues;
   onChange: (values: ListingFormValues) => void;
 }) {
+  const t = useTranslations("listingForm");
   const [categories, setCategories] = useState<CategorySummary[]>([]);
 
   useEffect(() => {
@@ -113,7 +115,7 @@ export function ListingFormFields({
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="label" htmlFor="kind">
-            Тип
+            {t("kindLabel")}
           </label>
           <select
             id="kind"
@@ -121,15 +123,15 @@ export function ListingFormFields({
             value={values.kind}
             onChange={(event) => set("kind", event.target.value as ListingKind)}
           >
-            <option value="course">Курс</option>
-            <option value="product">Виріб</option>
-            <option value="book">Книга</option>
+            <option value="course">{t("kindCourse")}</option>
+            <option value="product">{t("kindProduct")}</option>
+            <option value="book">{t("kindBook")}</option>
           </select>
         </div>
 
         <div>
           <label className="label" htmlFor="price">
-            Ціна, грн
+            {t("priceLabel")}
           </label>
           <input
             id="price"
@@ -144,7 +146,7 @@ export function ListingFormFields({
 
       <div>
         <label className="label" htmlFor="title">
-          Назва
+          {t("titleLabel")}
         </label>
         <input
           id="title"
@@ -158,7 +160,7 @@ export function ListingFormFields({
 
       <div>
         <label className="label" htmlFor="subtitle">
-          Підзаголовок
+          {t("subtitleLabel")}
         </label>
         <input
           id="subtitle"
@@ -170,7 +172,7 @@ export function ListingFormFields({
 
       <div>
         <label className="label" htmlFor="summary">
-          Короткий опис (для картки в каталозі)
+          {t("summaryLabel")}
         </label>
         <input
           id="summary"
@@ -182,7 +184,7 @@ export function ListingFormFields({
 
       <div>
         <label className="label" htmlFor="description">
-          Повний опис
+          {t("descriptionLabel")}
         </label>
         <textarea
           id="description"
@@ -190,15 +192,13 @@ export function ListingFormFields({
           value={values.description}
           onChange={(event) => set("description", event.target.value)}
         />
-        <p className="mt-1 text-xs text-zinc-500">
-          Для публікації потрібно щонайменше 40 символів.
-        </p>
+        <p className="mt-1 text-xs text-zinc-500">{t("descriptionHint")}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="label" htmlFor="category">
-            Категорія
+            {t("categoryLabel")}
           </label>
           <select
             id="category"
@@ -206,7 +206,7 @@ export function ListingFormFields({
             value={values.categorySlug}
             onChange={(event) => set("categorySlug", event.target.value)}
           >
-            <option value="">Без категорії</option>
+            <option value="">{t("noCategory")}</option>
             {categories.map((category) => (
               <option key={category.slug} value={category.slug}>
                 {category.name}
@@ -217,14 +217,14 @@ export function ListingFormFields({
 
         <div>
           <label className="label" htmlFor="stock">
-            Залишок (лише для виробів)
+            {t("stockLabel")}
           </label>
           <input
             id="stock"
             className="input"
             type="number"
             min={0}
-            placeholder="без обмежень"
+            placeholder={t("stockPlaceholder")}
             value={values.stock}
             onChange={(event) => set("stock", event.target.value)}
           />
@@ -233,7 +233,7 @@ export function ListingFormFields({
 
       <div>
         <label className="label" htmlFor="coverUrl">
-          Обкладинка за посиланням
+          {t("coverUrlLabel")}
         </label>
         <input
           id="coverUrl"
@@ -242,15 +242,12 @@ export function ListingFormFields({
           value={values.coverUrl}
           onChange={(event) => set("coverUrl", event.target.value)}
         />
-        <p className="mt-1 text-xs text-zinc-500">
-          Або завантажте файл обкладинки нижче — завантажений файл має
-          пріоритет.
-        </p>
+        <p className="mt-1 text-xs text-zinc-500">{t("coverUrlHint")}</p>
       </div>
 
       <div>
         <label className="label" htmlFor="highlights">
-          Ключові тези, по одній на рядок
+          {t("highlightsLabel")}
         </label>
         <textarea
           id="highlights"
@@ -263,19 +260,16 @@ export function ListingFormFields({
       {values.kind === "course" ? (
         <div>
           <label className="label" htmlFor="curriculum">
-            Програма курсу
+            {t("curriculumLabel")}
           </label>
           <textarea
             id="curriculum"
             className="input min-h-40 font-mono text-xs"
-            placeholder={"## Модуль 1. Ескізи\n1 заняття. Лінії та розміри\n2 заняття. Обмеження"}
+            placeholder={t("curriculumPlaceholder")}
             value={values.curriculumText}
             onChange={(event) => set("curriculumText", event.target.value)}
           />
-          <p className="mt-1 text-xs text-zinc-500">
-            Рядок, що починається з ##, — це модуль. Інші рядки — заняття
-            всередині нього. Для курсу програма обовʼязкова.
-          </p>
+          <p className="mt-1 text-xs text-zinc-500">{t("curriculumHint")}</p>
         </div>
       ) : null}
     </div>

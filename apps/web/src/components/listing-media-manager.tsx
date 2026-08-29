@@ -1,7 +1,9 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import type { MediaKind, MediaSummary } from "@fusion-lab/shared-types";
+import type { Locale } from "@/i18n/routing";
 import { api, mediaUrl } from "@/lib/api-client";
 import { formatBytes } from "@/lib/format";
 
@@ -21,15 +23,17 @@ export function ListingMediaManager({
   attachments: MediaSummary[];
   onChange: () => void;
 }) {
+  const t = useTranslations("mediaManager");
+
   return (
     <div className="space-y-6">
       <div>
-        <p className="label">Обкладинка</p>
+        <p className="label">{t("cover")}</p>
         <CoverUploader listingId={listingId} cover={cover} onChange={onChange} />
       </div>
 
       <div>
-        <p className="label">Файли для покупців (доступні після оплати)</p>
+        <p className="label">{t("filesForBuyers")}</p>
         <AttachmentUploader
           listingId={listingId}
           attachments={attachments}
@@ -49,6 +53,7 @@ function CoverUploader({
   cover: MediaSummary | null;
   onChange: () => void;
 }) {
+  const t = useTranslations("mediaManager");
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,9 +70,7 @@ function CoverUploader({
       await api.upload(`/seller/listings/${listingId}/media`, formData);
       onChange();
     } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Не вдалося завантажити обкладинку",
-      );
+      setError(caught instanceof Error ? caught.message : t("coverUploadFailed"));
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -82,7 +85,7 @@ function CoverUploader({
           <img src={coverImage} alt="" className="h-full w-full object-cover" />
         ) : (
           <div className="grid h-full place-items-center text-xs text-zinc-400">
-            немає
+            {t("none")}
           </div>
         )}
       </div>
@@ -104,7 +107,7 @@ function CoverUploader({
           disabled={busy}
           onClick={() => inputRef.current?.click()}
         >
-          {busy ? "Завантажую…" : cover ? "Замінити обкладинку" : "Завантажити обкладинку"}
+          {busy ? t("uploading") : cover ? t("replaceCover") : t("uploadCover")}
         </button>
         {error ? <p className="mt-1 text-xs text-red-700">{error}</p> : null}
       </div>
@@ -121,6 +124,8 @@ function AttachmentUploader({
   attachments: MediaSummary[];
   onChange: () => void;
 }) {
+  const t = useTranslations("mediaManager");
+  const locale = useLocale() as Locale;
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -137,9 +142,7 @@ function AttachmentUploader({
       await api.upload(`/seller/listings/${listingId}/media`, formData);
       onChange();
     } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Не вдалося завантажити файл",
-      );
+      setError(caught instanceof Error ? caught.message : t("fileUploadFailed"));
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -151,9 +154,7 @@ function AttachmentUploader({
       await api.delete(`/seller/media/${mediaId}`);
       onChange();
     } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Не вдалося видалити файл",
-      );
+      setError(caught instanceof Error ? caught.message : t("deleteFailed"));
     }
   }
 
@@ -171,7 +172,8 @@ function AttachmentUploader({
                   {file.filename}
                 </p>
                 <p className="text-xs text-zinc-500">
-                  {formatBytes(file.sizeBytes)} · завантажень: {file.downloadCount}
+                  {formatBytes(file.sizeBytes, locale)} ·{" "}
+                  {t("downloadsCount", { count: file.downloadCount })}
                 </p>
               </div>
               <button
@@ -179,13 +181,13 @@ function AttachmentUploader({
                 className="shrink-0 text-sm text-red-700 hover:underline"
                 onClick={() => void remove(file.id)}
               >
-                Видалити
+                {t("delete")}
               </button>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-zinc-500">Файлів ще немає.</p>
+        <p className="text-sm text-zinc-500">{t("noFilesYet")}</p>
       )}
 
       <input
@@ -203,7 +205,7 @@ function AttachmentUploader({
         disabled={busy}
         onClick={() => inputRef.current?.click()}
       >
-        {busy ? "Завантажую…" : "Додати файл"}
+        {busy ? t("uploading") : t("addFile")}
       </button>
       {error ? <p className="text-xs text-red-700">{error}</p> : null}
     </div>

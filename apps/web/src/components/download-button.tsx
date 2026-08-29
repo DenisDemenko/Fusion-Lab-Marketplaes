@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { MediaSummary } from "@fusion-lab/shared-types";
 import { API_URL } from "@/lib/api-client";
@@ -11,6 +12,7 @@ import { auth } from "@/lib/firebase";
 // synthetic <a download> — which is what makes the browser save the file
 // under its real name instead of navigating to it.
 export function DownloadButton({ file }: { file: MediaSummary }) {
+  const t = useTranslations("downloadButton");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +30,7 @@ export function DownloadButton({ file }: { file: MediaSummary }) {
         const payload = (await response.json().catch(() => null)) as {
           message?: string;
         } | null;
-        throw new Error(payload?.message ?? `Помилка ${response.status}`);
+        throw new Error(payload?.message ?? t("statusError", { status: response.status }));
       }
 
       const blob = await response.blob();
@@ -43,9 +45,7 @@ export function DownloadButton({ file }: { file: MediaSummary }) {
       // download in some browsers before it has read the blob.
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Не вдалося завантажити файл",
-      );
+      setError(caught instanceof Error ? caught.message : t("downloadFailed"));
     } finally {
       setBusy(false);
     }
@@ -60,7 +60,7 @@ export function DownloadButton({ file }: { file: MediaSummary }) {
         disabled={busy}
         data-testid="download-file"
       >
-        {busy ? "Завантажую…" : "Завантажити"}
+        {busy ? t("downloading") : t("download")}
       </button>
       {error ? <p className="mt-1 text-xs text-red-700">{error}</p> : null}
     </div>

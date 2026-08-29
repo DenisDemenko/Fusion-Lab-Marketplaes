@@ -1,5 +1,5 @@
+import { useTranslations } from "next-intl";
 import type { OrderStatus } from "@fusion-lab/shared-types";
-import { ORDER_STATUS_LABELS } from "@/lib/format";
 
 const STYLES: Record<OrderStatus, string> = {
   paid: "bg-emerald-50 text-emerald-700",
@@ -9,9 +9,11 @@ const STYLES: Record<OrderStatus, string> = {
 };
 
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {
+  const t = useTranslations("enums.orderStatus");
+
   return (
     <span className={`badge ${STYLES[status] ?? "bg-zinc-100 text-zinc-600"}`}>
-      {ORDER_STATUS_LABELS[status] ?? status}
+      {t(status)}
     </span>
   );
 }

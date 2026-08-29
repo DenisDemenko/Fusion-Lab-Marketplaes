@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { AssistantReply } from "@fusion-lab/shared-types";
+import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/api-client";
 
 interface ChatLine {
@@ -11,18 +12,21 @@ interface ChatLine {
   suggestions?: AssistantReply["suggestions"];
 }
 
-const OPENING_LINE: ChatLine = {
-  role: "assistant",
-  text:
-    "Вітаю! Опишіть, що вам потрібно — курс, книга чи виріб — і я підберу " +
-    "з каталогу. Наприклад: «курс для вчителя фізики» або «ЧПУ з нуля».",
-};
-
 // Deliberately available to anonymous visitors: "який курс мені підійде?"
 // is a question people ask before they create an account.
+//
+// Note on scope: only this widget's own chrome (button, header, opening
+// line, error fallback) is translated here. The assistant's actual
+// replies come from the API (AssistantService) in Ukrainian regardless of
+// UI locale — teaching the backend's catalogue-grounded answers and its
+// Claude prompt to speak English is a separate, considerably larger
+// change than the next-intl/[locale] routing this task scopes.
 export function AssistantWidget() {
+  const t = useTranslations("assistant");
   const [open, setOpen] = useState(false);
-  const [lines, setLines] = useState<ChatLine[]>([OPENING_LINE]);
+  const [lines, setLines] = useState<ChatLine[]>([
+    { role: "assistant", text: t("openingLine") },
+  ]);
   const [threadId, setThreadId] = useState<string | undefined>();
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -54,10 +58,7 @@ export function AssistantWidget() {
     } catch {
       setLines((current) => [
         ...current,
-        {
-          role: "assistant",
-          text: "Не вдалося звʼязатися з помічником. Спробуйте ще раз за хвилину.",
-        },
+        { role: "assistant", text: t("connectionFailed") },
       ]);
     } finally {
       setBusy(false);
@@ -72,7 +73,7 @@ export function AssistantWidget() {
         className="btn-accent fixed bottom-5 right-5 z-40 shadow-lg"
         data-testid="assistant-open"
       >
-        Помічник
+        {t("openButton")}
       </button>
     );
   }
@@ -81,14 +82,14 @@ export function AssistantWidget() {
     <div className="card fixed bottom-5 right-5 z-40 flex h-[32rem] w-[22rem] flex-col overflow-hidden shadow-2xl">
       <div className="flex items-center justify-between border-b border-[var(--line)] px-4 py-3">
         <div>
-          <p className="text-sm font-semibold">Помічник Fusion Lab</p>
-          <p className="text-xs text-zinc-500">Підбір за каталогом</p>
+          <p className="text-sm font-semibold">{t("title")}</p>
+          <p className="text-xs text-zinc-500">{t("subtitle")}</p>
         </div>
         <button
           type="button"
           className="rounded-lg px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100"
           onClick={() => setOpen(false)}
-          aria-label="Закрити помічника"
+          aria-label={t("close")}
         >
           ✕
         </button>
@@ -131,16 +132,16 @@ export function AssistantWidget() {
           </div>
         ))}
 
-        {busy ? <p className="text-sm text-zinc-400">Думаю…</p> : null}
+        {busy ? <p className="text-sm text-zinc-400">{t("thinking")}</p> : null}
       </div>
 
       <form onSubmit={send} className="flex gap-2 border-t border-[var(--line)] p-3">
         <input
           className="input"
-          placeholder="Ваше питання"
+          placeholder={t("inputPlaceholder")}
           value={message}
           onChange={(event) => setMessage(event.target.value)}
-          aria-label="Питання до помічника"
+          aria-label={t("inputLabel")}
         />
         <button type="submit" className="btn-primary" disabled={busy}>
           →

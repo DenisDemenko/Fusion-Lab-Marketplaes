@@ -1,7 +1,9 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import type { MyReview, ReviewSummary } from "@fusion-lab/shared-types";
+import type { Locale } from "@/i18n/routing";
 import { ApiError, api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 import { formatDate } from "@/lib/format";
@@ -12,6 +14,8 @@ import { formatDate } from "@/lib/format";
 // see — and review data changes often enough that revalidating the whole
 // page just to show one new review would be wasteful.
 export function ListingReviews({ listingId }: { listingId: string }) {
+  const t = useTranslations("reviews");
+  const locale = useLocale() as Locale;
   const { firebaseUser } = useAuth();
   const [summary, setSummary] = useState<ReviewSummary | null>(null);
   const [mine, setMine] = useState<MyReview | null>(null);
@@ -56,11 +60,7 @@ export function ListingReviews({ listingId }: { listingId: string }) {
       setEditing(false);
       await load();
     } catch (caught) {
-      setError(
-        caught instanceof ApiError
-          ? caught.message
-          : "Не вдалося зберегти відгук",
-      );
+      setError(caught instanceof ApiError ? caught.message : t("saveFailed"));
     } finally {
       setBusy(false);
     }
@@ -84,7 +84,7 @@ export function ListingReviews({ listingId }: { listingId: string }) {
   return (
     <section className="mt-8">
       <div className="flex items-center gap-3">
-        <h2 className="text-xl font-semibold text-zinc-900">Відгуки</h2>
+        <h2 className="text-xl font-semibold text-zinc-900">{t("title")}</h2>
         {summary.count > 0 ? (
           <span className="text-sm text-zinc-500">
             {"★".repeat(Math.round(summary.average))}
@@ -105,14 +105,14 @@ export function ListingReviews({ listingId }: { listingId: string }) {
                 className="text-zinc-600 hover:underline"
                 onClick={() => setEditing(true)}
               >
-                Редагувати
+                {t("edit")}
               </button>
               <button
                 type="button"
                 className="text-red-700 hover:underline"
                 onClick={() => void remove()}
               >
-                Видалити
+                {t("delete")}
               </button>
             </div>
           </div>
@@ -125,7 +125,7 @@ export function ListingReviews({ listingId }: { listingId: string }) {
                   type="button"
                   onClick={() => setRating(star)}
                   className={`text-2xl ${star <= rating ? "text-amber-500" : "text-zinc-300"}`}
-                  aria-label={`${star} з 5`}
+                  aria-label={t("starRating", { star })}
                 >
                   ★
                 </button>
@@ -133,14 +133,14 @@ export function ListingReviews({ listingId }: { listingId: string }) {
             </div>
             <textarea
               className="input min-h-20"
-              placeholder="Поділіться враженням (необовʼязково)"
+              placeholder={t("bodyPlaceholder")}
               value={body}
               onChange={(event) => setBody(event.target.value)}
             />
             {error ? <p className="text-sm text-red-700">{error}</p> : null}
             <div className="flex gap-2">
               <button type="submit" className="btn-primary" disabled={busy}>
-                {mine ? "Зберегти" : "Залишити відгук"}
+                {mine ? t("save") : t("leaveReview")}
               </button>
               {mine ? (
                 <button
@@ -148,7 +148,7 @@ export function ListingReviews({ listingId }: { listingId: string }) {
                   className="btn-ghost"
                   onClick={() => setEditing(false)}
                 >
-                  Скасувати
+                  {t("cancelEdit")}
                 </button>
               ) : null}
             </div>
@@ -157,14 +157,16 @@ export function ListingReviews({ listingId }: { listingId: string }) {
       ) : null}
 
       {summary.reviews.length === 0 ? (
-        <p className="mt-3 text-sm text-zinc-500">Відгуків ще немає.</p>
+        <p className="mt-3 text-sm text-zinc-500">{t("noReviewsYet")}</p>
       ) : (
         <div className="mt-3 space-y-3">
           {summary.reviews.map((review) => (
             <div key={review.id} className="card p-4">
               <div className="flex items-center justify-between">
                 <p className="font-medium text-zinc-900">{review.authorName}</p>
-                <p className="text-xs text-zinc-400">{formatDate(review.createdAt)}</p>
+                <p className="text-xs text-zinc-400">
+                  {formatDate(review.createdAt, locale)}
+                </p>
               </div>
               <p className="text-sm text-amber-600">{"★".repeat(review.rating)}</p>
               {review.body ? (

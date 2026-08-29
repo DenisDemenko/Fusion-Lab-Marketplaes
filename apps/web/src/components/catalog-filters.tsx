@@ -1,28 +1,31 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { CategorySummary } from "@fusion-lab/shared-types";
-
-const KINDS = [
-  { value: "", label: "Усе" },
-  { value: "course", label: "Курси" },
-  { value: "product", label: "Вироби" },
-  { value: "book", label: "Книги" },
-];
-
-const SORTS = [
-  { value: "", label: "За релевантністю / новизною" },
-  { value: "price_asc", label: "Спочатку дешевші" },
-  { value: "price_desc", label: "Спочатку дорожчі" },
-];
+import { usePathname, useRouter } from "@/i18n/navigation";
 
 // Filters write to the URL rather than to local state: the page they
 // filter is a Server Component, so the URL is the only thing that can make
 // it re-render — and it gives shareable links for free.
 export function CatalogFilters({ categories }: { categories: CategorySummary[] }) {
+  const t = useTranslations("catalogFilters");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const KINDS = [
+    { value: "", label: t("kindAll") },
+    { value: "course", label: t("kindCourse") },
+    { value: "product", label: t("kindProduct") },
+    { value: "book", label: t("kindBook") },
+  ];
+
+  const SORTS = [
+    { value: "", label: t("sortRelevance") },
+    { value: "price_asc", label: t("sortPriceAsc") },
+    { value: "price_desc", label: t("sortPriceDesc") },
+  ];
 
   function apply(key: string, value: string) {
     const next = new URLSearchParams(searchParams.toString());
@@ -46,7 +49,7 @@ export function CatalogFilters({ categories }: { categories: CategorySummary[] }
   return (
     <aside className="card h-fit space-y-5 p-5">
       <div>
-        <p className="label">Тип</p>
+        <p className="label">{t("kindLabel")}</p>
         <div className="flex flex-wrap gap-2">
           {KINDS.map((kind) => (
             <button
@@ -67,7 +70,7 @@ export function CatalogFilters({ categories }: { categories: CategorySummary[] }
 
       <div>
         <label className="label" htmlFor="category">
-          Категорія
+          {t("categoryLabel")}
         </label>
         <select
           id="category"
@@ -75,7 +78,7 @@ export function CatalogFilters({ categories }: { categories: CategorySummary[] }
           value={activeCategory}
           onChange={(event) => apply("category", event.target.value)}
         >
-          <option value="">Усі категорії</option>
+          <option value="">{t("allCategories")}</option>
           {categories.map((category) => (
             <option key={category.slug} value={category.slug}>
               {category.name}
@@ -89,7 +92,7 @@ export function CatalogFilters({ categories }: { categories: CategorySummary[] }
 
       <div>
         <label className="label" htmlFor="sort">
-          Сортування
+          {t("sortLabel")}
         </label>
         <select
           id="sort"
@@ -111,7 +114,7 @@ export function CatalogFilters({ categories }: { categories: CategorySummary[] }
           className="btn-ghost w-full"
           onClick={() => router.push(pathname)}
         >
-          Скинути фільтри
+          {t("resetFilters")}
         </button>
       ) : null}
     </aside>

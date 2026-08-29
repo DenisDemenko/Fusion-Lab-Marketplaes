@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { api } from "@/lib/api-client";
 
@@ -8,6 +9,7 @@ export function SellerApplyForm({
 }: {
   onApplied: () => Promise<void> | void;
 }) {
+  const t = useTranslations("sellerApply");
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [busy, setBusy] = useState(false);
@@ -25,9 +27,7 @@ export function SellerApplyForm({
       });
       await onApplied();
     } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Не вдалося подати заявку",
-      );
+      setError(caught instanceof Error ? caught.message : t("applyFailed"));
       setBusy(false);
     }
   }
@@ -36,7 +36,7 @@ export function SellerApplyForm({
     <form onSubmit={submit} className="card mt-6 space-y-4 p-6">
       <div>
         <label className="label" htmlFor="displayName">
-          Назва майстерні / імʼя
+          {t("displayNameLabel")}
         </label>
         <input
           id="displayName"
@@ -51,7 +51,7 @@ export function SellerApplyForm({
 
       <div>
         <label className="label" htmlFor="bio">
-          Коротко про себе (необовʼязково)
+          {t("bioLabel")}
         </label>
         <textarea
           id="bio"
@@ -69,7 +69,7 @@ export function SellerApplyForm({
       ) : null}
 
       <button type="submit" className="btn-primary w-full" disabled={busy}>
-        {busy ? "Надсилаю…" : "Подати заявку"}
+        {busy ? t("submitting") : t("submit")}
       </button>
     </form>
   );

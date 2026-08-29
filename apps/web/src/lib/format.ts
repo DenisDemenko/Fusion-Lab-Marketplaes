@@ -1,28 +1,45 @@
-// Prices arrive from the API already formatted (`priceLabel`), so this is
-// only for the places that compute a total client-side — a cart line, a
-// payout estimate.
-export function formatUah(minor: number): string {
-  return `${(Math.round(minor) / 100).toFixed(2)} грн`;
+// Prices arrive from the API already formatted (`priceLabel`) in Ukrainian
+// — that string is server-computed once and shared by every locale, since
+// re-deriving it per locale would mean two systems that can disagree on
+// rounding. These helpers are only for the places that compute a fresh
+// value client-side (a cart line, a payout estimate) and therefore do need
+// to follow the page's own locale.
+import type { Locale } from "@/i18n/routing";
+
+function intlLocale(locale: Locale): string {
+  return locale === "en" ? "en-US" : "uk-UA";
 }
 
-export function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} Б`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} КБ`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`;
+export function formatUah(minor: number, locale: Locale = "uk"): string {
+  const major = (Math.round(minor) / 100).toFixed(2);
+  return locale === "en" ? `${major} UAH` : `${major} грн`;
 }
 
-export function formatDate(value: string | null | undefined): string {
+export function formatBytes(bytes: number, locale: Locale = "uk"): string {
+  const units = locale === "en" ? ["B", "KB", "MB"] : ["Б", "КБ", "МБ"];
+  if (bytes < 1024) return `${bytes} ${units[0]}`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} ${units[1]}`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} ${units[2]}`;
+}
+
+export function formatDate(
+  value: string | null | undefined,
+  locale: Locale = "uk",
+): string {
   if (!value) return "—";
-  return new Date(value).toLocaleDateString("uk-UA", {
+  return new Date(value).toLocaleDateString(intlLocale(locale), {
     day: "2-digit",
     month: "long",
     year: "numeric",
   });
 }
 
-export function formatDateTime(value: string | null | undefined): string {
+export function formatDateTime(
+  value: string | null | undefined,
+  locale: Locale = "uk",
+): string {
   if (!value) return "—";
-  return new Date(value).toLocaleString("uk-UA", {
+  return new Date(value).toLocaleString(intlLocale(locale), {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -30,24 +47,3 @@ export function formatDateTime(value: string | null | undefined): string {
     minute: "2-digit",
   });
 }
-
-export const KIND_LABELS: Record<string, string> = {
-  course: "Курс",
-  product: "Виріб",
-  book: "Книга",
-};
-
-export const STATUS_LABELS: Record<string, string> = {
-  draft: "Чернетка",
-  pending_review: "На модерації",
-  published: "Опубліковано",
-  rejected: "Відхилено",
-  archived: "В архіві",
-};
-
-export const ORDER_STATUS_LABELS: Record<string, string> = {
-  pending: "Очікує оплати",
-  paid: "Оплачено",
-  failed: "Оплата не пройшла",
-  cancelled: "Скасовано",
-};
