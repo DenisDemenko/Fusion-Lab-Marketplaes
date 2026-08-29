@@ -18,5 +18,10 @@ COPY --from=build /repo/apps/api/dist apps/api/dist
 COPY --from=build /repo/apps/api/package.json apps/api/package.json
 COPY --from=build /repo/apps/api/prisma apps/api/prisma
 COPY --from=build /repo/apps/api/prisma.config.ts apps/api/prisma.config.ts
+# prisma/seed.ts runs standalone via ts-node (`npm run db:seed`), never
+# through the compiled dist/ — it needs the actual TS source and the
+# project's tsconfig, neither of which the runtime image otherwise ships.
+COPY --from=build /repo/apps/api/tsconfig.json apps/api/tsconfig.json
+COPY --from=build /repo/apps/api/src apps/api/src
 EXPOSE 3001
 CMD ["node", "apps/api/dist/main.js"]
