@@ -46,19 +46,23 @@ Firebase service account, GitHub, Vercel, Railway, DNS для
 
 ## Стан
 
-**Фаза 0 (фундамент) в проді.** Живі адреси:
+**Фази 0–3 у проді, каталог наповнений (2026-08-29).** Живі адреси:
 
 | Що | Адреса |
 |---|---|
-| Маркетплейс | https://app.fusionlab.in.ua |
+| Маркетплейс (UA, без префікса) | https://app.fusionlab.in.ua |
+| Маркетплейс (EN) | https://app.fusionlab.in.ua/en |
+| Кастомний домен | https://www.fusionlab.in.ua *(корінь `fusionlab.in.ua` — у процесі DNS-поширення)* |
 | API | https://api.fusionlab.in.ua |
 | Стан системи | https://api.fusionlab.in.ua/health |
 
-**Фаза 1 (MVP marketplace) готова в коді, ще не задеплоєна.** Каталог,
-пошук, кошик, checkout, LiqPay, кабінети покупця/продавця, admin-панель,
-сповіщення, AI-асистент, міст до Book_Creality — усе реалізоване й
-покрите 48 e2e + 10 unit тестами (`npm test` та `npm run test:e2e` в
-`apps/api`). Живі адреси вище поки що показують Фазу 0; після деплою
-Фази 1 запустіть `npm run db:seed` в `apps/api`, щоб наповнити каталог.
-Повний перелік зробленого і `test`-based підтвердження якості —
-`ROADMAP.md` → «Фаза 1».
+Повний маркетплейс — каталог, пошук, кошик, checkout, LiqPay, кабінети
+покупця/продавця, admin-панель, сповіщення, AI-асистент, міст до
+Book_Creality, комісії/виплати, промокоди, loyalty, реферали, відгуки,
+чат, i18n UA/EN — покрито 82 тестами (72 e2e + 10 unit,
+`npm test` / `npm run test:e2e` в `apps/api`) і задеплоєно. Каталог
+наповнений (`npm run db:seed`) — 13 лістингів.
+Повний перелік зробленого — `ROADMAP.md`, архітектурні рішення —
+`docs/adr/`, шлях подальшого масштабування (AWS/пошук/event-driven/
+навантаження, задокументовано, не виконано) —
+`docs/adr/0006-showcase-scaling-path.md`.

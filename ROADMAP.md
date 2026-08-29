@@ -220,17 +220,29 @@ npm workspaces + Turborepo monorepo. Деталі й обґрунтування 
 GitHub-репозиторій (`DenisDemenko/Fusion-Lab-Marketplaes`, гілка
 `master`), Vercel, Railway + Postgres, перша міграція в production.
 
-Лишилось:
+Виконано (2026-08-29) — повний деплой Фази 1–3 у прод:
 
-1. **Vercel → Settings → Environment Variables** — замінити
-   `NEXT_PUBLIC_API_URL` (зараз заглушка) на
-   `https://fusion-labweb-production.up.railway.app`, потім
-   Deployments → Redeploy (Vercel не перебудовує сам після зміни змінної).
-2. **DNS для `fusionlab.in.ua`** — A/CNAME на Vercel; сабдомен
-   `api.fusionlab.in.ua` → CNAME на Railway-сервіс. Після підключення
-   домену оновити `NEXT_PUBLIC_API_URL` ще раз, уже на `api.fusionlab.in.ua`.
-3. **Видалити покинутий Railway-проєкт `comfortable-caring`** — там
-   лишились невдалі перші спроби, які їдять пробний баланс.
+- [x] Запушено 9+1 локальних комітів (Фаза 1, 2, i18n, Фаза 3, фікс
+      Dockerfile) на `origin/master` — до цього Vercel/Railway деплоїли
+      найперший скафолд-комміт, живий сайт нічого не бачив
+- [x] `NEXT_PUBLIC_API_URL` на Vercel — вже стояв правильно
+      (`https://api.fusionlab.in.ua`), лишалось тільки дочекатись
+      автодеплою після push
+- [x] Production-база відставала на 2 міграції (Фаза 1 + Фаза 2) —
+      застосовано вручну через Railway Console (`cd apps/api && npx
+      prisma migrate deploy`)
+- [x] `Dockerfile` не копіював `apps/api/tsconfig.json`/`apps/api/src`
+      у runtime-образ, тому `npm run db:seed` падав (`ts-node` не міг
+      знайти конфіг і `../src/common/referral-code`) — виправлено,
+      задеплоєно, `db:seed` успішно наповнив каталог (13 лістингів)
+- [x] DNS для `fusionlab.in.ua` — кореневий `A`-запис на Vercel
+      (`216.198.79.1`, замість старого Firebase `199.36.158.100`) +
+      новий `CNAME` для `www` на Vercel. `www.fusionlab.in.ua`
+      підтверджено живий і показує маркетплейс; корінь — у процесі
+      DNS-поширення (стара адреса мала TTL 4 год)
+- [x] Видалено покинутий Railway-проєкт `comfortable-caring`
+
+Хендофф закрито повністю.
 
 ## Супутнє
 
