@@ -30,7 +30,7 @@ export type ListingStatus =
   | "rejected"
   | "archived";
 export type OrderStatus = "pending" | "paid" | "failed" | "cancelled";
-export type MediaKind = "cover" | "attachment" | "video";
+export type MediaKind = "cover" | "attachment" | "video" | "gallery";
 export type MediaAccess = "public" | "entitled";
 
 export interface SellerSummary {
@@ -83,6 +83,12 @@ export interface CourseLesson {
   topics?: string[];
   practice?: string;
   project?: string;
+  // Present in the seed data (25 lessons) since Phase 1, but never read by
+  // any code until docs/migration-plan.md Phase D wired it up. YouTube
+  // unlisted, gated by entitlement — that hides the link from non-buyers,
+  // it does not make the video itself access-controlled (see the plan's
+  // own honest note on this under Phase D).
+  videoUrl?: string;
 }
 
 export interface CourseModule {
@@ -122,6 +128,10 @@ export interface SellerListingDetail extends ListingCard {
   externalSource: string | null;
   rejectionReason: string | null;
   cover: MediaSummary | null;
+  // Additional public listing images beyond the cover (docs/migration-
+  // plan.md Phase D4) — split out from `attachments` so the cabinet can
+  // offer a distinct gallery section.
+  gallery: MediaSummary[];
   attachments: MediaSummary[];
 }
 
@@ -203,6 +213,27 @@ export interface LibraryEntry {
   orderNumber: string | null;
   listing: ListingCard;
   files: MediaSummary[];
+}
+
+export interface LessonProgressEntry {
+  moduleIndex: number;
+  lessonIndex: number;
+}
+
+// GET /me/library/:slug (docs/migration-plan.md Phase D) — unlike
+// LibraryEntry above, this carries the full curriculum with videoUrl
+// intact, because reaching this endpoint already proves the entitlement
+// FirebaseAuthGuard + EntitlementsService.requireEntitlement checked.
+export interface LibraryItemDetail {
+  id: string;
+  grantedAt: string;
+  orderNumber: string | null;
+  listing: ListingCard & {
+    description: string | null;
+    curriculum: Curriculum | null;
+  };
+  files: MediaSummary[];
+  progress: LessonProgressEntry[];
 }
 
 export interface Notification {

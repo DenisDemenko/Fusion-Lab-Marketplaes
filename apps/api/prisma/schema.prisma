@@ -49,6 +49,11 @@ enum MediaKind {
   cover
   attachment
   video
+  // Additional public listing imagery beyond the one cover — a gallery
+  // strip on the catalog detail page (docs/migration-plan.md Phase D4).
+  // Always `access: public`: these are marketing images, not paid
+  // content, so they carry no entitlement gate.
+  gallery
 }
 
 // public = catalog imagery, served to anyone. entitled = the paid payload
@@ -145,6 +150,7 @@ model User {
   loyaltyAccount      LoyaltyAccount?
   reviews             Review[]
   permissionOverrides UserPermissionOverride[]
+  lessonProgress      LessonProgress[]
 
   // A referral is a fact about two users, not one — kept as two named
   // relations so "who referred me" and "who I referred" are both direct
@@ -242,18 +248,42 @@ model Listing {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  seller       SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  category     Category?     @relation(fields: [categoryId], references: [id])
-  media        MediaAsset[]
-  cartItems    CartItem[]
-  orderItems   OrderItem[]
-  entitlements Entitlement[]
-  reviews      Review[]
-  chatThreads  ChatThread[]
+  seller          SellerProfile    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category        Category?        @relation(fields: [categoryId], references: [id])
+  media           MediaAsset[]
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+  entitlements    Entitlement[]
+  reviews         Review[]
+  chatThreads     ChatThread[]
+  lessonProgress  LessonProgress[]
 
   @@unique([externalSource, externalId])
   @@index([status, kind])
   @@index([sellerId])
+}
+
+// One row per lesson a buyer has marked watched. Lessons live inside
+// Listing.curriculum's JSON (see the comment on that field) with no
+// database id of their own, so a lesson is addressed by its position —
+// (moduleIndex, lessonIndex) — rather than a foreign key. Positions are
+// stable in practice: a seller reordering a published course's curriculum
+// is exactly as disruptive to progress tracking as it is to a buyer
+// halfway through, which is an acceptable, narrow trade-off for not
+// needing three extra join tables for content that is read whole and
+// never queried lesson-by-lesson anywhere else in the schema.
+model LessonProgress {
+  id          String   @id @default(uuid())
+  userId      String
+  listingId   String
+  moduleIndex Int
+  lessonIndex Int
+  completedAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId, moduleIndex, lessonIndex])
 }
 
 model MediaAsset {

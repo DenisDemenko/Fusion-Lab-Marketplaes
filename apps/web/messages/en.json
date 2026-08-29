@@ -94,11 +94,14 @@
     "coverUrlHint": "Or upload a cover file below — an uploaded file takes priority.",
     "highlightsLabel": "Key points, one per line",
     "curriculumLabel": "Course syllabus",
-    "curriculumPlaceholder": "## Module 1. Sketches\nLesson 1. Lines and dimensions\nLesson 2. Constraints",
-    "curriculumHint": "A line starting with ## is a module. Other lines are lessons inside it. A syllabus is required for a course."
+    "curriculumPlaceholder": "## Module 1. Sketches\nLesson 1. Lines and dimensions\nvideo: https://youtu.be/xxxxxxxxxxx\nLesson 2. Constraints",
+    "curriculumHint": "A line starting with ## is a module. Other lines are lessons inside it. A \"video: link\" line right under a lesson attaches a video to it (visible to buyers only). A syllabus is required for a course."
   },
   "mediaManager": {
     "cover": "Cover",
+    "gallery": "Additional images (public)",
+    "noImagesYet": "No images yet.",
+    "addImage": "Add image",
     "filesForBuyers": "Files for buyers (available after payment)",
     "coverUploadFailed": "Could not upload the cover",
     "none": "none",
@@ -235,7 +238,16 @@
     "subtitle": "Access never expires — download as many times as you need.",
     "grantedAt": "Unlocked {date}",
     "orderSuffix": "order {number}",
-    "noFilesYet": "The seller hasn't added any files for this yet."
+    "noFilesYet": "The seller hasn't added any files for this yet.",
+    "openCourse": "Open course curriculum →"
+  },
+  "accountLibraryItem": {
+    "backToLibrary": "← My materials",
+    "loadFailed": "Couldn't load this course",
+    "progressLabel": "{done} of {total} lessons completed",
+    "watched": "Watched",
+    "videoUnavailable": "This video link isn't valid",
+    "noCurriculum": "This listing has no curriculum."
   },
   "accountLoyalty": {
     "loadFailed": "Couldn't load this",

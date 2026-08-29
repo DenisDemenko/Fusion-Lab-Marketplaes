@@ -73,9 +73,9 @@ export async function resetDatabase(prisma: PrismaService) {
     TRUNCATE TABLE
       "AssistantMessage", "AssistantThread", "Notification", "Entitlement",
       "Payment", "OrderItem", "Order", "CartItem", "Cart", "MediaAsset",
-      "Listing", "Category", "SellerProfile", "Payout", "PromoCode",
-      "LoyaltyTransaction", "LoyaltyAccount", "Referral", "Review",
-      "ChatMessage", "ChatThread", "UserPermissionOverride", "User"
+      "LessonProgress", "Listing", "Category", "SellerProfile", "Payout",
+      "PromoCode", "LoyaltyTransaction", "LoyaltyAccount", "Referral",
+      "Review", "ChatMessage", "ChatThread", "UserPermissionOverride", "User"
     RESTART IDENTITY CASCADE
   `);
 }

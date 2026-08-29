@@ -84,6 +84,15 @@ function LibraryScreen() {
                     : ""}
                 </p>
               </div>
+
+              {entry.listing.kind === "course" ? (
+                <Link
+                  href={`/account/library/${entry.listing.slug}`}
+                  className="shrink-0 text-sm font-medium text-[var(--accent)] hover:underline"
+                >
+                  {t("openCourse")}
+                </Link>
+              ) : null}
             </div>
 
             {entry.files.length === 0 ? (

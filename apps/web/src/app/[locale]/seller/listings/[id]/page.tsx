@@ -182,6 +182,7 @@ function EditListingScreen() {
         <ListingMediaManager
           listingId={listing.id}
           cover={listing.cover}
+          gallery={listing.gallery}
           attachments={listing.attachments}
           onChange={() => void load()}
         />

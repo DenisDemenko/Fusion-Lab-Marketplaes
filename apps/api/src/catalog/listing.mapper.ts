@@ -51,7 +51,13 @@ export function toListingDetail(listing: ListingWithRelations) {
   return {
     ...toListingCard(listing),
     description: listing.description,
-    curriculum: listing.curriculum,
+    // videoUrl stripped: this is the anonymous/pre-purchase view, same
+    // rule as lockedMedia below — a buyer sees that a lesson HAS a video
+    // (curriculum.modules[].lessons[].title is still there), but not the
+    // link itself. See EntitlementsService.item for the entitled view
+    // that keeps it, and docs/migration-plan.md Phase D2 on why "stripped
+    // from the API response" and "hidden in the UI" are different claims.
+    curriculum: stripVideoUrls(listing.curriculum),
     externalSource: listing.externalSource,
     // Public assets are listed with their download URL; paid assets are
     // listed WITHOUT one — the buyer must be able to see what they get
@@ -90,8 +96,14 @@ export function toOwnerListingDetail(listing: ListingWithRelations) {
     cover: media.find((asset) => asset.kind === 'cover')
       ? toMediaSummary(media.find((asset) => asset.kind === 'cover')!)
       : null,
+    // Split out from attachments (Phase D4) so the cabinet can offer a
+    // distinct "gallery" section instead of mixing marketing images in
+    // with paid course files.
+    gallery: media
+      .filter((asset) => asset.kind === 'gallery')
+      .map(toMediaSummary),
     attachments: media
-      .filter((asset) => asset.kind !== 'cover')
+      .filter((asset) => asset.kind !== 'cover' && asset.kind !== 'gallery')
       .map(toMediaSummary),
   };
 }
@@ -116,4 +128,55 @@ function coverUrlFor(listing: ListingWithRelations): string | null {
   const uploaded = listing.media?.find((asset) => asset.kind === 'cover');
   if (uploaded) return `/media/${uploaded.id}/download`;
   return listing.coverUrl ?? null;
+}
+
+interface CurriculumLessonJson {
+  title?: unknown;
+  videoUrl?: unknown;
+  [key: string]: unknown;
+}
+
+interface CurriculumModuleJson {
+  lessons?: CurriculumLessonJson[];
+  [key: string]: unknown;
+}
+
+interface CurriculumJson {
+  modules?: CurriculumModuleJson[];
+  [key: string]: unknown;
+}
+
+function isCurriculumJson(value: unknown): value is CurriculumJson {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    Array.isArray((value as CurriculumJson).modules)
+  );
+}
+
+// Deep-clones curriculum with every lesson's videoUrl removed. Structural
+// typing only (this runs on a Prisma Json? column, not the shared
+// Curriculum type) — anything that isn't shaped like {modules:[{lessons:
+// [...]}]} passes through unchanged rather than throwing, since a listing
+// with no curriculum, or a malformed one from a bridge import, must not
+// break the whole catalog response over a field this function does not
+// need to touch.
+function stripVideoUrls(curriculum: unknown): unknown {
+  if (!isCurriculumJson(curriculum)) return curriculum;
+
+  return {
+    ...curriculum,
+    modules: (curriculum.modules ?? []).map((module) => {
+      if (!Array.isArray(module.lessons)) return module;
+
+      return {
+        ...module,
+        lessons: module.lessons.map((lesson): CurriculumLessonJson => {
+          const { videoUrl, ...rest } = lesson;
+          void videoUrl;
+          return rest;
+        }),
+      };
+    }),
+  };
 }

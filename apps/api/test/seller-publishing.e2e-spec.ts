@@ -353,6 +353,69 @@ describe('Seller publishing (e2e)', () => {
     expect(covers[0].id).toBe(second.body.id);
     expect(detail.body.coverUrl).toBe(`/media/${second.body.id}/download`);
   });
+
+  // docs/migration-plan.md Phase D4: gallery images are always public,
+  // regardless of what the caller passes for `access` — same rule as the
+  // cover, and for the same reason (a hole in the storefront otherwise).
+  it('uploads gallery images as public and separates them from paid attachments', async () => {
+    await createApprovedSeller(ctx, { email: SELLER, adminEmail: ADMIN });
+    const listingId = await publishableListing(ctx, SELLER);
+
+    const gallery = await ctx
+      .http()
+      .post(`/seller/listings/${listingId}/media`)
+      .set('Authorization', bearer(SELLER))
+      .field('kind', 'gallery')
+      .field('access', 'entitled') // ignored — gallery is always public
+      .attach('file', pngPixel, {
+        filename: 'workshop.png',
+        contentType: 'image/png',
+      })
+      .expect(201);
+
+    expect(gallery.body.access).toBe('public');
+
+    const ownerView = await ctx
+      .http()
+      .get(`/seller/listings/${listingId}`)
+      .set('Authorization', bearer(SELLER))
+      .expect(200);
+    expect(
+      ownerView.body.gallery.map((asset: { id: string }) => asset.id),
+    ).toEqual([gallery.body.id]);
+    expect(
+      ownerView.body.attachments.some(
+        (asset: { id: string }) => asset.id === gallery.body.id,
+      ),
+    ).toBe(false);
+
+    // Public detail: the gallery image rides along in `media` (it's
+    // access:public, same as the cover) so an anonymous visitor sees it
+    // without being entitled.
+    await ctx
+      .http()
+      .post(`/seller/listings/${listingId}/submit`)
+      .set('Authorization', bearer(SELLER))
+      .expect(201);
+    await ctx
+      .http()
+      .post(`/admin/listings/${listingId}/approve`)
+      .set('Authorization', bearer(ADMIN))
+      .expect(201);
+
+    const listing = await ctx.prisma.listing.findUniqueOrThrow({
+      where: { id: listingId },
+    });
+    const publicDetail = await ctx
+      .http()
+      .get(`/catalog/${listing.slug}`)
+      .expect(200);
+    expect(
+      publicDetail.body.media.some(
+        (asset: { id: string }) => asset.id === gallery.body.id,
+      ),
+    ).toBe(true);
+  });
 });
 
 // A listing that satisfies every publish requirement: description, price

@@ -363,10 +363,14 @@ export class SellersService {
       );
     }
 
-    // A cover is the shop-window image: it is public by definition, and
-    // letting a seller mark one "entitled" would produce a catalog card
-    // with a hole in it. Everything else defaults to paid-only.
-    const access = dto.kind === 'cover' ? 'public' : (dto.access ?? 'entitled');
+    // Cover and gallery images are the shop window: public by definition,
+    // and letting a seller mark either "entitled" would produce a catalog
+    // card or gallery strip with a hole in it. Everything else defaults to
+    // paid-only.
+    const access =
+      dto.kind === 'cover' || dto.kind === 'gallery'
+        ? 'public'
+        : (dto.access ?? 'entitled');
 
     const { storageKey, sizeBytes } = await this.storage.save(
       `listings/${listing.id}`,

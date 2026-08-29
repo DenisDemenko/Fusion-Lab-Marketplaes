@@ -7,19 +7,22 @@ import type { Locale } from "@/i18n/routing";
 import { api, mediaUrl } from "@/lib/api-client";
 import { formatBytes } from "@/lib/format";
 
-// Handles both roles a file can play on a listing: the one public cover
-// image, and any number of paid attachments. Upload and delete both
-// happen immediately (no "save" step) because a listing's files are only
-// meaningful once they exist in storage — there is no draft state for a
-// binary blob worth having.
+// Handles the roles a file can play on a listing: the one public cover
+// image, any number of additional public gallery images (docs/migration-
+// plan.md Phase D4), and any number of paid attachments. Upload and delete
+// all happen immediately (no "save" step) because a listing's files are
+// only meaningful once they exist in storage — there is no draft state
+// for a binary blob worth having.
 export function ListingMediaManager({
   listingId,
   cover,
+  gallery,
   attachments,
   onChange,
 }: {
   listingId: string;
   cover: MediaSummary | null;
+  gallery: MediaSummary[];
   attachments: MediaSummary[];
   onChange: () => void;
 }) {
@@ -30,6 +33,11 @@ export function ListingMediaManager({
       <div>
         <p className="label">{t("cover")}</p>
         <CoverUploader listingId={listingId} cover={cover} onChange={onChange} />
+      </div>
+
+      <div>
+        <p className="label">{t("gallery")}</p>
+        <GalleryUploader listingId={listingId} gallery={gallery} onChange={onChange} />
       </div>
 
       <div>
@@ -111,6 +119,96 @@ function CoverUploader({
         </button>
         {error ? <p className="mt-1 text-xs text-red-700">{error}</p> : null}
       </div>
+    </div>
+  );
+}
+
+function GalleryUploader({
+  listingId,
+  gallery,
+  onChange,
+}: {
+  listingId: string;
+  gallery: MediaSummary[];
+  onChange: () => void;
+}) {
+  const t = useTranslations("mediaManager");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function upload(file: File) {
+    setBusy(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("kind", "gallery" satisfies MediaKind);
+      formData.append("file", file);
+      await api.upload(`/seller/listings/${listingId}/media`, formData);
+      onChange();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : t("fileUploadFailed"));
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  async function remove(mediaId: string) {
+    try {
+      await api.delete(`/seller/media/${mediaId}`);
+      onChange();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : t("deleteFailed"));
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      {gallery.length > 0 ? (
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+          {gallery.map((image) => (
+            <div key={image.id} className="group relative aspect-square overflow-hidden rounded-xl border border-[var(--line)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={mediaUrl(image.downloadUrl) ?? ""}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => void remove(image.id)}
+                className="absolute inset-0 flex items-center justify-center bg-black/60 text-xs font-medium text-white opacity-0 transition group-hover:opacity-100"
+              >
+                {t("delete")}
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-[var(--muted)]">{t("noImagesYet")}</p>
+      )}
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/avif"
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void upload(file);
+        }}
+      />
+      <button
+        type="button"
+        className="btn-ghost"
+        disabled={busy}
+        onClick={() => inputRef.current?.click()}
+      >
+        {busy ? t("uploading") : t("addImage")}
+      </button>
+      {error ? <p className="text-xs text-red-700">{error}</p> : null}
     </div>
   );
 }

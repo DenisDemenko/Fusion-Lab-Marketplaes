@@ -65,6 +65,30 @@ export default async function ListingPage({ params }: PageProps<"/[locale]/catal
             </div>
           </div>
 
+          {/* Additional public images (docs/migration-plan.md Phase D4) —
+              the cover itself also carries kind "cover" in this same
+              array, so it's excluded here to avoid showing it twice. */}
+          {listing.media.filter((asset) => asset.kind === "gallery").length > 0 ? (
+            <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-6">
+              {listing.media
+                .filter((asset) => asset.kind === "gallery")
+                .map((image) => (
+                  <div
+                    key={image.id}
+                    className="aspect-square overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--neutral-bg)]"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={mediaUrl(image.downloadUrl) ?? ""}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+            </div>
+          ) : null}
+
           <div className="mt-6 flex flex-wrap items-center gap-2">
             <span className="badge bg-[var(--neutral-bg)] text-[var(--muted)]">
               {tKind(listing.kind)}

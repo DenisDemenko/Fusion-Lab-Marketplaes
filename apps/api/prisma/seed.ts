@@ -1,8 +1,15 @@
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
+import { dirname, join } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { randomReferralCode } from '../src/common/referral-code';
 
 // Fills an empty database with the catalogue the old Firebase site already
@@ -226,16 +233,91 @@ async function main() {
     });
   }
 
+  const galleryCount = await seedUavGallery(sellerUser.id);
+
   const published = await prisma.listing.count({ where: { status: 'published' } });
 
   console.log(
     [
       `Seeded ${courses.length} courses + ${PRODUCTS.length} products`,
       `(${published} published listings total)`,
+      galleryCount > 0 ? `uav-mastery gallery: ${galleryCount} images` : null,
       `seller: ${sellerEmail}`,
       `admin: ${admin.email}`,
-    ].join('\n'),
+    ]
+      .filter(Boolean)
+      .join('\n'),
   );
+}
+
+// docs/migration-plan.md Phase D5: of the ~130 files dumped in the design
+// assets folder, this filename pattern is the only one that maps
+// unambiguously to a single course — everything else in that folder has a
+// generic photo/screenshot name with no course association, and gets
+// uploaded manually through the seller cabinet's gallery uploader (Phase
+// D4) once someone actually sorts through it.
+//
+// Guarded by existsSync, not a hard dependency: that folder is
+// local-machine demo material (D:\Rama\furnivision-architecture\Рисунки,
+// a sibling of this repo, not inside it), never something a production
+// seed run on Railway should require or fail without. Idempotent like the
+// rest of this script — skips entirely if uav-mastery already has gallery
+// images, so re-running seed does not duplicate them.
+async function seedUavGallery(uploaderId: string): Promise<number> {
+  // __dirname is apps/api/prisma; four levels up is the monorepo's parent
+  // directory (furnivision-architecture), where Рисунки sits as a sibling
+  // of this repo, not inside it.
+  const slidesDir = join(__dirname, '..', '..', '..', '..', 'Рисунки');
+  if (!existsSync(slidesDir)) return 0;
+
+  const course = await prisma.listing.findUnique({
+    where: {
+      externalSource_externalId: {
+        externalSource: COURSE_SOURCE,
+        externalId: 'uav-mastery',
+      },
+    },
+  });
+  if (!course) return 0;
+
+  const alreadySeeded = await prisma.mediaAsset.count({
+    where: { listingId: course.id, kind: 'gallery' },
+  });
+  if (alreadySeeded > 0) return 0;
+
+  const slideFiles = readdirSync(slidesDir)
+    .filter((name) => /^30_Day_UAV_Engineering_Mastery_-_Slide_\d+\.png$/.test(name))
+    .sort(
+      (a, b) =>
+        Number(/Slide_(\d+)\.png$/.exec(a)?.[1] ?? 0) -
+        Number(/Slide_(\d+)\.png$/.exec(b)?.[1] ?? 0),
+    );
+
+  const storageRoot = process.env.STORAGE_DIR ?? join(process.cwd(), 'storage');
+
+  for (const filename of slideFiles) {
+    const contents = readFileSync(join(slidesDir, filename));
+    const storageKey = `listings/${course.id}/${randomUUID()}-${filename}`;
+    const target = join(storageRoot, storageKey);
+
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, contents);
+
+    await prisma.mediaAsset.create({
+      data: {
+        listingId: course.id,
+        uploaderId,
+        kind: 'gallery',
+        access: 'public',
+        filename,
+        mimeType: 'image/png',
+        sizeBytes: contents.byteLength,
+        storageKey,
+      },
+    });
+  }
+
+  return slideFiles.length;
 }
 
 main()
