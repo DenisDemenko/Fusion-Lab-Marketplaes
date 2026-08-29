@@ -12,12 +12,12 @@ import { LightRays } from "./light-rays";
 // deliberately not ported (П4/C6) — that's about the physical space, not
 // the storefront below it.
 //
-// CTA destinations are a judgment call, not in the original plan: there is
-// no booking page yet (that's Phase F2) and no standalone "напрямки" page
-// in the marketplace, so "Записатися на спільне заняття" points at the
-// course catalog and "Переглянути напрямки" scrolls to the category strip
-// already on this same homepage, below the fold. Both should be repointed
-// once F2/F3 exist — see docs/migration-plan.md, "Відкриті питання".
+// CTA destinations, updated as later phases landed: "Записатися на
+// спільне заняття" now points at the real Phase F2 booking page
+// (/schedule) rather than the course catalog it opened against
+// provisionally in Phase C. "Переглянути напрямки" still scrolls to the
+// category strip on this same homepage — there is no standalone
+// "напрямки" page in the plan, so this interim choice stands.
 export function LabHero() {
   const t = useTranslations("labHero");
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -93,7 +93,7 @@ export function LabHero() {
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link href="/catalog?kind=course" className="btn-accent">
+            <Link href="/schedule" className="btn-accent">
               {t("ctaBook")}
             </Link>
             <a href="#categories" className="btn-ghost !bg-white/10 !text-white !border-white/25 hover:!bg-white/20">

@@ -68,6 +68,11 @@ function AdminDashboard() {
       title: t("promoCodesTitle"),
       body: t("promoCodesBody"),
     },
+    {
+      href: "/admin/schedule",
+      title: t("scheduleTitle"),
+      body: t("scheduleBody"),
+    },
   ];
 
   return (

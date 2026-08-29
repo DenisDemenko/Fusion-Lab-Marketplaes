@@ -26,6 +26,8 @@ import {
   UpdatePromoCodeDto,
 } from '../promo-codes/promo-codes.dto';
 import { RecordPayoutDto } from '../payouts/payouts.dto';
+import { ScheduleService } from '../schedule/schedule.service';
+import { CreateClassScheduleDto } from '../schedule/schedule.dto';
 import { AdminService } from './admin.service';
 
 // Replaces the old static admin.html / admin-access.html pair. Guard order
@@ -39,6 +41,7 @@ export class AdminController {
     private readonly admin: AdminService,
     private readonly promoCodes: PromoCodesService,
     private readonly payouts: PayoutsService,
+    private readonly schedule: ScheduleService,
   ) {}
 
   @Get('stats')
@@ -154,5 +157,20 @@ export class AdminController {
   @Post('sellers/:id/payouts')
   recordPayout(@Param('id') sellerId: string, @Body() dto: RecordPayoutDto) {
     return this.payouts.record(sellerId, dto);
+  }
+
+  @Get('schedule')
+  listSchedule() {
+    return this.schedule.adminList();
+  }
+
+  @Post('schedule')
+  createSchedule(@Body() dto: CreateClassScheduleDto) {
+    return this.schedule.create(dto);
+  }
+
+  @Post('schedule/:id/cancel')
+  cancelSchedule(@Param('id') id: string) {
+    return this.schedule.cancelSchedule(id);
   }
 }

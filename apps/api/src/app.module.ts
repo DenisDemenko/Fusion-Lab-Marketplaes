@@ -23,6 +23,7 @@ import { ReferralsModule } from './referrals/referrals.module';
 import { PayoutsModule } from './payouts/payouts.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { ChatModule } from './chat/chat.module';
+import { ScheduleModule } from './schedule/schedule.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { ChatModule } from './chat/chat.module';
     PayoutsModule,
     ReviewsModule,
     ChatModule,
+    ScheduleModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

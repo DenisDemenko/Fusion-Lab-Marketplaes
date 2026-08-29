@@ -73,6 +73,13 @@ export function SiteHeader() {
           </Link>
 
           <Link
+            href="/schedule"
+            className="hidden rounded-xl px-3 py-2 text-sm font-medium text-[var(--muted)] hover:bg-[var(--neutral-bg)] md:block"
+          >
+            {t("schedule")}
+          </Link>
+
+          <Link
             href="/cart"
             className="relative rounded-xl px-3 py-2 text-sm font-medium text-[var(--muted)] hover:bg-[var(--neutral-bg)]"
             aria-label={t("cart")}
@@ -123,6 +130,9 @@ export function SiteHeader() {
                   </MenuLink>
                   <MenuLink href="/account/referrals" onClick={() => setMenuOpen(false)}>
                     {t("referrals")}
+                  </MenuLink>
+                  <MenuLink href="/account/bookings" onClick={() => setMenuOpen(false)}>
+                    {t("bookings")}
                   </MenuLink>
                   <MenuLink href="/chat" onClick={() => setMenuOpen(false)}>
                     {t("messages")}

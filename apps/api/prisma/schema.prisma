@@ -89,6 +89,8 @@ enum NotificationType {
   referral_bonus
   chat_message
   review_posted
+  class_booked
+  class_cancelled
 }
 
 enum PromoCodeType {
@@ -151,6 +153,7 @@ model User {
   reviews             Review[]
   permissionOverrides UserPermissionOverride[]
   lessonProgress      LessonProgress[]
+  classBookings       ClassBooking[]
 
   // A referral is a fact about two users, not one — kept as two named
   // relations so "who referred me" and "who I referred" are both direct
@@ -597,4 +600,60 @@ model ChatMessage {
   sender User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([threadId, createdAt])
+}
+
+// Phase F2 (docs/migration-plan.md) — real, capacity-checked booking for
+// the lab's own offline sessions. `direction` is a free-text label
+// ("Робототехніка", "Меблярство"), deliberately not a foreign key to
+// Category: a class direction and a marketplace listing category are
+// conceptually different things that happen to share vocabulary, and
+// tying them together would make a schedule change contingent on catalog
+// taxonomy changes for no benefit either side needs today.
+enum ScheduleStatus {
+  scheduled
+  cancelled
+}
+
+model ClassSchedule {
+  id          String         @id @default(uuid())
+  title       String
+  description String?
+  direction   String?
+  startsAt    DateTime
+  capacity    Int
+  // Denormalized counter, not COUNT(*) on ClassBooking, for the same
+  // reason PromoCode.redemptionCount exists: booking has to be an atomic
+  // guarded UPDATE ("only succeed if bookedCount < capacity") to survive
+  // two people booking the last seat at once, and that guard needs a
+  // column on THIS row to check against in the same statement.
+  bookedCount Int            @default(0)
+  status      ScheduleStatus @default(scheduled)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  bookings ClassBooking[]
+
+  @@index([status, startsAt])
+}
+
+enum BookingStatus {
+  confirmed
+  cancelled
+}
+
+model ClassBooking {
+  id         String        @id @default(uuid())
+  scheduleId String
+  userId     String
+  status     BookingStatus @default(confirmed)
+  createdAt  DateTime      @default(now())
+
+  schedule ClassSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // One row per (user, schedule) ever, not one per active booking: a
+  // cancelled booking flips `status` rather than being deleted, so a
+  // second book-then-cancel-then-book cycle updates the same row instead
+  // of colliding with a leftover cancelled one.
+  @@unique([scheduleId, userId])
 }

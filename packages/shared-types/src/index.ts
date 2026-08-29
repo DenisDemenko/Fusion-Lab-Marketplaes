@@ -452,3 +452,39 @@ export interface ChatThreadMessages {
   thread: { id: string; listingTitle: string; listingSlug: string };
   messages: ChatMessageEntry[];
 }
+
+// docs/migration-plan.md Phase F2 — real, capacity-checked booking.
+export type ScheduleStatus = "scheduled" | "cancelled";
+export type BookingStatus = "confirmed" | "cancelled";
+
+export interface ClassSchedule {
+  id: string;
+  title: string;
+  description: string | null;
+  direction: string | null;
+  startsAt: string;
+  capacity: number;
+  bookedCount: number;
+  status: ScheduleStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminClassSchedule extends ClassSchedule {
+  _count: { bookings: number };
+}
+
+export interface ClassBooking {
+  id: string;
+  scheduleId: string;
+  userId: string;
+  status: BookingStatus;
+  createdAt: string;
+}
+
+export interface MyClassBooking {
+  id: string;
+  status: BookingStatus;
+  createdAt: string;
+  schedule: ClassSchedule;
+}
