@@ -92,6 +92,7 @@ enum NotificationType {
   class_booked
   class_cancelled
   team_invited
+  sales_manager_invited
   team_submitted
   team_published
   team_rejected
@@ -175,21 +176,26 @@ model User {
   orders              Order[]
   entitlements        Entitlement[]
   notifications       Notification[]
-  uploads             MediaAsset[]              @relation("MediaUploader")
+  uploads             MediaAsset[]             @relation("MediaUploader")
   threads             AssistantThread[]
   loyaltyAccount      LoyaltyAccount?
   reviews             Review[]
   permissionOverrides UserPermissionOverride[]
   lessonProgress      LessonProgress[]
   classBookings       ClassBooking[]
-  ownedTeams          Team[]                    @relation("TeamOwner")
+  ownedTeams          Team[]                   @relation("TeamOwner")
   teamMemberships     TeamMember[]
+
+  // Phase H2. Two named relations because "invites I sent" and "the invite
+  // that made me a sales manager" are different questions about one table.
+  salesManagerInvitesSent    SalesManagerInvite[] @relation("SalesManagerInviter")
+  salesManagerInviteAccepted SalesManagerInvite[] @relation("SalesManagerInviteAccepted")
 
   // A referral is a fact about two users, not one — kept as two named
   // relations so "who referred me" and "who I referred" are both direct
   // queries instead of a self-join with a role column.
-  referralsMade     Referral[] @relation("ReferralsMade")
-  referralReceived  Referral?  @relation("ReferralReceived")
+  referralsMade    Referral[] @relation("ReferralsMade")
+  referralReceived Referral?  @relation("ReferralReceived")
 
   chatThreadsAsBuyer  ChatThread[]  @relation("ChatThreadsAsBuyer")
   chatThreadsAsSeller ChatThread[]  @relation("ChatThreadsAsSeller")
@@ -214,18 +220,52 @@ model UserPermissionOverride {
   @@unique([userId, permission])
 }
 
+// Phase H2: the only door into the sales_manager role. That role is absent
+// from SELF_SELECTABLE_ROLES, so this table is what makes someone a sales
+// manager — a writer names an email address, the recipient accepts, and the
+// system assigns the role. Nobody picks it for themselves, and no admin
+// action is in the path either: the writer is the one vouching.
+model SalesManagerInvite {
+  id    String @id @default(uuid())
+  // Random, URL-safe, single-use — the value that travels in the email link.
+  token String @unique
+
+  inviterId String
+
+  // Lower-cased at write time. Deliberately a plain column rather than a
+  // User relation: the invitee may not have an account yet, and the whole
+  // point is that the invite lands in a mailbox, not in an existing profile.
+  email String
+
+  expiresAt  DateTime
+  acceptedAt DateTime?
+
+  // Who actually accepted. Kept alongside `email` rather than replacing it:
+  // the two can legitimately differ if someone signs in with an alias, and
+  // an admin tracing a role grant needs to see both.
+  acceptedById String?
+
+  createdAt DateTime @default(now())
+
+  inviter    User  @relation("SalesManagerInviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  acceptedBy User? @relation("SalesManagerInviteAccepted", fields: [acceptedById], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([inviterId])
+}
+
 model SellerProfile {
-  id          String       @id @default(uuid())
-  userId      String       @unique
-  displayName String
-  slug        String       @unique
-  bio         String?
-  status      SellerStatus @default(pending)
+  id                String       @id @default(uuid())
+  userId            String       @unique
+  displayName       String
+  slug              String       @unique
+  bio               String?
+  status            SellerStatus @default(pending)
   // Marketplace's cut, applied per order item at checkout and frozen into
   // OrderItem.commissionMinor so a later rate change cannot rewrite history.
-  commissionPercent Int    @default(15)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  commissionPercent Int          @default(15)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   listings Listing[]
@@ -281,15 +321,15 @@ model Listing {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  seller          SellerProfile    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  category        Category?        @relation(fields: [categoryId], references: [id])
-  media           MediaAsset[]
-  cartItems       CartItem[]
-  orderItems      OrderItem[]
-  entitlements    Entitlement[]
-  reviews         Review[]
-  chatThreads     ChatThread[]
-  lessonProgress  LessonProgress[]
+  seller         SellerProfile    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category       Category?        @relation(fields: [categoryId], references: [id])
+  media          MediaAsset[]
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  entitlements   Entitlement[]
+  reviews        Review[]
+  chatThreads    ChatThread[]
+  lessonProgress LessonProgress[]
 
   @@unique([externalSource, externalId])
   @@index([status, kind])
@@ -320,25 +360,25 @@ model LessonProgress {
 }
 
 model MediaAsset {
-  id         String      @id @default(uuid())
-  listingId  String?
+  id            String      @id @default(uuid())
+  listingId     String?
   // A team's photo/result files (Phase F1) reuse this same table rather
   // than a parallel one — `cover`/`attachment` already mean exactly "the
   // one public photo" / "any number of files", which is all a team needs.
   // Exactly one of listingId/teamId is set; never both.
-  teamId     String?
-  uploaderId String
-  kind       MediaKind
-  access     MediaAccess @default(entitled)
-  filename   String
-  mimeType   String
-  sizeBytes  Int
+  teamId        String?
+  uploaderId    String
+  kind          MediaKind
+  access        MediaAccess @default(entitled)
+  filename      String
+  mimeType      String
+  sizeBytes     Int
   // Opaque key handed to the storage driver - a relative path on disk
   // today, an object key in S3 later. Never a URL: what serves the bytes
   // is the driver's business, not the database's.
   storageKey    String
-  downloadCount Int      @default(0)
-  createdAt     DateTime @default(now())
+  downloadCount Int         @default(0)
+  createdAt     DateTime    @default(now())
 
   listing  Listing? @relation(fields: [listingId], references: [id], onDelete: Cascade)
   team     Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -368,9 +408,9 @@ model Team {
   // memberCount < 5") to survive two invites racing for the last seat, and
   // that guard needs a column on THIS row to check against in the same
   // statement. Starts at 1 (the owner).
-  memberCount Int      @default(1)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  memberCount     Int        @default(1)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   owner   User         @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   members TeamMember[]
@@ -547,7 +587,7 @@ model AssistantMessage {
 // be a second source of truth that a missed update could silently
 // desync from the order history it is supposed to summarize.
 model Payout {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   sellerId    String
   amountMinor Int
   note        String?
@@ -565,16 +605,16 @@ model Payout {
 }
 
 model PromoCode {
-  id   String        @id @default(uuid())
-  code String        @unique
-  type PromoCodeType
+  id              String        @id @default(uuid())
+  code            String        @unique
+  type            PromoCodeType
   // percent: 1-100 (%); fixed: minor units off the subtotal.
   value           Int
   maxRedemptions  Int?
-  redemptionCount Int       @default(0)
-  active          Boolean   @default(true)
+  redemptionCount Int           @default(0)
+  active          Boolean       @default(true)
   expiresAt       DateTime?
-  createdAt       DateTime  @default(now())
+  createdAt       DateTime      @default(now())
 
   orders Order[]
 }

@@ -76,7 +76,8 @@ export async function resetDatabase(prisma: PrismaService) {
       "LessonProgress", "ClassBooking", "ClassSchedule", "TeamMember", "Team",
       "Listing", "Category", "SellerProfile", "Payout", "PromoCode",
       "LoyaltyTransaction", "LoyaltyAccount", "Referral", "Review",
-      "ChatMessage", "ChatThread", "UserPermissionOverride", "User"
+      "ChatMessage", "ChatThread", "UserPermissionOverride",
+      "SalesManagerInvite", "User"
     RESTART IDENTITY CASCADE
   `);
 }

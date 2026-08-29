@@ -86,6 +86,21 @@ describe('Roles and permissions (e2e)', () => {
         .expect(400);
     });
 
+    // Phase H2: the invite is the only door into sales_manager, so this
+    // endpoint must not be a second one. Distinct from the admin case above
+    // because sales_manager *used* to be self-selectable — this guards the
+    // removal, not a rule that was always there.
+    it('rejects choosing sales_manager — it is invite-only', async () => {
+      await signIn(ctx, BUYER);
+
+      await ctx
+        .http()
+        .post('/me/role')
+        .set('Authorization', bearer(BUYER))
+        .send({ role: 'sales_manager' })
+        .expect(400);
+    });
+
     it('rejects an unknown role', async () => {
       await signIn(ctx, BUYER);
 
@@ -213,12 +228,15 @@ describe('Roles and permissions (e2e)', () => {
 
   describe('admin permission overrides', () => {
     it('grants a permission the role preset withholds', async () => {
+      // Was sales_manager until Phase H2 made that role invite-only. The
+      // test only needs a self-selectable role whose preset withholds
+      // listings:write, and writer still does.
       const signedIn = await signIn(ctx, SALES);
       await ctx
         .http()
         .post('/me/role')
         .set('Authorization', bearer(SALES))
-        .send({ role: 'sales_manager' })
+        .send({ role: 'writer' })
         .expect(201);
 
       const before = await ctx

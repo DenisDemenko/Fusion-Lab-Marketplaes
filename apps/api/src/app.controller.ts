@@ -11,19 +11,11 @@ import { AppService } from './app.service';
 import { FirebaseAuthGuard, type AuthUser } from './auth/firebase-auth.guard';
 import { CurrentUser } from './auth/current-user.decorator';
 import { UsersService } from './users/users.service';
-import { effectivePermissions, ROLE_PERMISSIONS } from './auth/permissions';
-
-// Self-selectable at signup — admin-only roles are granted the other way
-// (PATCH /admin/users/:id/role), never through this endpoint.
-const SELF_SELECTABLE_ROLES: readonly UserRole[] = [
-  'buyer',
-  'seller',
-  'writer',
-  'expert',
-  'sales_manager',
-  'instruction_engineer',
-  'student',
-];
+import {
+  effectivePermissions,
+  ROLE_PERMISSIONS,
+  SELF_SELECTABLE_ROLES,
+} from './auth/permissions';
 
 @Controller()
 export class AppController {
@@ -68,11 +60,13 @@ export class AppController {
     };
   }
 
-  // One-time self-selection (docs/migration-plan.md, П36/П37): free
-  // choice among the non-admin roles, exactly once — UsersService.chooseRole
-  // refuses a second call. `admin` is deliberately excluded from
-  // SELF_SELECTABLE_ROLES: that role is only ever granted by an existing
-  // admin through the admin panel.
+  // One-time self-selection (docs/migration-plan.md, П36/П37): free choice
+  // among the self-selectable roles, exactly once — UsersService.chooseRole
+  // refuses a second call. Two roles are excluded from
+  // SELF_SELECTABLE_ROLES on purpose: `admin`, granted only by an existing
+  // admin through the panel, and `sales_manager`, granted only by accepting
+  // a writer's emailed invite (Phase H2) — so this endpoint is not a way
+  // around that invite.
   @Post('me/role')
   @UseGuards(FirebaseAuthGuard)
   async chooseRole(

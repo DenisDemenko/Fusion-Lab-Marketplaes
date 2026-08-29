@@ -25,6 +25,8 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { ChatModule } from './chat/chat.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { TeamsModule } from './teams/teams.module';
+import { MailModule } from './mail/mail.module';
+import { SalesManagerInvitesModule } from './sales-manager-invites/sales-manager-invites.module';
 
 @Module({
   imports: [
@@ -51,6 +53,8 @@ import { TeamsModule } from './teams/teams.module';
     ChatModule,
     ScheduleModule,
     TeamsModule,
+    MailModule,
+    SalesManagerInvitesModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

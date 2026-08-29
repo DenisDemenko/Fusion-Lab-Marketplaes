@@ -14,6 +14,20 @@ export const PERMISSIONS = [
   'sales:access',
   // Write/edit books in the Book_Creality integration (Phase G).
   'books:write',
+  // Publish inside Nova — make a book or instruction visible in the catalog.
+  'publishing:nova',
+  // External marketplaces: Amazon KDP and Etsy, including the OAuth shop
+  // connection. Separate from keys:manage on purpose: an Etsy token is
+  // issued by Etsy and stored encrypted by us, while a provider key is a
+  // third-party credential the user types in. Different trust boundaries,
+  // so a sales manager can connect a shop without touching AI keys.
+  'publishing:external',
+  // Spend paid image generations. Real money per call, hence its own
+  // permission rather than riding along with books:write.
+  'images:generate',
+  // Enter *own* secret AI provider keys. Withheld from instruction_engineer
+  // and student by design — Nova serves them on its own keys (Phase H4).
+  'keys:manage',
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
@@ -26,23 +40,63 @@ export function isPermission(value: string): value is Permission {
 // PERMISSIONS" computed) so a new permission added later doesn't silently
 // become admin-only-by-omission — it has to be added here on purpose.
 //
-// instruction_engineer and student are intentionally empty: their rights
-// are an open question in docs/migration-plan.md (§Відкриті питання) and
-// are meant to be filled in via UserPermissionOverride per-user until a
-// preset is agreed, not guessed at here.
+// The full matrix lives in docs/migration-plan.md §H1 and is meant to be
+// adjusted there first — this object is its executable half.
 export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
   buyer: [],
   seller: ['listings:write'],
-  admin: ['listings:write', 'sales:access', 'books:write'],
+  admin: [
+    'listings:write',
+    'sales:access',
+    'books:write',
+    'publishing:nova',
+    'publishing:external',
+    'images:generate',
+    'keys:manage',
+  ],
   // Письменник = пише + права менеджера продажів (docs/migration-plan.md, П16).
-  writer: ['books:write', 'sales:access'],
+  // Deliberately a superset of sales_manager: delegating sales does not cost
+  // the writer the ability to do it personally.
+  writer: [
+    'books:write',
+    'sales:access',
+    'publishing:nova',
+    'publishing:external',
+    'images:generate',
+    'keys:manage',
+  ],
   // Creates courses through the existing seller listing form (Phase A
   // scope) — a dedicated course-builder UI is its own deferred package.
   expert: ['listings:write'],
-  sales_manager: ['sales:access'],
-  instruction_engineer: [],
-  student: [],
+  // Invite-only (see SELF_SELECTABLE_ROLES). Publishes on the writer's
+  // behalf, inside Nova and on KDP/Etsy, but never authors text and never
+  // touches provider keys.
+  sales_manager: ['sales:access', 'publishing:nova', 'publishing:external'],
+  // Phase H3: identical presets on purpose — these two roles differ in quota
+  // and future differentiation, not in what they may do. Neither gets
+  // keys:manage (H4) nor publishing:external, which stays a writer/sales
+  // privilege.
+  instruction_engineer: ['books:write', 'publishing:nova', 'images:generate'],
+  student: ['books:write', 'publishing:nova', 'images:generate'],
 };
+
+// Roles a user may assign to themselves via POST /me/role. Everything else
+// is granted by the system: `admin` by seeding or another admin,
+// `sales_manager` only by accepting a writer's emailed invite (Phase H2).
+// Keeping this as an allowlist rather than a denylist means a role added
+// later is un-self-selectable until someone decides otherwise.
+export const SELF_SELECTABLE_ROLES: readonly UserRole[] = [
+  'buyer',
+  'seller',
+  'writer',
+  'expert',
+  'instruction_engineer',
+  'student',
+];
+
+export function isSelfSelectableRole(role: UserRole): boolean {
+  return SELF_SELECTABLE_ROLES.includes(role);
+}
 
 type PermissionOverride = { permission: string; granted: boolean };
 
