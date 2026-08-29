@@ -8,6 +8,7 @@ import { CartProvider } from "@/lib/cart-context";
 import { NotificationsProvider } from "@/lib/notifications-context";
 import { SiteHeader } from "@/components/site-header";
 import { AssistantWidget } from "@/components/assistant-widget";
+import { ReferralCapture } from "@/components/referral-capture";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <AuthProvider>
           <CartProvider>
             <NotificationsProvider>
+              <ReferralCapture />
               {/* The header reads useSearchParams, which Next requires to
                   sit inside a Suspense boundary. */}
               <Suspense

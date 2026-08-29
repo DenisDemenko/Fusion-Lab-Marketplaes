@@ -2,10 +2,15 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import type { CheckoutPayment, Order } from "@fusion-lab/shared-types";
+import { useEffect, useState } from "react";
+import type {
+  CheckoutPayment,
+  LoyaltyHistory,
+  Order,
+  PromoCodePreview,
+} from "@fusion-lab/shared-types";
 import { RequireAuth } from "@/components/require-auth";
-import { api, mediaUrl } from "@/lib/api-client";
+import { ApiError, api, mediaUrl } from "@/lib/api-client";
 import { useCart } from "@/lib/cart-context";
 import { formatUah } from "@/lib/format";
 
@@ -23,6 +28,49 @@ function CartScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [loyaltyBalance, setLoyaltyBalance] = useState(0);
+  const [promoInput, setPromoInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<PromoCodePreview | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoBusy, setPromoBusy] = useState(false);
+  const [pointsToSpend, setPointsToSpend] = useState(0);
+
+  useEffect(() => {
+    api
+      .get<LoyaltyHistory>("/me/loyalty")
+      .then((history) => setLoyaltyBalance(history.balance))
+      .catch(() => setLoyaltyBalance(0));
+  }, []);
+
+  const subtotalMinor = cart?.subtotalMinor ?? 0;
+  const promoDiscountMinor = appliedPromo?.discountMinor ?? 0;
+  const afterPromoMinor = Math.max(0, subtotalMinor - promoDiscountMinor);
+  const maxSpendablePoints = Math.min(loyaltyBalance, afterPromoMinor);
+  const loyaltyDiscountMinor = Math.min(pointsToSpend, maxSpendablePoints);
+  const totalMinor = Math.max(0, afterPromoMinor - loyaltyDiscountMinor);
+
+  async function applyPromo() {
+    if (!promoInput.trim()) return;
+
+    setPromoBusy(true);
+    setPromoError(null);
+    try {
+      const preview = await api.post<PromoCodePreview>(
+        "/promo-codes/preview",
+        { code: promoInput.trim(), subtotalMinor },
+        { token: null },
+      );
+      setAppliedPromo(preview);
+    } catch (caught) {
+      setAppliedPromo(null);
+      setPromoError(
+        caught instanceof Error ? caught.message : "Промокод не знайдено",
+      );
+    } finally {
+      setPromoBusy(false);
+    }
+  }
+
   async function checkout() {
     setBusy(true);
     setError(null);
@@ -30,15 +78,27 @@ function CartScreen() {
     try {
       const response = await api.post<{ order: Order; payment: CheckoutPayment }>(
         "/orders/checkout",
+        {
+          promoCode: appliedPromo?.code,
+          loyaltyPointsToSpend: pointsToSpend > 0 ? pointsToSpend : undefined,
+        },
       );
       // The order page is where payment happens — including the return
       // from LiqPay — so there is exactly one screen that knows how to
       // show a payment state.
       router.push(`/account/orders/${response.order.number}`);
     } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Не вдалося оформити замовлення",
-      );
+      // A promo code that got exhausted or expired between the preview and
+      // the click is a real (if rare) race — surfaced plainly instead of a
+      // generic "checkout failed", since the fix (drop the code, retry) is
+      // different from every other checkout error.
+      if (caught instanceof ApiError && caught.status !== 500) {
+        setError(caught.message);
+      } else {
+        setError(
+          caught instanceof Error ? caught.message : "Не вдалося оформити замовлення",
+        );
+      }
       setBusy(false);
     }
   }
@@ -130,21 +190,111 @@ function CartScreen() {
         })}
       </div>
 
-      <div className="card mt-6 flex flex-wrap items-center justify-between gap-4 p-5">
+      <div className="card mt-6 space-y-4 p-5">
         <div>
-          <p className="text-sm text-zinc-500">До сплати</p>
-          <p className="text-2xl font-semibold text-zinc-900">{cart.totalLabel}</p>
+          <p className="label">Промокод</p>
+          {appliedPromo ? (
+            <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5">
+              <span className="text-sm text-emerald-800">
+                «{appliedPromo.code}» — знижка {formatUah(appliedPromo.discountMinor)}
+              </span>
+              <button
+                type="button"
+                className="text-sm text-emerald-700 hover:underline"
+                onClick={() => {
+                  setAppliedPromo(null);
+                  setPromoInput("");
+                }}
+              >
+                Прибрати
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <input
+                className="input"
+                placeholder="Введіть код"
+                value={promoInput}
+                onChange={(event) => setPromoInput(event.target.value)}
+              />
+              <button
+                type="button"
+                className="btn-ghost shrink-0"
+                disabled={promoBusy || !promoInput.trim()}
+                onClick={() => void applyPromo()}
+              >
+                {promoBusy ? "Перевіряю…" : "Застосувати"}
+              </button>
+            </div>
+          )}
+          {promoError ? (
+            <p className="mt-1.5 text-sm text-red-700">{promoError}</p>
+          ) : null}
         </div>
 
-        <button
-          type="button"
-          className="btn-accent"
-          onClick={() => void checkout()}
-          disabled={busy}
-          data-testid="checkout"
-        >
-          {busy ? "Оформлюю…" : "Оформити замовлення"}
-        </button>
+        {loyaltyBalance > 0 ? (
+          <div>
+            <div className="flex items-center justify-between">
+              <p className="label mb-0">
+                Списати бали (доступно: {loyaltyBalance})
+              </p>
+              <span className="text-sm text-zinc-500">
+                −{formatUah(loyaltyDiscountMinor)}
+              </span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={maxSpendablePoints}
+              step={100}
+              value={Math.min(pointsToSpend, maxSpendablePoints)}
+              onChange={(event) => setPointsToSpend(Number(event.target.value))}
+              className="mt-2 w-full"
+            />
+            <div className="mt-1 flex justify-between text-xs text-zinc-400">
+              <span>0</span>
+              <span>{maxSpendablePoints}</span>
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="card mt-6 space-y-2 p-5">
+        <div className="flex items-center justify-between text-sm text-zinc-600">
+          <span>Проміжна сума</span>
+          <span>{formatUah(subtotalMinor)}</span>
+        </div>
+        {promoDiscountMinor > 0 ? (
+          <div className="flex items-center justify-between text-sm text-emerald-700">
+            <span>Знижка за промокодом</span>
+            <span>−{formatUah(promoDiscountMinor)}</span>
+          </div>
+        ) : null}
+        {loyaltyDiscountMinor > 0 ? (
+          <div className="flex items-center justify-between text-sm text-emerald-700">
+            <span>Оплата балами</span>
+            <span>−{formatUah(loyaltyDiscountMinor)}</span>
+          </div>
+        ) : null}
+
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--line)] pt-4">
+          <div>
+            <p className="text-sm text-zinc-500">До сплати</p>
+            <p className="text-2xl font-semibold text-zinc-900">
+              {formatUah(totalMinor)}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            className="btn-accent"
+            onClick={() => void checkout()}
+            disabled={busy}
+            data-testid="checkout"
+          >
+            {busy ? "Оформлюю…" : "Оформити замовлення"}
+          </button>
+        </div>
       </div>
 
       {error ? (

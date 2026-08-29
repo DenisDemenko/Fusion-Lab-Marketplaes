@@ -126,6 +126,13 @@ function SellerScreen() {
             Історія замовлень і виплат по кожній позиції.
           </p>
         </Link>
+
+        <Link href="/seller/payouts" className="card p-5 transition hover:shadow-md">
+          <p className="font-semibold text-zinc-900">Виплати</p>
+          <p className="mt-1 text-sm text-zinc-600">
+            До виплати: {formatUah(seller.stats.payoutMinor)}
+          </p>
+        </Link>
       </div>
 
       {profile?.role !== "seller" ? (

@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authErrorMessage, useAuth } from "@/lib/auth-context";
+import { claimStoredReferral } from "@/components/referral-capture";
 
 export default function LoginPage() {
   return (
@@ -34,6 +35,7 @@ function LoginForm() {
         await signIn(email, password);
       } else {
         await signUp(email, password);
+        await claimStoredReferral();
       }
       router.push(next);
     } catch (caught) {
@@ -101,6 +103,7 @@ function LoginForm() {
             setError(null);
             try {
               await signInWithGoogle();
+              await claimStoredReferral();
               router.push(next);
             } catch (caught) {
               setError(authErrorMessage(caught));

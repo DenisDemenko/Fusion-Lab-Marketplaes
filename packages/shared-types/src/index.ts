@@ -157,6 +157,10 @@ export interface Order {
   totalMinor: number;
   totalLabel: string;
   commissionMinor: number;
+  promoCode: string | null;
+  promoDiscountMinor: number;
+  loyaltyPointsSpent: number;
+  loyaltyDiscountMinor: number;
   createdAt: string;
   paidAt: string | null;
   payment: {
@@ -204,6 +208,7 @@ export interface CurrentUser {
   email: string;
   role: UserRole;
   displayName: string | null;
+  referralCode: string | null;
   seller: {
     id: string;
     slug: string;
@@ -259,4 +264,122 @@ export interface AssistantReply {
   reply: string;
   source: "llm" | "catalog";
   suggestions: ListingCard[];
+}
+
+// --- Phase 2: promo codes, loyalty, referrals, payouts, reviews, chat ---
+
+export type PromoCodeType = "percent" | "fixed";
+
+export interface PromoCode {
+  id: string;
+  code: string;
+  type: PromoCodeType;
+  value: number;
+  maxRedemptions: number | null;
+  redemptionCount: number;
+  active: boolean;
+  expiresAt: string | null;
+  createdAt: string;
+}
+
+export interface PromoCodePreview {
+  code: string;
+  discountMinor: number;
+}
+
+export type LoyaltyTransactionType =
+  | "earned_purchase"
+  | "earned_referral"
+  | "spent_order"
+  | "admin_adjustment";
+
+export interface LoyaltyTransactionEntry {
+  id: string;
+  type: LoyaltyTransactionType;
+  points: number;
+  note: string | null;
+  orderNumber: string | null;
+  createdAt: string;
+}
+
+export interface LoyaltyHistory {
+  balance: number;
+  transactions: LoyaltyTransactionEntry[];
+}
+
+export interface ReferralInvitee {
+  email: string;
+  displayName: string | null;
+  bonusAwarded: boolean;
+  joinedAt: string;
+}
+
+export interface ReferralInfo {
+  referralCode: string | null;
+  invited: ReferralInvitee[];
+  referredBy: { claimedAt: string } | null;
+  totalBonusPoints: number;
+}
+
+export interface PayoutLedgerEntry {
+  type: "sale" | "payout";
+  date: string;
+  amountMinor: number;
+  description: string;
+}
+
+export interface PayoutLedger {
+  earnedMinor: number;
+  earnedLabel: string;
+  paidOutMinor: number;
+  paidOutLabel: string;
+  outstandingMinor: number;
+  outstandingLabel: string;
+  entries: PayoutLedgerEntry[];
+}
+
+export interface ReviewEntry {
+  id: string;
+  rating: number;
+  body: string | null;
+  authorName: string;
+  createdAt: string;
+}
+
+export interface ReviewSummary {
+  average: number;
+  count: number;
+  reviews: ReviewEntry[];
+}
+
+export interface MyReview {
+  id: string;
+  listingId: string;
+  userId: string;
+  rating: number;
+  body: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChatThreadSummary {
+  id: string;
+  listing: { title: string; slug: string };
+  counterpartName: string;
+  lastMessage: string | null;
+  updatedAt: string;
+  unreadCount: number;
+}
+
+export interface ChatMessageEntry {
+  id: string;
+  senderId: string;
+  body: string;
+  createdAt: string;
+  mine: boolean;
+}
+
+export interface ChatThreadMessages {
+  thread: { id: string; listingTitle: string; listingSlug: string };
+  messages: ChatMessageEntry[];
 }

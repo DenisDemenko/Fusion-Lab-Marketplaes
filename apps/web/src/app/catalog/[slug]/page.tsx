@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/add-to-cart";
+import { ListingReviews } from "@/components/listing-reviews";
+import { MessageSellerButton } from "@/components/message-seller-button";
 import { mediaUrl } from "@/lib/api-client";
 import { KIND_LABELS, formatBytes } from "@/lib/format";
 import { fetchListing } from "@/lib/server-api";
@@ -161,6 +163,8 @@ export default async function ListingPage({ params }: PageProps<"/catalog/[slug]
               </div>
             </section>
           ) : null}
+
+          <ListingReviews listingId={listing.id} />
         </div>
 
         <aside className="lg:sticky lg:top-24 lg:h-fit">
@@ -178,6 +182,10 @@ export default async function ListingPage({ params }: PageProps<"/catalog/[slug]
             ) : null}
 
             <AddToCart listing={listing} />
+
+            {listing.seller ? (
+              <MessageSellerButton listingId={listing.id} />
+            ) : null}
 
             {/* Paid files are listed before purchase on purpose: knowing
                 what arrives after payment is part of the decision. The

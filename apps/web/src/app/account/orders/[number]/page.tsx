@@ -99,9 +99,27 @@ function OrderScreen() {
           </div>
         ))}
 
-        <div className="flex items-center justify-between p-4">
-          <span className="font-medium text-zinc-700">Разом</span>
-          <span className="text-xl font-semibold">{order.totalLabel}</span>
+        <div className="space-y-1.5 p-4">
+          <div className="flex items-center justify-between text-sm text-zinc-600">
+            <span>Проміжна сума</span>
+            <span>{formatUah(order.subtotalMinor)}</span>
+          </div>
+          {order.promoDiscountMinor > 0 ? (
+            <div className="flex items-center justify-between text-sm text-emerald-700">
+              <span>Промокод «{order.promoCode}»</span>
+              <span>−{formatUah(order.promoDiscountMinor)}</span>
+            </div>
+          ) : null}
+          {order.loyaltyDiscountMinor > 0 ? (
+            <div className="flex items-center justify-between text-sm text-emerald-700">
+              <span>Оплачено балами ({order.loyaltyPointsSpent})</span>
+              <span>−{formatUah(order.loyaltyDiscountMinor)}</span>
+            </div>
+          ) : null}
+          <div className="flex items-center justify-between border-t border-[var(--line)] pt-2">
+            <span className="font-medium text-zinc-700">Разом</span>
+            <span className="text-xl font-semibold">{order.totalLabel}</span>
+          </div>
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { SellerStatus } from "@fusion-lab/shared-types";
 import { RequireAuth } from "@/components/require-auth";
@@ -151,6 +152,17 @@ function SellersScreen() {
                   >
                     Відхилити
                   </button>
+                </div>
+              ) : null}
+
+              {seller.status === "approved" ? (
+                <div className="mt-4">
+                  <Link
+                    href={`/admin/sellers/${seller.id}/payouts`}
+                    className="btn-ghost"
+                  >
+                    Виплати
+                  </Link>
                 </div>
               ) : null}
             </div>

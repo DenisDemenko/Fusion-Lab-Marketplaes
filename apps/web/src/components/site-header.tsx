@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { NotificationsBell } from "./notifications-bell";
@@ -14,6 +14,15 @@ export function SiteHeader() {
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Firebase's auth SDK can resolve a cached session before React finishes
+  // its very first client commit, so the account/login branch below is
+  // gated behind a mount flag: the server and the client's first paint
+  // both render the same neutral placeholder no matter what Firebase
+  // already knows, and the real state swaps in a tick later — the only
+  // way to guarantee hydration can't ever compare two different things.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const isSeller = profile?.seller?.status === "approved";
   const isAdmin = profile?.role === "admin";
@@ -69,9 +78,9 @@ export function SiteHeader() {
             ) : null}
           </Link>
 
-          {firebaseUser ? <NotificationsBell /> : null}
+          {mounted && firebaseUser ? <NotificationsBell /> : null}
 
-          {loading ? (
+          {!mounted || loading ? (
             <span className="px-3 py-2 text-sm text-zinc-400">…</span>
           ) : firebaseUser ? (
             <div className="relative">
@@ -99,6 +108,15 @@ export function SiteHeader() {
                   </MenuLink>
                   <MenuLink href="/account/orders" onClick={() => setMenuOpen(false)}>
                     Замовлення
+                  </MenuLink>
+                  <MenuLink href="/account/loyalty" onClick={() => setMenuOpen(false)}>
+                    Мої бали
+                  </MenuLink>
+                  <MenuLink href="/account/referrals" onClick={() => setMenuOpen(false)}>
+                    Запросити друга
+                  </MenuLink>
+                  <MenuLink href="/chat" onClick={() => setMenuOpen(false)}>
+                    Повідомлення
                   </MenuLink>
                   <MenuLink href="/seller" onClick={() => setMenuOpen(false)}>
                     {isSeller ? "Кабінет продавця" : "Стати продавцем"}

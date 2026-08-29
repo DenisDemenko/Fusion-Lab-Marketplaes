@@ -53,6 +53,11 @@ function AdminDashboard() {
       title: "Категорії",
       body: "Керування категоріями каталогу",
     },
+    {
+      href: "/admin/promo-codes",
+      title: "Промокоди",
+      body: "Створення та керування знижками",
+    },
   ];
 
   return (
