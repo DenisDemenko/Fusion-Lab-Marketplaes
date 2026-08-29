@@ -45,7 +45,7 @@ function LibraryScreen() {
 
   if (!entries) {
     return (
-      <p className="mx-auto max-w-3xl px-4 py-16 text-zinc-500">{tCommon("loading")}</p>
+      <p className="mx-auto max-w-3xl px-4 py-16 text-[var(--muted)]">{tCommon("loading")}</p>
     );
   }
 
@@ -53,7 +53,7 @@ function LibraryScreen() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center">
         <h1 className="section-title">{t("emptyTitle")}</h1>
-        <p className="mt-2 text-zinc-500">{t("emptyBody")}</p>
+        <p className="mt-2 text-[var(--muted)]">{t("emptyBody")}</p>
         <Link href="/catalog" className="btn-primary mt-6">
           {t("browseCourses")}
         </Link>
@@ -64,7 +64,7 @@ function LibraryScreen() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <h1 className="section-title">{t("title")}</h1>
-      <p className="mt-1 text-sm text-zinc-500">{t("subtitle")}</p>
+      <p className="mt-1 text-sm text-[var(--muted)]">{t("subtitle")}</p>
 
       <div className="mt-6 space-y-4">
         {entries.map((entry) => (
@@ -73,11 +73,11 @@ function LibraryScreen() {
               <div>
                 <Link
                   href={`/catalog/${entry.listing.slug}`}
-                  className="text-lg font-semibold text-zinc-900 hover:underline"
+                  className="text-lg font-semibold text-[var(--foreground)] hover:underline"
                 >
                   {entry.listing.title}
                 </Link>
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm text-[var(--muted)]">
                   {t("grantedAt", { date: formatDate(entry.grantedAt, locale) })}
                   {entry.orderNumber
                     ? ` · ${t("orderSuffix", { number: entry.orderNumber })}`
@@ -87,7 +87,7 @@ function LibraryScreen() {
             </div>
 
             {entry.files.length === 0 ? (
-              <p className="mt-4 text-sm text-zinc-500">{t("noFilesYet")}</p>
+              <p className="mt-4 text-sm text-[var(--muted)]">{t("noFilesYet")}</p>
             ) : (
               <ul className="mt-4 divide-y divide-[var(--line)]">
                 {entry.files.map((file) => (
@@ -96,10 +96,10 @@ function LibraryScreen() {
                     className="flex flex-wrap items-center justify-between gap-3 py-2.5"
                   >
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-zinc-800">
+                      <p className="truncate text-sm font-medium text-[var(--foreground)]">
                         {file.filename}
                       </p>
-                      <p className="text-xs text-zinc-500">
+                      <p className="text-xs text-[var(--muted)]">
                         {formatBytes(file.sizeBytes, locale)} · {file.mimeType}
                       </p>
                     </div>

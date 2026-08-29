@@ -79,12 +79,12 @@ function CoverUploader({
 
   return (
     <div className="flex items-center gap-4">
-      <div className="h-20 w-32 shrink-0 overflow-hidden rounded-xl border border-[var(--line)] bg-zinc-50">
+      <div className="h-20 w-32 shrink-0 overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--neutral-bg)]">
         {coverImage ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={coverImage} alt="" className="h-full w-full object-cover" />
         ) : (
-          <div className="grid h-full place-items-center text-xs text-zinc-400">
+          <div className="grid h-full place-items-center text-xs text-[var(--muted)]">
             {t("none")}
           </div>
         )}
@@ -168,10 +168,10 @@ function AttachmentUploader({
               className="flex items-center justify-between gap-3 px-3.5 py-2.5"
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-zinc-800">
+                <p className="truncate text-sm font-medium text-[var(--foreground)]">
                   {file.filename}
                 </p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-[var(--muted)]">
                   {formatBytes(file.sizeBytes, locale)} ·{" "}
                   {t("downloadsCount", { count: file.downloadCount })}
                 </p>
@@ -187,7 +187,7 @@ function AttachmentUploader({
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-zinc-500">{t("noFilesYet")}</p>
+        <p className="text-sm text-[var(--muted)]">{t("noFilesYet")}</p>
       )}
 
       <input

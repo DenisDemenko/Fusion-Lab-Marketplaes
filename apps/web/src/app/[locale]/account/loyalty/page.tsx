@@ -46,36 +46,36 @@ function LoyaltyScreen() {
 
   if (!history) {
     return (
-      <p className="mx-auto max-w-2xl px-4 py-16 text-zinc-500">{tCommon("loading")}</p>
+      <p className="mx-auto max-w-2xl px-4 py-16 text-[var(--muted)]">{tCommon("loading")}</p>
     );
   }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="section-title">{t("title")}</h1>
-      <p className="mt-1 text-sm text-zinc-500">{t("subtitle")}</p>
+      <p className="mt-1 text-sm text-[var(--muted)]">{t("subtitle")}</p>
 
       <div className="card mt-6 p-6 text-center">
-        <p className="text-sm text-zinc-500">{t("currentBalance")}</p>
-        <p className="mt-1 text-4xl font-semibold text-zinc-900">
+        <p className="text-sm text-[var(--muted)]">{t("currentBalance")}</p>
+        <p className="mt-1 text-4xl font-semibold text-[var(--foreground)]">
           {history.balance}
         </p>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="mt-1 text-sm text-[var(--muted)]">
           {t("discountApprox", { amount: formatUah(history.balance, locale) })}
         </p>
       </div>
 
       {history.transactions.length === 0 ? (
-        <p className="card mt-6 p-8 text-center text-zinc-500">{t("emptyHistory")}</p>
+        <p className="card mt-6 p-8 text-center text-[var(--muted)]">{t("emptyHistory")}</p>
       ) : (
         <div className="card mt-6 divide-y divide-[var(--line)]">
           {history.transactions.map((tx) => (
             <div key={tx.id} className="flex items-center justify-between gap-3 p-4">
               <div>
-                <p className="font-medium text-zinc-900">
+                <p className="font-medium text-[var(--foreground)]">
                   {TYPE_LABELS[tx.type] ?? tx.type}
                 </p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-[var(--muted)]">
                   {formatDateTime(tx.createdAt, locale)}
                   {tx.orderNumber ? ` · ${tx.orderNumber}` : ""}
                 </p>

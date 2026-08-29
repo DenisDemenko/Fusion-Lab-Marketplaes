@@ -34,7 +34,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
         <Link href="/" className="flex items-center gap-2 whitespace-nowrap">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-zinc-900 text-sm font-bold text-white">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--foreground)] text-sm font-bold text-white">
             FL
           </span>
           <span className="hidden text-base font-semibold tracking-tight sm:block">
@@ -67,14 +67,14 @@ export function SiteHeader() {
         <nav className="flex items-center gap-1">
           <Link
             href="/catalog"
-            className="hidden rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 md:block"
+            className="hidden rounded-xl px-3 py-2 text-sm font-medium text-[var(--muted)] hover:bg-[var(--neutral-bg)] md:block"
           >
             {t("catalog")}
           </Link>
 
           <Link
             href="/cart"
-            className="relative rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
+            className="relative rounded-xl px-3 py-2 text-sm font-medium text-[var(--muted)] hover:bg-[var(--neutral-bg)]"
             aria-label={t("cart")}
           >
             {t("cart")}
@@ -90,7 +90,7 @@ export function SiteHeader() {
           <LocaleSwitcher />
 
           {!mounted || loading ? (
-            <span className="px-3 py-2 text-sm text-zinc-400">…</span>
+            <span className="px-3 py-2 text-sm text-[var(--muted)]">…</span>
           ) : firebaseUser ? (
             <div className="relative">
               <button
@@ -175,7 +175,7 @@ function MenuLink({
       href={href}
       role="menuitem"
       onClick={onClick}
-      className="block rounded-lg px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100"
+      className="block rounded-lg px-3 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
     >
       {children}
     </Link>

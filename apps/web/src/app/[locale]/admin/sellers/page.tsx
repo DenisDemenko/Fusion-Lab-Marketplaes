@@ -98,8 +98,8 @@ function SellersScreen() {
             onClick={() => setStatus(tab.value)}
             className={`rounded-full border px-3.5 py-1.5 text-sm ${
               status === tab.value
-                ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-[var(--line)] bg-white text-zinc-700 hover:bg-zinc-50"
+                ? "border-[var(--foreground)] bg-[var(--foreground)] text-white"
+                : "border-[var(--line)] bg-white text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
             }`}
           >
             {tab.label}
@@ -114,19 +114,19 @@ function SellersScreen() {
       ) : null}
 
       {!sellers ? (
-        <p className="mt-6 text-zinc-500">{tCommon("loading")}</p>
+        <p className="mt-6 text-[var(--muted)]">{tCommon("loading")}</p>
       ) : sellers.length === 0 ? (
-        <p className="card mt-6 p-8 text-center text-zinc-500">{t("empty")}</p>
+        <p className="card mt-6 p-8 text-center text-[var(--muted)]">{t("empty")}</p>
       ) : (
         <div className="mt-6 space-y-3">
           {sellers.map((seller) => (
             <div key={seller.id} className="card p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="font-semibold text-zinc-900">
+                  <p className="font-semibold text-[var(--foreground)]">
                     {seller.displayName}
                   </p>
-                  <p className="text-sm text-zinc-500">
+                  <p className="text-sm text-[var(--muted)]">
                     {t("appliedInfo", {
                       email: seller.user.email,
                       date: formatDate(seller.createdAt, locale),
@@ -134,10 +134,10 @@ function SellersScreen() {
                     })}
                   </p>
                   {seller.bio ? (
-                    <p className="mt-2 text-sm text-zinc-600">{seller.bio}</p>
+                    <p className="mt-2 text-sm text-[var(--muted)]">{seller.bio}</p>
                   ) : null}
                 </div>
-                <span className="badge bg-zinc-100 text-zinc-600">
+                <span className="badge bg-[var(--neutral-bg)] text-[var(--muted)]">
                   {seller.status}
                 </span>
               </div>

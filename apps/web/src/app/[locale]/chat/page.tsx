@@ -40,7 +40,7 @@ function ChatInboxScreen() {
 
   if (!threads) {
     return (
-      <p className="mx-auto max-w-2xl px-4 py-16 text-zinc-500">{tCommon("loading")}</p>
+      <p className="mx-auto max-w-2xl px-4 py-16 text-[var(--muted)]">{tCommon("loading")}</p>
     );
   }
 
@@ -48,7 +48,7 @@ function ChatInboxScreen() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <h1 className="section-title">{t("emptyTitle")}</h1>
-        <p className="mt-2 text-zinc-500">{t("emptyBody")}</p>
+        <p className="mt-2 text-[var(--muted)]">{t("emptyBody")}</p>
         <Link href="/catalog" className="btn-primary mt-6">
           {tCommon("toCatalog")}
         </Link>
@@ -65,21 +65,21 @@ function ChatInboxScreen() {
           <Link
             key={thread.id}
             href={`/chat/${thread.id}`}
-            className="flex items-center justify-between gap-3 p-4 hover:bg-zinc-50"
+            className="flex items-center justify-between gap-3 p-4 hover:bg-[var(--neutral-bg)]"
           >
             <div className="min-w-0">
-              <p className="font-medium text-zinc-900">{thread.counterpartName}</p>
-              <p className="truncate text-sm text-zinc-500">
+              <p className="font-medium text-[var(--foreground)]">{thread.counterpartName}</p>
+              <p className="truncate text-sm text-[var(--muted)]">
                 {thread.listing.title}
               </p>
               {thread.lastMessage ? (
-                <p className="truncate text-sm text-zinc-400">
+                <p className="truncate text-sm text-[var(--muted)]">
                   {thread.lastMessage}
                 </p>
               ) : null}
             </div>
             <div className="shrink-0 text-right">
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-[var(--muted)]">
                 {formatDateTime(thread.updatedAt, locale)}
               </p>
               {thread.unreadCount > 0 ? (

@@ -25,11 +25,11 @@ export default function EditListingPage() {
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  draft: "bg-zinc-100 text-zinc-600",
+  draft: "bg-[var(--neutral-bg)] text-[var(--muted)]",
   pending_review: "bg-amber-50 text-amber-700",
   published: "bg-emerald-50 text-emerald-700",
   rejected: "bg-red-50 text-red-700",
-  archived: "bg-zinc-100 text-zinc-500",
+  archived: "bg-[var(--neutral-bg)] text-[var(--muted)]",
 };
 
 function EditListingScreen() {
@@ -76,7 +76,7 @@ function EditListingScreen() {
 
   if (!listing || !values) {
     return (
-      <p className="mx-auto max-w-2xl px-4 py-16 text-zinc-500">{tCommon("loading")}</p>
+      <p className="mx-auto max-w-2xl px-4 py-16 text-[var(--muted)]">{tCommon("loading")}</p>
     );
   }
 
@@ -138,10 +138,10 @@ function EditListingScreen() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
       <div className="flex items-center justify-between gap-3">
-        <Link href="/seller/listings" className="text-sm text-zinc-500 hover:text-zinc-900">
+        <Link href="/seller/listings" className="text-sm text-[var(--muted)] hover:text-[var(--foreground)]">
           {t("backLink")}
         </Link>
-        <span className={`badge ${STATUS_STYLE[listing.status] ?? "bg-zinc-100"}`}>
+        <span className={`badge ${STATUS_STYLE[listing.status] ?? "bg-[var(--neutral-bg)]"}`}>
           {tStatus(listing.status)}
         </span>
       </div>

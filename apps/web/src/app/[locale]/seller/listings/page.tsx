@@ -17,11 +17,11 @@ export default function SellerListingsPage() {
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  draft: "bg-zinc-100 text-zinc-600",
+  draft: "bg-[var(--neutral-bg)] text-[var(--muted)]",
   pending_review: "bg-amber-50 text-amber-700",
   published: "bg-emerald-50 text-emerald-700",
   rejected: "bg-red-50 text-red-700",
-  archived: "bg-zinc-100 text-zinc-500",
+  archived: "bg-[var(--neutral-bg)] text-[var(--muted)]",
 };
 
 function uaLabel(label: string, locale: Locale) {
@@ -53,7 +53,7 @@ function ListingsScreen() {
 
   if (!listings) {
     return (
-      <p className="mx-auto max-w-4xl px-4 py-16 text-zinc-500">{tCommon("loading")}</p>
+      <p className="mx-auto max-w-4xl px-4 py-16 text-[var(--muted)]">{tCommon("loading")}</p>
     );
   }
 
@@ -67,7 +67,7 @@ function ListingsScreen() {
       </div>
 
       {listings.length === 0 ? (
-        <p className="card mt-6 p-8 text-center text-zinc-500">{t("emptyBody")}</p>
+        <p className="card mt-6 p-8 text-center text-[var(--muted)]">{t("emptyBody")}</p>
       ) : (
         <div className="mt-6 space-y-3">
           {listings.map((listing) => (
@@ -77,13 +77,13 @@ function ListingsScreen() {
               className="card flex items-center justify-between gap-4 p-4 transition hover:shadow-md"
             >
               <div>
-                <p className="font-medium text-zinc-900">{listing.title}</p>
-                <p className="text-sm text-zinc-500">
+                <p className="font-medium text-[var(--foreground)]">{listing.title}</p>
+                <p className="text-sm text-[var(--muted)]">
                   {tKind(listing.kind)} · {uaLabel(listing.priceLabel, locale)}
                 </p>
               </div>
               <span
-                className={`badge ${STATUS_STYLE[listing.status] ?? "bg-zinc-100 text-zinc-600"}`}
+                className={`badge ${STATUS_STYLE[listing.status] ?? "bg-[var(--neutral-bg)] text-[var(--muted)]"}`}
               >
                 {tStatus(listing.status)}
               </span>

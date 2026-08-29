@@ -102,8 +102,8 @@ function AdminDashboard() {
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {links.map((link) => (
           <Link key={link.href} href={link.href} className="card p-5 transition hover:shadow-md">
-            <p className="font-semibold text-zinc-900">{link.title}</p>
-            <p className="mt-1.5 text-sm text-zinc-600">{link.body}</p>
+            <p className="font-semibold text-[var(--foreground)]">{link.title}</p>
+            <p className="mt-1.5 text-sm text-[var(--muted)]">{link.body}</p>
           </Link>
         ))}
       </div>
@@ -114,8 +114,8 @@ function AdminDashboard() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="card p-5">
-      <p className="text-sm text-zinc-500">{label}</p>
-      <p className="mt-1 text-xl font-semibold text-zinc-900">{value}</p>
+      <p className="text-sm text-[var(--muted)]">{label}</p>
+      <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{value}</p>
     </div>
   );
 }

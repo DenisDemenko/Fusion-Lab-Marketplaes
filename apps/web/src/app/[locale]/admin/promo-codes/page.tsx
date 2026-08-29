@@ -171,14 +171,14 @@ function PromoCodesScreen() {
       </form>
 
       {!codes ? (
-        <p className="mt-6 text-zinc-500">{tCommon("loading")}</p>
+        <p className="mt-6 text-[var(--muted)]">{tCommon("loading")}</p>
       ) : codes.length === 0 ? (
-        <p className="card mt-6 p-8 text-center text-zinc-500">{t("empty")}</p>
+        <p className="card mt-6 p-8 text-center text-[var(--muted)]">{t("empty")}</p>
       ) : (
         <div className="card mt-6 overflow-x-auto">
           <table className="w-full min-w-[600px] text-sm">
             <thead>
-              <tr className="border-b border-[var(--line)] text-left text-zinc-500">
+              <tr className="border-b border-[var(--line)] text-left text-[var(--muted)]">
                 <th className="px-4 py-3 font-medium">{t("colCode")}</th>
                 <th className="px-4 py-3 font-medium">{t("colDiscount")}</th>
                 <th className="px-4 py-3 font-medium">{t("colUsed")}</th>
@@ -200,12 +200,12 @@ function PromoCodesScreen() {
                     {promo.redemptionCount}
                     {promo.maxRedemptions ? ` / ${promo.maxRedemptions}` : ""}
                   </td>
-                  <td className="px-4 py-3 text-zinc-500">
+                  <td className="px-4 py-3 text-[var(--muted)]">
                     {promo.expiresAt ? formatDate(promo.expiresAt, locale) : "—"}
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`badge ${promo.active ? "bg-emerald-50 text-emerald-700" : "bg-zinc-100 text-zinc-500"}`}
+                      className={`badge ${promo.active ? "bg-emerald-50 text-emerald-700" : "bg-[var(--neutral-bg)] text-[var(--muted)]"}`}
                     >
                       {promo.active ? t("statusActive") : t("statusDisabled")}
                     </span>
@@ -213,7 +213,7 @@ function PromoCodesScreen() {
                   <td className="px-4 py-3 text-right">
                     <button
                       type="button"
-                      className="text-sm text-zinc-600 hover:underline"
+                      className="text-sm text-[var(--muted)] hover:underline"
                       onClick={() => void toggle(promo.id, promo.active)}
                     >
                       {promo.active ? t("disable") : t("enable")}

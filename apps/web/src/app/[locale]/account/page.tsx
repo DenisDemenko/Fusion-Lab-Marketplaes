@@ -52,9 +52,9 @@ function AccountScreen() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <h1 className="section-title">{t("title")}</h1>
-      <p className="mt-1 text-zinc-500">
+      <p className="mt-1 text-[var(--muted)]">
         {profile?.email}
-        <span className="mx-2 text-zinc-300">·</span>
+        <span className="mx-2 text-[var(--muted)]">·</span>
         {t("roleLabel", { role: profile?.role ?? "—" })}
       </p>
 
@@ -65,8 +65,8 @@ function AccountScreen() {
             href={card.href}
             className="card p-5 transition hover:shadow-md"
           >
-            <p className="font-semibold text-zinc-900">{card.title}</p>
-            <p className="mt-1.5 text-sm text-zinc-600">{card.body}</p>
+            <p className="font-semibold text-[var(--foreground)]">{card.title}</p>
+            <p className="mt-1.5 text-sm text-[var(--muted)]">{card.body}</p>
           </Link>
         ))}
       </div>

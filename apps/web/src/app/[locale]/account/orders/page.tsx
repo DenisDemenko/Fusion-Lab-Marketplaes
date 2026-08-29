@@ -45,7 +45,7 @@ function OrdersScreen() {
 
   if (!orders) {
     return (
-      <p className="mx-auto max-w-3xl px-4 py-16 text-zinc-500">{tCommon("loading")}</p>
+      <p className="mx-auto max-w-3xl px-4 py-16 text-[var(--muted)]">{tCommon("loading")}</p>
     );
   }
 
@@ -72,8 +72,8 @@ function OrdersScreen() {
             className="card flex flex-wrap items-center justify-between gap-3 p-5 transition hover:shadow-md"
           >
             <div>
-              <p className="font-medium text-zinc-900">{order.number}</p>
-              <p className="text-sm text-zinc-500">
+              <p className="font-medium text-[var(--foreground)]">{order.number}</p>
+              <p className="text-sm text-[var(--muted)]">
                 {t("createdItemsCount", {
                   date: formatDateTime(order.createdAt, locale),
                   count: order.items.length,
@@ -83,7 +83,7 @@ function OrdersScreen() {
 
             <div className="flex items-center gap-4">
               <OrderStatusBadge status={order.status} />
-              <span className="font-semibold text-zinc-900">
+              <span className="font-semibold text-[var(--foreground)]">
                 {uaLabel(order.totalLabel, locale)}
               </span>
             </div>

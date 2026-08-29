@@ -73,13 +73,13 @@ function AdminSellerPayoutsScreen() {
 
   if (!ledger) {
     return (
-      <p className="mx-auto max-w-2xl px-4 py-16 text-zinc-500">{tCommon("loading")}</p>
+      <p className="mx-auto max-w-2xl px-4 py-16 text-[var(--muted)]">{tCommon("loading")}</p>
     );
   }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
-      <Link href="/admin/sellers" className="text-sm text-zinc-500 hover:text-zinc-900">
+      <Link href="/admin/sellers" className="text-sm text-[var(--muted)] hover:text-[var(--foreground)]">
         {t("backToSellers")}
       </Link>
 
@@ -87,15 +87,15 @@ function AdminSellerPayoutsScreen() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <div className="card p-5">
-          <p className="text-sm text-zinc-500">{t("earned")}</p>
+          <p className="text-sm text-[var(--muted)]">{t("earned")}</p>
           <p className="mt-1 text-xl font-semibold">{uaLabel(ledger.earnedLabel, locale)}</p>
         </div>
         <div className="card p-5">
-          <p className="text-sm text-zinc-500">{t("paidOut")}</p>
+          <p className="text-sm text-[var(--muted)]">{t("paidOut")}</p>
           <p className="mt-1 text-xl font-semibold">{uaLabel(ledger.paidOutLabel, locale)}</p>
         </div>
         <div className="card border-[var(--accent)] p-5">
-          <p className="text-sm text-zinc-500">{t("outstanding")}</p>
+          <p className="text-sm text-[var(--muted)]">{t("outstanding")}</p>
           <p className="mt-1 text-xl font-semibold text-[var(--accent)]">
             {uaLabel(ledger.outstandingLabel, locale)}
           </p>
@@ -103,7 +103,7 @@ function AdminSellerPayoutsScreen() {
       </div>
 
       <form onSubmit={record} className="card mt-6 space-y-4 p-6">
-        <p className="font-medium text-zinc-900">{t("recordPayout")}</p>
+        <p className="font-medium text-[var(--foreground)]">{t("recordPayout")}</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="amount">
@@ -144,18 +144,18 @@ function AdminSellerPayoutsScreen() {
       </form>
 
       {ledger.entries.length === 0 ? (
-        <p className="card mt-6 p-8 text-center text-zinc-500">{t("emptyHistory")}</p>
+        <p className="card mt-6 p-8 text-center text-[var(--muted)]">{t("emptyHistory")}</p>
       ) : (
         <div className="card mt-6 divide-y divide-[var(--line)]">
           {ledger.entries.map((entry, index) => (
             <div key={index} className="flex items-center justify-between gap-3 p-4">
               <div>
-                <p className="font-medium text-zinc-900">{entry.description}</p>
-                <p className="text-xs text-zinc-500">{formatDate(entry.date, locale)}</p>
+                <p className="font-medium text-[var(--foreground)]">{entry.description}</p>
+                <p className="text-xs text-[var(--muted)]">{formatDate(entry.date, locale)}</p>
               </div>
               <span
                 className={`font-semibold ${
-                  entry.amountMinor >= 0 ? "text-emerald-700" : "text-zinc-600"
+                  entry.amountMinor >= 0 ? "text-emerald-700" : "text-[var(--muted)]"
                 }`}
               >
                 {entry.amountMinor >= 0 ? "+" : ""}

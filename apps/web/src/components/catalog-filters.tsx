@@ -58,8 +58,8 @@ export function CatalogFilters({ categories }: { categories: CategorySummary[] }
               onClick={() => apply("kind", kind.value)}
               className={`rounded-full border px-3 py-1.5 text-sm ${
                 activeKind === kind.value
-                  ? "border-zinc-900 bg-zinc-900 text-white"
-                  : "border-[var(--line)] bg-white text-zinc-700 hover:bg-zinc-50"
+                  ? "border-[var(--foreground)] bg-[var(--foreground)] text-white"
+                  : "border-[var(--line)] bg-white text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
               }`}
             >
               {kind.label}

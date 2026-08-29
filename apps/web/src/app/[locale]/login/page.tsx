@@ -53,7 +53,7 @@ function LoginForm() {
       <h1 className="section-title">
         {mode === "signin" ? t("signIn") : t("signUp")}
       </h1>
-      <p className="mt-1 text-sm text-zinc-500">{t("subtitle")}</p>
+      <p className="mt-1 text-sm text-[var(--muted)]">{t("subtitle")}</p>
 
       <form onSubmit={submit} className="card mt-6 space-y-4 p-6">
         <div>
@@ -114,11 +114,11 @@ function LoginForm() {
           {t("signInWithGoogle")}
         </button>
 
-        <p className="text-center text-sm text-zinc-500">
+        <p className="text-center text-sm text-[var(--muted)]">
           {mode === "signin" ? t("noAccountYet") : t("haveAccount")}{" "}
           <button
             type="button"
-            className="font-medium text-zinc-900 underline"
+            className="font-medium text-[var(--foreground)] underline"
             onClick={() => {
               setMode(mode === "signin" ? "signup" : "signin");
               setError(null);

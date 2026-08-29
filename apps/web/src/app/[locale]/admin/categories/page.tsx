@@ -90,7 +90,7 @@ function CategoriesScreen() {
       ) : null}
 
       {!categories ? (
-        <p className="mt-6 text-zinc-500">{tCommon("loading")}</p>
+        <p className="mt-6 text-[var(--muted)]">{tCommon("loading")}</p>
       ) : (
         <ul className="card mt-6 divide-y divide-[var(--line)]">
           {categories.map((category) => (
@@ -100,7 +100,7 @@ function CategoriesScreen() {
             >
               <span>
                 {category.name}{" "}
-                <span className="text-zinc-400">({category.slug})</span>
+                <span className="text-[var(--muted)]">({category.slug})</span>
               </span>
               <button
                 type="button"

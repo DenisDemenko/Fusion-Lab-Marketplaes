@@ -108,14 +108,14 @@ function CartScreen() {
   }
 
   if (loading && !cart) {
-    return <p className="mx-auto max-w-3xl px-4 py-16 text-zinc-500">{tCommon("loading")}</p>;
+    return <p className="mx-auto max-w-3xl px-4 py-16 text-[var(--muted)]">{tCommon("loading")}</p>;
   }
 
   if (!cart || cart.items.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center">
         <h1 className="section-title">{t("emptyTitle")}</h1>
-        <p className="mt-2 text-zinc-500">{t("emptyBody")}</p>
+        <p className="mt-2 text-[var(--muted)]">{t("emptyBody")}</p>
         <Link href="/catalog" className="btn-primary mt-6">
           {tCommon("toCatalog")}
         </Link>
@@ -134,7 +134,7 @@ function CartScreen() {
 
           return (
             <div key={item.id} className="card flex gap-4 p-4">
-              <div className="h-20 w-28 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
+              <div className="h-20 w-28 shrink-0 overflow-hidden rounded-xl bg-[var(--neutral-bg)]">
                 {cover ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={cover} alt="" className="h-full w-full object-cover" />
@@ -144,17 +144,17 @@ function CartScreen() {
               <div className="flex flex-1 flex-col">
                 <Link
                   href={`/catalog/${item.listing.slug}`}
-                  className="font-medium text-zinc-900 hover:underline"
+                  className="font-medium text-[var(--foreground)] hover:underline"
                 >
                   {item.listing.title}
                 </Link>
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm text-[var(--muted)]">
                   {uaLabel(item.listing.priceLabel, locale)}
                 </p>
 
                 <div className="mt-auto flex items-center gap-3 pt-2">
                   {isProduct ? (
-                    <label className="flex items-center gap-2 text-sm text-zinc-600">
+                    <label className="flex items-center gap-2 text-sm text-[var(--muted)]">
                       {t("quantityLabel")}
                       <input
                         type="number"
@@ -171,7 +171,7 @@ function CartScreen() {
                       />
                     </label>
                   ) : (
-                    <span className="text-sm text-zinc-500">{t("digitalAccess")}</span>
+                    <span className="text-sm text-[var(--muted)]">{t("digitalAccess")}</span>
                   )}
 
                   <button
@@ -184,7 +184,7 @@ function CartScreen() {
                 </div>
               </div>
 
-              <p className="shrink-0 font-semibold text-zinc-900">
+              <p className="shrink-0 font-semibold text-[var(--foreground)]">
                 {formatUah(item.lineTotalMinor, locale)}
               </p>
             </div>
@@ -243,7 +243,7 @@ function CartScreen() {
               <p className="label mb-0">
                 {t("spendPoints", { balance: loyaltyBalance })}
               </p>
-              <span className="text-sm text-zinc-500">
+              <span className="text-sm text-[var(--muted)]">
                 −{formatUah(loyaltyDiscountMinor, locale)}
               </span>
             </div>
@@ -256,7 +256,7 @@ function CartScreen() {
               onChange={(event) => setPointsToSpend(Number(event.target.value))}
               className="mt-2 w-full"
             />
-            <div className="mt-1 flex justify-between text-xs text-zinc-400">
+            <div className="mt-1 flex justify-between text-xs text-[var(--muted)]">
               <span>0</span>
               <span>{maxSpendablePoints}</span>
             </div>
@@ -265,7 +265,7 @@ function CartScreen() {
       </div>
 
       <div className="card mt-6 space-y-2 p-5">
-        <div className="flex items-center justify-between text-sm text-zinc-600">
+        <div className="flex items-center justify-between text-sm text-[var(--muted)]">
           <span>{t("subtotal")}</span>
           <span>{formatUah(subtotalMinor, locale)}</span>
         </div>
@@ -284,8 +284,8 @@ function CartScreen() {
 
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--line)] pt-4">
           <div>
-            <p className="text-sm text-zinc-500">{t("toPay")}</p>
-            <p className="text-2xl font-semibold text-zinc-900">
+            <p className="text-sm text-[var(--muted)]">{t("toPay")}</p>
+            <p className="text-2xl font-semibold text-[var(--foreground)]">
               {formatUah(totalMinor, locale)}
             </p>
           </div>

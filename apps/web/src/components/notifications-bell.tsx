@@ -20,7 +20,7 @@ export function NotificationsBell() {
     <div className="relative">
       <button
         type="button"
-        className="relative rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
+        className="relative rounded-xl px-3 py-2 text-sm font-medium text-[var(--muted)] hover:bg-[var(--neutral-bg)]"
         onClick={() => setOpen((current) => !current)}
         aria-label={unread ? t("labelWithUnread", { unread }) : t("label")}
         aria-expanded={open}
@@ -45,12 +45,12 @@ export function NotificationsBell() {
                   notification did or did not appear without a reload. */}
               <span
                 title={connected ? t("live") : t("notLive")}
-                className={`h-2 w-2 rounded-full ${connected ? "bg-emerald-500" : "bg-zinc-300"}`}
+                className={`h-2 w-2 rounded-full ${connected ? "bg-emerald-500" : "bg-[var(--line)]"}`}
               />
               {unread > 0 ? (
                 <button
                   type="button"
-                  className="text-xs text-zinc-500 hover:text-zinc-900"
+                  className="text-xs text-[var(--muted)] hover:text-[var(--foreground)]"
                   onClick={() => void markAllRead()}
                 >
                   {t("markAllRead")}
@@ -61,7 +61,7 @@ export function NotificationsBell() {
 
           <div className="max-h-96 overflow-y-auto">
             {items.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-zinc-500">
+              <p className="px-4 py-6 text-center text-sm text-[var(--muted)]">
                 {t("empty")}
               </p>
             ) : (
@@ -70,13 +70,13 @@ export function NotificationsBell() {
                   key={item.id}
                   type="button"
                   onClick={() => item.readAt || void markRead(item.id)}
-                  className={`block w-full border-b border-[var(--line)] px-4 py-3 text-left last:border-0 hover:bg-zinc-50 ${
+                  className={`block w-full border-b border-[var(--line)] px-4 py-3 text-left last:border-0 hover:bg-[var(--neutral-bg)] ${
                     item.readAt ? "opacity-60" : ""
                   }`}
                 >
-                  <p className="text-sm font-medium text-zinc-900">{item.title}</p>
-                  <p className="mt-0.5 text-sm text-zinc-600">{item.body}</p>
-                  <p className="mt-1 text-xs text-zinc-400">
+                  <p className="text-sm font-medium text-[var(--foreground)]">{item.title}</p>
+                  <p className="mt-0.5 text-sm text-[var(--muted)]">{item.body}</p>
+                  <p className="mt-1 text-xs text-[var(--muted)]">
                     {formatDateTime(item.createdAt, locale)}
                   </p>
                 </button>

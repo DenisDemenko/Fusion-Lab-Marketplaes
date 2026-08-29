@@ -569,6 +569,14 @@
     "outstanding": "Payout due",
     "emptyHistory": "No history yet — it'll appear after your first sale."
   },
+  "labHero": {
+    "eyebrow": "Fusion Lab · Mynai, Uzhhorod district",
+    "title": "Fusion Lab —<br></br>a space where<br></br>ideas come<br></br>to life.",
+    "body": "Fusion Lab brings together workshops, modern technology, and creativity. From first model to finished piece — alongside professional mentors. Spend time together building wooden pieces, ceramics, robots, models, and your own projects. Fusion Lab is where making things becomes a family tradition.",
+    "ctaBook": "Join a group session",
+    "ctaDirections": "Browse our workshops",
+    "ctaSignIn": "Sign in / Register"
+  },
   "homePage": {
     "badgeLine": "Fusion 360 · 3D printing · CNC · drones",
     "heroTitle": "Courses, books, and lab-made products — all in one place",

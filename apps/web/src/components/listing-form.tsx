@@ -192,7 +192,7 @@ export function ListingFormFields({
           value={values.description}
           onChange={(event) => set("description", event.target.value)}
         />
-        <p className="mt-1 text-xs text-zinc-500">{t("descriptionHint")}</p>
+        <p className="mt-1 text-xs text-[var(--muted)]">{t("descriptionHint")}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -242,7 +242,7 @@ export function ListingFormFields({
           value={values.coverUrl}
           onChange={(event) => set("coverUrl", event.target.value)}
         />
-        <p className="mt-1 text-xs text-zinc-500">{t("coverUrlHint")}</p>
+        <p className="mt-1 text-xs text-[var(--muted)]">{t("coverUrlHint")}</p>
       </div>
 
       <div>
@@ -269,7 +269,7 @@ export function ListingFormFields({
             value={values.curriculumText}
             onChange={(event) => set("curriculumText", event.target.value)}
           />
-          <p className="mt-1 text-xs text-zinc-500">{t("curriculumHint")}</p>
+          <p className="mt-1 text-xs text-[var(--muted)]">{t("curriculumHint")}</p>
         </div>
       ) : null}
     </div>

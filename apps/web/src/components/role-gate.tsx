@@ -46,7 +46,7 @@ export function RoleGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="mx-auto max-w-2xl px-4 py-16">
       <h1 className="section-title">{t("title")}</h1>
-      <p className="mt-2 text-zinc-600">{t("subtitle")}</p>
+      <p className="mt-2 text-[var(--muted)]">{t("subtitle")}</p>
 
       <div className="mt-8 grid gap-3 sm:grid-cols-2">
         {SELF_SELECTABLE_ROLES.map((role) => (
@@ -57,14 +57,14 @@ export function RoleGate({ children }: { children: React.ReactNode }) {
             aria-pressed={selected === role}
             className={`card p-4 text-left transition ${
               selected === role
-                ? "border-zinc-900 ring-1 ring-zinc-900"
-                : "hover:border-zinc-400"
+                ? "border-[var(--foreground)] ring-1 ring-[var(--foreground)]"
+                : "hover:border-[var(--muted)]"
             }`}
           >
-            <p className="font-semibold text-zinc-900">
+            <p className="font-semibold text-[var(--foreground)]">
               {t(`roles.${role}.label`)}
             </p>
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-[var(--muted)]">
               {t(`roles.${role}.description`)}
             </p>
           </button>

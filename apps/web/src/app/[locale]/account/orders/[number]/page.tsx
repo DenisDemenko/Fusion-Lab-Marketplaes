@@ -70,13 +70,13 @@ function OrderScreen() {
 
   if (!order) {
     return (
-      <p className="mx-auto max-w-3xl px-4 py-16 text-zinc-500">{tCommon("loading")}</p>
+      <p className="mx-auto max-w-3xl px-4 py-16 text-[var(--muted)]">{tCommon("loading")}</p>
     );
   }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <Link href="/account/orders" className="text-sm text-zinc-500 hover:text-zinc-900">
+      <Link href="/account/orders" className="text-sm text-[var(--muted)] hover:text-[var(--foreground)]">
         {t("backToOrders")}
       </Link>
 
@@ -84,7 +84,7 @@ function OrderScreen() {
         <h1 className="section-title">{t("orderTitle", { number: order.number })}</h1>
         <OrderStatusBadge status={order.status} />
       </div>
-      <p className="mt-1 text-sm text-zinc-500">
+      <p className="mt-1 text-sm text-[var(--muted)]">
         {t("createdAt", { date: formatDateTime(order.createdAt, locale) })}
         {order.paidAt
           ? ` · ${t("paidAt", { date: formatDateTime(order.paidAt, locale) })}`
@@ -97,11 +97,11 @@ function OrderScreen() {
             <div>
               <Link
                 href={`/catalog/${item.listingSlug}`}
-                className="font-medium text-zinc-900 hover:underline"
+                className="font-medium text-[var(--foreground)] hover:underline"
               >
                 {item.title}
               </Link>
-              <p className="text-sm text-zinc-500">
+              <p className="text-sm text-[var(--muted)]">
                 {t("itemQuantityPrice", {
                   quantity: item.quantity,
                   price: formatUah(item.unitPriceMinor, locale),
@@ -113,7 +113,7 @@ function OrderScreen() {
         ))}
 
         <div className="space-y-1.5 p-4">
-          <div className="flex items-center justify-between text-sm text-zinc-600">
+          <div className="flex items-center justify-between text-sm text-[var(--muted)]">
             <span>{t("subtotal")}</span>
             <span>{formatUah(order.subtotalMinor, locale)}</span>
           </div>
@@ -130,7 +130,7 @@ function OrderScreen() {
             </div>
           ) : null}
           <div className="flex items-center justify-between border-t border-[var(--line)] pt-2">
-            <span className="font-medium text-zinc-700">{t("total")}</span>
+            <span className="font-medium text-[var(--foreground)]">{t("total")}</span>
             <span className="text-xl font-semibold">
               {uaLabel(order.totalLabel, locale)}
             </span>
@@ -141,14 +141,14 @@ function OrderScreen() {
       {order.status === "paid" ? (
         <div className="card mt-6 p-5">
           <p className="font-medium text-emerald-700">{t("paidStatus")}</p>
-          <p className="mt-1 text-sm text-zinc-600">{t("paidBody")}</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">{t("paidBody")}</p>
           <Link href="/account/library" className="btn-primary mt-4">
             {t("goToLibrary")}
           </Link>
         </div>
       ) : order.status === "pending" ? (
         <div className="card mt-6 space-y-4 p-5">
-          <p className="font-medium text-zinc-900">{t("paymentTitle")}</p>
+          <p className="font-medium text-[var(--foreground)]">{t("paymentTitle")}</p>
 
           {payment?.configured ? (
             // LiqPay takes a form POST, not a redirect: the signed payload
@@ -163,7 +163,7 @@ function OrderScreen() {
             </form>
           ) : (
             <>
-              <p className="text-sm text-zinc-600">{t("gatewayNotConfigured")}</p>
+              <p className="text-sm text-[var(--muted)]">{t("gatewayNotConfigured")}</p>
               <button
                 type="button"
                 className="btn-accent w-full"
@@ -196,7 +196,7 @@ function OrderScreen() {
       ) : (
         <div className="card mt-6 p-5">
           <p className="font-medium text-red-700">{t("failedStatus")}</p>
-          <p className="mt-1 text-sm text-zinc-600">{t("failedBody")}</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">{t("failedBody")}</p>
           <Link href="/catalog" className="btn-ghost mt-4">
             {tCommon("toCatalog")}
           </Link>

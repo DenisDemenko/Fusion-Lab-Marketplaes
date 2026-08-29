@@ -41,7 +41,7 @@ function SellerOrdersScreen() {
 
   if (!sales) {
     return (
-      <p className="mx-auto max-w-4xl px-4 py-16 text-zinc-500">{tCommon("loading")}</p>
+      <p className="mx-auto max-w-4xl px-4 py-16 text-[var(--muted)]">{tCommon("loading")}</p>
     );
   }
 
@@ -50,12 +50,12 @@ function SellerOrdersScreen() {
       <h1 className="section-title">{t("title")}</h1>
 
       {sales.length === 0 ? (
-        <p className="card mt-6 p-8 text-center text-zinc-500">{t("empty")}</p>
+        <p className="card mt-6 p-8 text-center text-[var(--muted)]">{t("empty")}</p>
       ) : (
         <div className="card mt-6 overflow-x-auto">
           <table className="w-full min-w-[640px] text-sm">
             <thead>
-              <tr className="border-b border-[var(--line)] text-left text-zinc-500">
+              <tr className="border-b border-[var(--line)] text-left text-[var(--muted)]">
                 <th className="px-4 py-3 font-medium">{t("colOrder")}</th>
                 <th className="px-4 py-3 font-medium">{t("colItem")}</th>
                 <th className="px-4 py-3 font-medium">{t("colStatus")}</th>
@@ -68,8 +68,8 @@ function SellerOrdersScreen() {
               {sales.map((sale) => (
                 <tr key={sale.id}>
                   <td className="px-4 py-3">
-                    <p className="font-medium text-zinc-900">{sale.orderNumber}</p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="font-medium text-[var(--foreground)]">{sale.orderNumber}</p>
+                    <p className="text-xs text-[var(--muted)]">
                       {formatDateTime(sale.placedAt, locale)}
                     </p>
                   </td>
@@ -80,7 +80,7 @@ function SellerOrdersScreen() {
                     >
                       {sale.title}
                     </Link>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-[var(--muted)]">
                       {t("quantitySuffix", { count: sale.quantity })}
                     </p>
                   </td>
@@ -90,7 +90,7 @@ function SellerOrdersScreen() {
                   <td className="px-4 py-3 text-right">
                     {formatUah(sale.unitPriceMinor * sale.quantity, locale)}
                   </td>
-                  <td className="px-4 py-3 text-right text-zinc-500">
+                  <td className="px-4 py-3 text-right text-[var(--muted)]">
                     {formatUah(sale.commissionMinor, locale)}
                   </td>
                   <td className="px-4 py-3 text-right font-medium">

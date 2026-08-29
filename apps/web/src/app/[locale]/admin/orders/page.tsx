@@ -72,8 +72,8 @@ function OrdersScreen() {
             onClick={() => setStatus(tab.value)}
             className={`rounded-full border px-3.5 py-1.5 text-sm ${
               status === tab.value
-                ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-[var(--line)] bg-white text-zinc-700 hover:bg-zinc-50"
+                ? "border-[var(--foreground)] bg-[var(--foreground)] text-white"
+                : "border-[var(--line)] bg-white text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
             }`}
           >
             {tab.label}
@@ -88,14 +88,14 @@ function OrdersScreen() {
       ) : null}
 
       {!orders ? (
-        <p className="mt-6 text-zinc-500">{tCommon("loading")}</p>
+        <p className="mt-6 text-[var(--muted)]">{tCommon("loading")}</p>
       ) : orders.length === 0 ? (
-        <p className="card mt-6 p-8 text-center text-zinc-500">{t("empty")}</p>
+        <p className="card mt-6 p-8 text-center text-[var(--muted)]">{t("empty")}</p>
       ) : (
         <div className="card mt-6 overflow-x-auto">
           <table className="w-full min-w-[720px] text-sm">
             <thead>
-              <tr className="border-b border-[var(--line)] text-left text-zinc-500">
+              <tr className="border-b border-[var(--line)] text-left text-[var(--muted)]">
                 <th className="px-4 py-3 font-medium">{t("colNumber")}</th>
                 <th className="px-4 py-3 font-medium">{t("colBuyer")}</th>
                 <th className="px-4 py-3 font-medium">{t("colStatus")}</th>
@@ -107,14 +107,14 @@ function OrdersScreen() {
             <tbody className="divide-y divide-[var(--line)]">
               {orders.map((order) => (
                 <tr key={order.id}>
-                  <td className="px-4 py-3 font-medium text-zinc-900">
+                  <td className="px-4 py-3 font-medium text-[var(--foreground)]">
                     {order.number}
                   </td>
-                  <td className="px-4 py-3 text-zinc-600">{order.buyerEmail}</td>
+                  <td className="px-4 py-3 text-[var(--muted)]">{order.buyerEmail}</td>
                   <td className="px-4 py-3">
                     <OrderStatusBadge status={order.status} />
                   </td>
-                  <td className="px-4 py-3 text-zinc-500">
+                  <td className="px-4 py-3 text-[var(--muted)]">
                     {order.payment
                       ? `${order.payment.provider} · ${order.payment.status}`
                       : "—"}
@@ -122,7 +122,7 @@ function OrdersScreen() {
                   <td className="px-4 py-3 text-right font-medium">
                     {uaLabel(order.totalLabel, locale)}
                   </td>
-                  <td className="px-4 py-3 text-zinc-500">
+                  <td className="px-4 py-3 text-[var(--muted)]">
                     {formatDateTime(order.createdAt, locale)}
                   </td>
                 </tr>

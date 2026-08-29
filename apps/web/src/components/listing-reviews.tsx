@@ -84,9 +84,9 @@ export function ListingReviews({ listingId }: { listingId: string }) {
   return (
     <section className="mt-8">
       <div className="flex items-center gap-3">
-        <h2 className="text-xl font-semibold text-zinc-900">{t("title")}</h2>
+        <h2 className="text-xl font-semibold text-[var(--foreground)]">{t("title")}</h2>
         {summary.count > 0 ? (
-          <span className="text-sm text-zinc-500">
+          <span className="text-sm text-[var(--muted)]">
             {"★".repeat(Math.round(summary.average))}
             {"☆".repeat(5 - Math.round(summary.average))} {summary.average.toFixed(1)} (
             {summary.count})
@@ -98,11 +98,11 @@ export function ListingReviews({ listingId }: { listingId: string }) {
         mine && !editing ? (
           <div className="card mt-3 p-4">
             <p className="text-sm text-amber-600">{"★".repeat(mine.rating)}</p>
-            {mine.body ? <p className="mt-1 text-sm text-zinc-700">{mine.body}</p> : null}
+            {mine.body ? <p className="mt-1 text-sm text-[var(--foreground)]">{mine.body}</p> : null}
             <div className="mt-2 flex gap-3 text-sm">
               <button
                 type="button"
-                className="text-zinc-600 hover:underline"
+                className="text-[var(--muted)] hover:underline"
                 onClick={() => setEditing(true)}
               >
                 {t("edit")}
@@ -124,7 +124,7 @@ export function ListingReviews({ listingId }: { listingId: string }) {
                   key={star}
                   type="button"
                   onClick={() => setRating(star)}
-                  className={`text-2xl ${star <= rating ? "text-amber-500" : "text-zinc-300"}`}
+                  className={`text-2xl ${star <= rating ? "text-amber-500" : "text-[var(--muted)]"}`}
                   aria-label={t("starRating", { star })}
                 >
                   ★
@@ -157,20 +157,20 @@ export function ListingReviews({ listingId }: { listingId: string }) {
       ) : null}
 
       {summary.reviews.length === 0 ? (
-        <p className="mt-3 text-sm text-zinc-500">{t("noReviewsYet")}</p>
+        <p className="mt-3 text-sm text-[var(--muted)]">{t("noReviewsYet")}</p>
       ) : (
         <div className="mt-3 space-y-3">
           {summary.reviews.map((review) => (
             <div key={review.id} className="card p-4">
               <div className="flex items-center justify-between">
-                <p className="font-medium text-zinc-900">{review.authorName}</p>
-                <p className="text-xs text-zinc-400">
+                <p className="font-medium text-[var(--foreground)]">{review.authorName}</p>
+                <p className="text-xs text-[var(--muted)]">
                   {formatDate(review.createdAt, locale)}
                 </p>
               </div>
               <p className="text-sm text-amber-600">{"★".repeat(review.rating)}</p>
               {review.body ? (
-                <p className="mt-1 text-sm text-zinc-700">{review.body}</p>
+                <p className="mt-1 text-sm text-[var(--foreground)]">{review.body}</p>
               ) : null}
             </div>
           ))}

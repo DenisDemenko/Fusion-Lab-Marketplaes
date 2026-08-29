@@ -26,7 +26,7 @@ export function RequireAuth({
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-16 text-center text-zinc-500">
+      <div className="mx-auto max-w-6xl px-4 py-16 text-center text-[var(--muted)]">
         {t("loading")}
       </div>
     );
@@ -35,8 +35,8 @@ export function RequireAuth({
   if (!firebaseUser) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold text-zinc-900">{t("signInRequired")}</h1>
-        <p className="mt-2 text-sm text-zinc-500">{t("signInPrompt")}</p>
+        <h1 className="text-xl font-semibold text-[var(--foreground)]">{t("signInRequired")}</h1>
+        <p className="mt-2 text-sm text-[var(--muted)]">{t("signInPrompt")}</p>
         <Link
           href={`/login?next=${encodeURIComponent(pathname)}`}
           className="btn-primary mt-5"
@@ -50,8 +50,8 @@ export function RequireAuth({
   if (role && profile?.role !== role) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold text-zinc-900">{t("noAccess")}</h1>
-        <p className="mt-2 text-sm text-zinc-500">
+        <h1 className="text-xl font-semibold text-[var(--foreground)]">{t("noAccess")}</h1>
+        <p className="mt-2 text-sm text-[var(--muted)]">
           {t("roleRequired", { role, yourRole: profile?.role ?? t("unknownRole") })}
         </p>
         <Link href="/" className="btn-ghost mt-5">

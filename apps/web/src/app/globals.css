@@ -2,32 +2,80 @@
 
 /* One light palette, deliberately. A marketplace that renders differently
    depending on an OS switch doubles every screenshot in a design review
-   and halves the attention each one gets. */
+   and halves the attention each one gets.
+
+   Palette and type scale from docs/migration-plan.md Phase B ("тепле
+   ремесло + прохолодна технологія"): a warm neutral base throughout, with
+   two accents rather than one — craft for handmade/creative categories,
+   tech for digital/fabrication ones. See the accent-craft and
+   accent-tech custom properties below, and the .accent-craft /
+   .accent-tech classes further down that listing-card.tsx and the
+   catalog detail page switch between per category (Phase B6). --accent/
+   --accent-soft keep their old names as the *default* accent (craft) so
+   the 28 existing call sites that already read var(--accent) pick up the
+   new palette without themselves changing. */
 :root {
-  --background: #fbfbfa;
+  --background: #f4ece1;
   --surface: #ffffff;
-  --foreground: #18181b;
-  --muted: #71717a;
-  --line: #e4e4e7;
-  --accent: #b45309;
-  --accent-soft: #fef3c7;
+  --panel: #e7d9c6;
+  --neutral-bg: #efe6d8;
+  --foreground: #2b1a10;
+  --muted: #6b5b4e;
+  --line: rgba(43, 26, 16, 0.14);
+
+  --accent-craft: #c97f4f;
+  --accent-craft-dk: #8c4a26;
+  --accent-craft-soft: #f6e3d4;
+  --accent-tech: #59637e;
+  --accent-tech-dk: #333b52;
+  --accent-tech-soft: #e3e5ec;
+
+  /* Default accent = craft. Anything not wrapped in .accent-tech (Phase B6
+     assigns that per listing category) uses this. */
+  --accent: var(--accent-craft);
+  --accent-dk: var(--accent-craft-dk);
+  --accent-soft: var(--accent-craft-soft);
+
+  --success: #3f6b4a;
+  --success-soft: #e3ede5;
+  --warning: #b9822b;
+  --warning-soft: #f6ecd9;
+  --danger: #a33a28;
+  --danger-soft: #f7e2dd;
+}
+
+/* Category-driven accent (Phase B6): wrap a listing card or detail page in
+   one of these and every var(--accent)/var(--accent-soft) read inside it
+   switches, with zero changes to the components doing the reading. */
+.accent-tech {
+  --accent: var(--accent-tech);
+  --accent-dk: var(--accent-tech-dk);
+  --accent-soft: var(--accent-tech-soft);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-panel: var(--panel);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-golos), var(--font-geist-sans);
+  --font-display: var(--font-unbounded), var(--font-sans);
+  --font-mono: var(--font-jetbrains-mono), var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Unbounded carries headings only (never body copy) — the type-scale rule
+   from docs/migration-plan.md Phase B2. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
 }
 
 /* A small set of component classes for the few shapes that repeat on every
@@ -39,41 +87,45 @@ body {
 
   /* Tailwind v4 only lets @apply reach real utilities, not another custom
      class defined the same way — so the shared button shape is repeated
-     in each variant rather than composed through a base `.btn`. */
+     in each variant rather than composed through a base `.btn`. Height
+     48px / 44px mobile is the accessibility minimum from the lab's style
+     guide, not an arbitrary number. */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5
       text-sm font-medium transition-colors disabled:cursor-not-allowed
-      disabled:opacity-50 bg-zinc-900 text-white hover:bg-zinc-700;
+      disabled:opacity-50 bg-[var(--foreground)] text-white hover:bg-[var(--accent-dk)]
+      sm:min-h-12;
   }
 
   .btn-accent {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5
       text-sm font-medium transition-colors disabled:cursor-not-allowed
-      disabled:opacity-50 bg-[var(--accent)] text-white hover:bg-amber-800;
+      disabled:opacity-50 bg-[var(--accent)] text-white hover:bg-[var(--accent-dk)]
+      sm:min-h-12;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5
       text-sm font-medium transition-colors disabled:cursor-not-allowed
-      disabled:opacity-50 border border-[var(--line)] bg-white text-zinc-700
-      hover:bg-zinc-50;
+      disabled:opacity-50 border border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)]
+      hover:bg-[var(--neutral-bg)] sm:min-h-12;
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5
       text-sm font-medium transition-colors disabled:cursor-not-allowed
-      disabled:opacity-50 border border-red-200 bg-white text-red-700
-      hover:bg-red-50;
+      disabled:opacity-50 border border-[var(--danger)] bg-[var(--surface)] text-[var(--danger)]
+      hover:bg-[var(--danger-soft)] sm:min-h-12;
   }
 
   .input {
-    @apply w-full rounded-xl border border-[var(--line)] bg-white px-3.5 py-2.5
-      text-sm outline-none placeholder:text-zinc-400
-      focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200;
+    @apply w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3.5 py-2.5
+      text-sm outline-none placeholder:text-[var(--muted)]
+      focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)];
   }
 
   .label {
-    @apply mb-1.5 block text-sm font-medium text-zinc-700;
+    @apply mb-1.5 block text-sm font-medium text-[var(--foreground)];
   }
 
   .badge {
@@ -81,6 +133,6 @@ body {
   }
 
   .section-title {
-    @apply text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl;
+    @apply font-display text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl;
   }
 }

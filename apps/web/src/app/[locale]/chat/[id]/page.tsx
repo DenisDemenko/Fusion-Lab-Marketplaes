@@ -119,37 +119,37 @@ function ChatThreadScreen() {
 
   if (!data) {
     return (
-      <p className="mx-auto max-w-2xl px-4 py-16 text-zinc-500">{tCommon("loading")}</p>
+      <p className="mx-auto max-w-2xl px-4 py-16 text-[var(--muted)]">{tCommon("loading")}</p>
     );
   }
 
   return (
     <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-2xl flex-col px-4 py-6">
-      <Link href="/chat" className="text-sm text-zinc-500 hover:text-zinc-900">
+      <Link href="/chat" className="text-sm text-[var(--muted)] hover:text-[var(--foreground)]">
         {t("backToMessages")}
       </Link>
 
       <Link
         href={`/catalog/${data.thread.listingSlug}`}
-        className="mt-2 font-semibold text-zinc-900 hover:underline"
+        className="mt-2 font-semibold text-[var(--foreground)] hover:underline"
       >
         {data.thread.listingTitle}
       </Link>
 
       <div className="card mt-4 flex-1 space-y-3 overflow-y-auto p-4">
         {data.messages.length === 0 ? (
-          <p className="text-center text-sm text-zinc-500">{t("writeFirstMessage")}</p>
+          <p className="text-center text-sm text-[var(--muted)]">{t("writeFirstMessage")}</p>
         ) : (
           data.messages.map((message) => (
             <div key={message.id} className={message.mine ? "text-right" : "text-left"}>
               <p
                 className={`inline-block max-w-[80%] whitespace-pre-line rounded-2xl px-3.5 py-2 text-sm ${
-                  message.mine ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-800"
+                  message.mine ? "bg-[var(--foreground)] text-white" : "bg-[var(--neutral-bg)] text-[var(--foreground)]"
                 }`}
               >
                 {message.body}
               </p>
-              <p className="mt-0.5 text-xs text-zinc-400">
+              <p className="mt-0.5 text-xs text-[var(--muted)]">
                 {formatDateTime(message.createdAt, locale)}
               </p>
             </div>

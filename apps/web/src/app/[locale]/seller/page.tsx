@@ -46,7 +46,7 @@ function SellerScreen() {
 
   if (seller === undefined) {
     return (
-      <p className="mx-auto max-w-2xl px-4 py-16 text-zinc-500">{tCommon("loading")}</p>
+      <p className="mx-auto max-w-2xl px-4 py-16 text-[var(--muted)]">{tCommon("loading")}</p>
     );
   }
 
@@ -54,7 +54,7 @@ function SellerScreen() {
     return (
       <div className="mx-auto max-w-lg px-4 py-14">
         <h1 className="section-title">{t("becomeSellerTitle")}</h1>
-        <p className="mt-2 text-zinc-500">{t("becomeSellerBody")}</p>
+        <p className="mt-2 text-[var(--muted)]">{t("becomeSellerBody")}</p>
         <SellerApplyForm
           onApplied={async () => {
             await refreshProfile();
@@ -69,7 +69,7 @@ function SellerScreen() {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <h1 className="section-title">{t("pendingTitle")}</h1>
-        <p className="mt-2 text-zinc-500">
+        <p className="mt-2 text-[var(--muted)]">
           {t("pendingBody", { name: seller.displayName })}
         </p>
       </div>
@@ -80,7 +80,7 @@ function SellerScreen() {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <h1 className="section-title">{t("rejectedTitle")}</h1>
-        <p className="mt-2 text-zinc-500">{t("rejectedBody")}</p>
+        <p className="mt-2 text-[var(--muted)]">{t("rejectedBody")}</p>
       </div>
     );
   }
@@ -90,7 +90,7 @@ function SellerScreen() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="section-title">{seller.displayName}</h1>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-[var(--muted)]">
             {t("commissionLabel", { percent: seller.commissionPercent })}
           </p>
         </div>
@@ -111,8 +111,8 @@ function SellerScreen() {
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         <Link href="/seller/listings" className="card p-5 transition hover:shadow-md">
-          <p className="font-semibold text-zinc-900">{t("myListings")}</p>
-          <p className="mt-1 text-sm text-zinc-600">
+          <p className="font-semibold text-[var(--foreground)]">{t("myListings")}</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">
             {Object.entries(seller.stats.listingsByStatus)
               .map(([status, count]) => `${count} — ${status}`)
               .join(" · ") || t("noListingsYet")}
@@ -120,13 +120,13 @@ function SellerScreen() {
         </Link>
 
         <Link href="/seller/orders" className="card p-5 transition hover:shadow-md">
-          <p className="font-semibold text-zinc-900">{t("salesTitle")}</p>
-          <p className="mt-1 text-sm text-zinc-600">{t("salesBody")}</p>
+          <p className="font-semibold text-[var(--foreground)]">{t("salesTitle")}</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">{t("salesBody")}</p>
         </Link>
 
         <Link href="/seller/payouts" className="card p-5 transition hover:shadow-md">
-          <p className="font-semibold text-zinc-900">{t("payoutsTitle")}</p>
-          <p className="mt-1 text-sm text-zinc-600">
+          <p className="font-semibold text-[var(--foreground)]">{t("payoutsTitle")}</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">
             {t("payoutsToPay", { amount: formatUah(seller.stats.payoutMinor, locale) })}
           </p>
         </Link>
@@ -142,8 +142,8 @@ function SellerScreen() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="card p-5">
-      <p className="text-sm text-zinc-500">{label}</p>
-      <p className="mt-1 text-xl font-semibold text-zinc-900">{value}</p>
+      <p className="text-sm text-[var(--muted)]">{label}</p>
+      <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{value}</p>
     </div>
   );
 }

@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Golos_Text,
+  JetBrains_Mono,
+  Unbounded,
+} from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -22,6 +28,28 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+// docs/migration-plan.md Phase B2: Unbounded carries headings only, Golos
+// Text is body/UI copy, JetBrains Mono is technical data (IDs, dates,
+// filenames). Geist stays loaded as the fallback link in each stack (see
+// globals.css's --font-sans/--font-mono) rather than being removed
+// outright — cheap to keep, and it's what every page still renders with
+// until Phase B5 works through it wave by wave.
+const unbounded = Unbounded({
+  variable: "--font-unbounded",
+  weight: ["600", "700", "800"],
+  subsets: ["latin", "cyrillic"],
+});
+
+const golos = Golos_Text({
+  variable: "--font-golos",
+  subsets: ["latin", "cyrillic"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
@@ -67,7 +95,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} h-full`}
+      className={`${geistSans.variable} ${geistMono.variable} ${unbounded.variable} ${golos.variable} ${jetbrainsMono.variable} h-full`}
     >
       <body className="flex min-h-full flex-col font-sans antialiased">
         <NextIntlClientProvider>

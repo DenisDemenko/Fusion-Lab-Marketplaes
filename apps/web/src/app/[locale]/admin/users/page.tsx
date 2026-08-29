@@ -129,12 +129,12 @@ function UsersScreen() {
       ) : null}
 
       {!users ? (
-        <p className="mt-6 text-zinc-500">{tCommon("loading")}</p>
+        <p className="mt-6 text-[var(--muted)]">{tCommon("loading")}</p>
       ) : (
         <div className="card mt-6 overflow-x-auto">
           <table className="w-full min-w-[880px] text-sm">
             <thead>
-              <tr className="border-b border-[var(--line)] text-left text-zinc-500">
+              <tr className="border-b border-[var(--line)] text-left text-[var(--muted)]">
                 <th className="px-4 py-3 font-medium">{t("colEmail")}</th>
                 <th className="px-4 py-3 font-medium">{t("colRegistered")}</th>
                 <th className="px-4 py-3 font-medium">{t("colOrders")}</th>
@@ -149,14 +149,14 @@ function UsersScreen() {
                 <Fragment key={user.id}>
                   <tr>
                     <td className="px-4 py-3">
-                      <p className="font-medium text-zinc-900">{user.email}</p>
+                      <p className="font-medium text-[var(--foreground)]">{user.email}</p>
                       {user.sellerProfile ? (
-                        <p className="text-xs text-zinc-500">
+                        <p className="text-xs text-[var(--muted)]">
                           {t("sellerStatusLabel", { status: user.sellerProfile.status })}
                         </p>
                       ) : null}
                     </td>
-                    <td className="px-4 py-3 text-zinc-500">
+                    <td className="px-4 py-3 text-[var(--muted)]">
                       {formatDate(user.createdAt, locale)}
                     </td>
                     <td className="px-4 py-3">{user._count.orders}</td>
@@ -187,7 +187,7 @@ function UsersScreen() {
                             void toggleSalesApproval(user.id, event.target.checked)
                           }
                         />
-                        <span className="text-xs text-zinc-500">
+                        <span className="text-xs text-[var(--muted)]">
                           {user.salesApproved ? t("approved") : t("notApproved")}
                         </span>
                       </label>
@@ -195,7 +195,7 @@ function UsersScreen() {
                     <td className="px-4 py-3">
                       <button
                         type="button"
-                        className="text-sm text-zinc-600 hover:underline"
+                        className="text-sm text-[var(--muted)] hover:underline"
                         onClick={() =>
                           setExpandedId(expandedId === user.id ? null : user.id)
                         }
@@ -206,7 +206,7 @@ function UsersScreen() {
                   </tr>
                   {expandedId === user.id ? (
                     <tr>
-                      <td colSpan={7} className="bg-zinc-50 px-4 py-4">
+                      <td colSpan={7} className="bg-[var(--neutral-bg)] px-4 py-4">
                         <PermissionsPanel
                           userId={user.id}
                           onChanged={() => load(query)}
@@ -269,21 +269,21 @@ function PermissionsPanel({
   }
 
   if (!data) {
-    return <p className="text-sm text-zinc-500">{tCommon("loading")}</p>;
+    return <p className="text-sm text-[var(--muted)]">{tCommon("loading")}</p>;
   }
 
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+        <p className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
           {t("effectivePermissions")}
         </p>
         <div className="mt-1.5 flex flex-wrap gap-1.5">
           {data.effective.length === 0 ? (
-            <span className="text-sm text-zinc-400">{t("noPermissions")}</span>
+            <span className="text-sm text-[var(--muted)]">{t("noPermissions")}</span>
           ) : (
             data.effective.map((permission) => (
-              <span key={permission} className="badge bg-zinc-100 text-zinc-700">
+              <span key={permission} className="badge bg-[var(--neutral-bg)] text-[var(--foreground)]">
                 {permission}
               </span>
             ))
@@ -298,8 +298,8 @@ function PermissionsPanel({
 
           return (
             <div key={permission} className="card p-3">
-              <p className="mono text-xs font-medium text-zinc-800">{permission}</p>
-              <p className="mt-0.5 text-xs text-zinc-500">
+              <p className="mono text-xs font-medium text-[var(--foreground)]">{permission}</p>
+              <p className="mt-0.5 text-xs text-[var(--muted)]">
                 {fromPreset ? t("fromRolePreset") : t("notInRolePreset")}
                 {override ? ` · ${t(override.granted ? "overrideGrant" : "overrideRevoke")}` : ""}
               </p>
@@ -307,7 +307,7 @@ function PermissionsPanel({
                 <button
                   type="button"
                   disabled={busy}
-                  className="rounded-lg border border-[var(--line)] px-2 py-1 text-xs hover:bg-zinc-50"
+                  className="rounded-lg border border-[var(--line)] px-2 py-1 text-xs hover:bg-[var(--neutral-bg)]"
                   onClick={() => void setOverride(permission, true)}
                 >
                   {t("grant")}
@@ -315,7 +315,7 @@ function PermissionsPanel({
                 <button
                   type="button"
                   disabled={busy}
-                  className="rounded-lg border border-[var(--line)] px-2 py-1 text-xs hover:bg-zinc-50"
+                  className="rounded-lg border border-[var(--line)] px-2 py-1 text-xs hover:bg-[var(--neutral-bg)]"
                   onClick={() => void setOverride(permission, false)}
                 >
                   {t("revoke")}
@@ -324,7 +324,7 @@ function PermissionsPanel({
                   <button
                     type="button"
                     disabled={busy}
-                    className="rounded-lg border border-[var(--line)] px-2 py-1 text-xs hover:bg-zinc-50"
+                    className="rounded-lg border border-[var(--line)] px-2 py-1 text-xs hover:bg-[var(--neutral-bg)]"
                     onClick={() => void setOverride(permission, null)}
                   >
                     {t("resetOverride")}

@@ -35,8 +35,8 @@ export function LocaleSwitcher() {
           }
           className={`rounded-lg px-2 py-1 font-medium transition-colors ${
             code === locale
-              ? "bg-zinc-900 text-white"
-              : "text-zinc-500 hover:bg-zinc-100"
+              ? "bg-[var(--foreground)] text-white"
+              : "text-[var(--muted)] hover:bg-[var(--neutral-bg)]"
           }`}
           aria-label={`${LABELS[code]}`}
           aria-current={code === locale ? "true" : undefined}
