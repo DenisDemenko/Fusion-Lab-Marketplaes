@@ -24,6 +24,7 @@ import { PayoutsModule } from './payouts/payouts.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { ChatModule } from './chat/chat.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { TeamsModule } from './teams/teams.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { ScheduleModule } from './schedule/schedule.module';
     ReviewsModule,
     ChatModule,
     ScheduleModule,
+    TeamsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

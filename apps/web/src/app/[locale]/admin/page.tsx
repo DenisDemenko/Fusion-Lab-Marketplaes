@@ -73,6 +73,11 @@ function AdminDashboard() {
       title: t("scheduleTitle"),
       body: t("scheduleBody"),
     },
+    {
+      href: "/admin/teams",
+      title: t("teamsTitle"),
+      body: t("teamsBody"),
+    },
   ];
 
   return (

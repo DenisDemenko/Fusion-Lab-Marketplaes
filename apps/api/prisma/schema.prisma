@@ -91,6 +91,34 @@ enum NotificationType {
   review_posted
   class_booked
   class_cancelled
+  team_invited
+  team_submitted
+  team_published
+  team_rejected
+}
+
+// pending -> published is the moderation path (mirrors ListingStatus);
+// rejected is terminal — the owner creates a new team rather than editing
+// a rejected one back to pending, same reasoning as listings.
+enum TeamStatus {
+  pending
+  published
+  rejected
+}
+
+enum TeamMemberRole {
+  owner
+  member
+}
+
+// invited -> confirmed (accepted) or declined. A declined slot frees the
+// seat it reserved on Team.memberCount; a confirmed one keeps it — the
+// seat was already reserved at invite time, not at confirmation time, so
+// the cap can't be oversold by inviting more people than seats remain.
+enum TeamMemberStatus {
+  invited
+  confirmed
+  declined
 }
 
 enum PromoCodeType {
@@ -154,6 +182,8 @@ model User {
   permissionOverrides UserPermissionOverride[]
   lessonProgress      LessonProgress[]
   classBookings       ClassBooking[]
+  ownedTeams          Team[]                    @relation("TeamOwner")
+  teamMemberships     TeamMember[]
 
   // A referral is a fact about two users, not one — kept as two named
   // relations so "who referred me" and "who I referred" are both direct
@@ -292,6 +322,11 @@ model LessonProgress {
 model MediaAsset {
   id         String      @id @default(uuid())
   listingId  String?
+  // A team's photo/result files (Phase F1) reuse this same table rather
+  // than a parallel one — `cover`/`attachment` already mean exactly "the
+  // one public photo" / "any number of files", which is all a team needs.
+  // Exactly one of listingId/teamId is set; never both.
+  teamId     String?
   uploaderId String
   kind       MediaKind
   access     MediaAccess @default(entitled)
@@ -306,9 +341,58 @@ model MediaAsset {
   createdAt     DateTime @default(now())
 
   listing  Listing? @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  team     Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
   uploader User     @relation("MediaUploader", fields: [uploaderId], references: [id], onDelete: Cascade)
 
   @@index([listingId])
+  @@index([teamId])
+}
+
+// Phase F1 (docs/migration-plan.md) — up to 5 people (owner included)
+// working on one shared lab project, published to the public catalog only
+// after admin moderation. Deliberately without the "active team
+// subscription" badge from the original page: that requires the
+// subscription model from Phase E, which was skipped, and a team list with
+// a badge nobody's account can ever earn is worse than one without it —
+// see the migration plan's Phase F notes.
+model Team {
+  id              String     @id @default(uuid())
+  name            String     @unique
+  direction       String?
+  description     String
+  status          TeamStatus @default(pending)
+  rejectionReason String?
+  ownerId         String
+  // Denormalized, guarded counter — same reason ClassSchedule.bookedCount
+  // exists: an invite has to be an atomic guarded UPDATE ("only succeed if
+  // memberCount < 5") to survive two invites racing for the last seat, and
+  // that guard needs a column on THIS row to check against in the same
+  // statement. Starts at 1 (the owner).
+  memberCount Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner   User         @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members TeamMember[]
+  media   MediaAsset[]
+
+  @@index([status, createdAt])
+}
+
+model TeamMember {
+  id          String           @id @default(uuid())
+  teamId      String
+  userId      String
+  role        TeamMemberRole   @default(member)
+  status      TeamMemberStatus @default(invited)
+  createdAt   DateTime         @default(now())
+  respondedAt DateTime?
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([userId])
 }
 
 model Cart {

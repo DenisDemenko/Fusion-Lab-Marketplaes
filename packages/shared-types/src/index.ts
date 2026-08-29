@@ -488,3 +488,48 @@ export interface MyClassBooking {
   createdAt: string;
   schedule: ClassSchedule;
 }
+
+// docs/migration-plan.md Phase F1 — STEAM teams, up to 5 people, admin
+// moderation before publication. No "active team" subscription badge: that
+// needs the subscription model from the skipped Phase E.
+export type TeamStatus = "pending" | "published" | "rejected";
+export type TeamMemberRole = "owner" | "member";
+
+export interface TeamCard {
+  id: string;
+  name: string;
+  direction: string | null;
+  description: string;
+  memberCount: number;
+  createdAt: string;
+  photoUrl: string | null;
+}
+
+// One shape for the public detail page, "my teams", and admin moderation
+// — see apps/api/src/teams/teams.mapper.ts's toTeamDetail. status and
+// rejectionReason are harmless on the public response since getPublic()
+// already refuses anything but a published team.
+export interface TeamDetail extends TeamCard {
+  status: TeamStatus;
+  rejectionReason: string | null;
+  members: { id: string; role: TeamMemberRole; displayName: string }[];
+  results: MediaSummary[];
+}
+
+// GET /me/teams — the one place a member's own relationship to the team
+// (owner or not) is exposed; the public/admin shape (TeamDetail) stays
+// silent on which member is which user.
+export interface MyTeam extends TeamDetail {
+  isOwner: boolean;
+}
+
+export interface TeamInvite {
+  id: string;
+  createdAt: string;
+  team: {
+    id: string;
+    name: string;
+    direction: string | null;
+    description: string;
+  };
+}

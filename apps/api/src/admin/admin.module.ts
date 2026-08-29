@@ -4,6 +4,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { PromoCodesModule } from '../promo-codes/promo-codes.module';
 import { PayoutsModule } from '../payouts/payouts.module';
 import { ScheduleModule } from '../schedule/schedule.module';
+import { TeamsModule } from '../teams/teams.module';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 
@@ -14,6 +15,7 @@ import { AdminService } from './admin.service';
     PromoCodesModule,
     PayoutsModule,
     ScheduleModule,
+    TeamsModule,
   ],
   controllers: [AdminController],
   providers: [AdminService],

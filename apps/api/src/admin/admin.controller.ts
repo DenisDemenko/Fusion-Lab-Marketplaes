@@ -13,6 +13,7 @@ import {
   ListingStatus,
   OrderStatus,
   SellerStatus,
+  TeamStatus,
   UserRole,
 } from '@prisma/client';
 import { FirebaseAuthGuard, type AuthUser } from '../auth/firebase-auth.guard';
@@ -28,6 +29,7 @@ import {
 import { RecordPayoutDto } from '../payouts/payouts.dto';
 import { ScheduleService } from '../schedule/schedule.service';
 import { CreateClassScheduleDto } from '../schedule/schedule.dto';
+import { TeamsService } from '../teams/teams.service';
 import { AdminService } from './admin.service';
 
 // Replaces the old static admin.html / admin-access.html pair. Guard order
@@ -42,6 +44,7 @@ export class AdminController {
     private readonly promoCodes: PromoCodesService,
     private readonly payouts: PayoutsService,
     private readonly schedule: ScheduleService,
+    private readonly teams: TeamsService,
   ) {}
 
   @Get('stats')
@@ -172,5 +175,20 @@ export class AdminController {
   @Post('schedule/:id/cancel')
   cancelSchedule(@Param('id') id: string) {
     return this.schedule.cancelSchedule(id);
+  }
+
+  @Get('teams')
+  listTeams(@Query('status') status?: TeamStatus) {
+    return this.teams.adminList(status);
+  }
+
+  @Post('teams/:id/approve')
+  approveTeam(@Param('id') id: string) {
+    return this.teams.approve(id);
+  }
+
+  @Post('teams/:id/reject')
+  rejectTeam(@Param('id') id: string, @Body() body: { reason?: string }) {
+    return this.teams.reject(id, body?.reason ?? '');
   }
 }

@@ -1,4 +1,11 @@
-import type { ListingCard, ListingDetail, CategorySummary, Paginated } from "@fusion-lab/shared-types";
+import type {
+  ListingCard,
+  ListingDetail,
+  CategorySummary,
+  Paginated,
+  TeamCard,
+  TeamDetail,
+} from "@fusion-lab/shared-types";
 
 // Server-side twin of api-client.ts, for the public pages that render on
 // the server (home, catalogue, listing detail). It deliberately does NOT
@@ -50,4 +57,25 @@ export async function fetchListing(slug: string): Promise<ListingDetail | null> 
 
   if (!response?.ok) return null;
   return (await response.json()) as ListingDetail;
+}
+
+export function fetchTeams(
+  query: Record<string, string | undefined>,
+): Promise<TeamCard[]> {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value) params.set(key, value);
+  }
+
+  const suffix = params.toString() ? `?${params.toString()}` : "";
+  return getPublic<TeamCard[]>(`/teams${suffix}`, []);
+}
+
+export async function fetchTeam(id: string): Promise<TeamDetail | null> {
+  const response = await fetch(`${API_URL}/teams/${id}`, {
+    cache: "no-store",
+  }).catch(() => null);
+
+  if (!response?.ok) return null;
+  return (await response.json()) as TeamDetail;
 }

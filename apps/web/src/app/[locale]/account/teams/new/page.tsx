@@ -1,0 +1,136 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { RequireAuth } from "@/components/require-auth";
+import { TEAM_DIRECTIONS } from "@/components/team-filters";
+import { useRouter } from "@/i18n/navigation";
+import { api, ApiError } from "@/lib/api-client";
+
+export default function NewTeamPage() {
+  return (
+    <RequireAuth>
+      <NewTeamForm />
+    </RequireAuth>
+  );
+}
+
+function NewTeamForm() {
+  const t = useTranslations("teamCreate");
+  const router = useRouter();
+
+  const [name, setName] = useState("");
+  const [direction, setDirection] = useState(TEAM_DIRECTIONS[0]);
+  const [description, setDescription] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [memberEmails, setMemberEmails] = useState(["", "", "", ""]);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function create(event: React.FormEvent) {
+    event.preventDefault();
+    setCreating(true);
+    setError(null);
+
+    try {
+      const created = await api.post<{ id: string }>("/teams", {
+        name: name.trim(),
+        direction,
+        description: description.trim(),
+        consent,
+        memberEmails: memberEmails.map((email) => email.trim()).filter(Boolean),
+      });
+      router.push(`/account/teams/${created.id}`);
+    } catch (caught) {
+      setError(
+        caught instanceof ApiError ? caught.message : t("createFailed"),
+      );
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-10">
+      <h1 className="section-title">{t("title")}</h1>
+      <p className="mt-1 text-sm text-[var(--muted)]">{t("subtitle")}</p>
+
+      <form onSubmit={create} className="card mt-6 space-y-4 p-6">
+        <div>
+          <label className="label" htmlFor="team-name">{t("nameLabel")}</label>
+          <input
+            id="team-name"
+            className="input"
+            required
+            maxLength={60}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="label" htmlFor="team-direction">{t("directionLabel")}</label>
+          <select
+            id="team-direction"
+            className="input"
+            value={direction}
+            onChange={(event) => setDirection(event.target.value)}
+          >
+            {TEAM_DIRECTIONS.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="label" htmlFor="team-description">{t("descriptionLabel")}</label>
+          <textarea
+            id="team-description"
+            className="input min-h-28"
+            required
+            maxLength={2000}
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+          />
+        </div>
+
+        <div>
+          <p className="label">{t("membersLabel")}</p>
+          <p className="mb-2 text-xs text-[var(--muted)]">{t("membersHint")}</p>
+          <div className="space-y-2">
+            {memberEmails.map((email, index) => (
+              <input
+                key={index}
+                type="email"
+                className="input"
+                placeholder={t("memberEmailPlaceholder")}
+                value={email}
+                onChange={(event) => {
+                  const next = [...memberEmails];
+                  next[index] = event.target.value;
+                  setMemberEmails(next);
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        <label className="checkbox flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            required
+            checked={consent}
+            onChange={(event) => setConsent(event.target.checked)}
+          />
+          <span>{t("consentLabel")}</span>
+        </label>
+
+        {error ? <p className="text-sm text-red-700">{error}</p> : null}
+
+        <button type="submit" className="btn-primary" disabled={creating}>
+          {creating ? t("creating") : t("create")}
+        </button>
+      </form>
+    </div>
+  );
+}
