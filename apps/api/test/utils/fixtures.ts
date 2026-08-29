@@ -16,6 +16,7 @@ export async function signIn(ctx: TestContext, email: string) {
     id: string;
     email: string;
     role: string;
+    referralCode: string;
     seller: { id: string; status: string } | null;
   };
 }

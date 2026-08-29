@@ -30,6 +30,7 @@ export class AppController {
       email: user.email,
       role: user.role,
       displayName: full?.displayName ?? null,
+      referralCode: full?.referralCode ?? null,
       seller: full?.sellerProfile
         ? {
             id: full.sellerProfile.id,

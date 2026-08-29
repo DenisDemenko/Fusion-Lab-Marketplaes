@@ -19,6 +19,13 @@ import { FirebaseAuthGuard, type AuthUser } from '../auth/firebase-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { PromoCodesService } from '../promo-codes/promo-codes.service';
+import { PayoutsService } from '../payouts/payouts.service';
+import {
+  CreatePromoCodeDto,
+  UpdatePromoCodeDto,
+} from '../promo-codes/promo-codes.dto';
+import { RecordPayoutDto } from '../payouts/payouts.dto';
 import { AdminService } from './admin.service';
 
 // Replaces the old static admin.html / admin-access.html pair. Guard order
@@ -28,7 +35,11 @@ import { AdminService } from './admin.service';
 @UseGuards(FirebaseAuthGuard, RolesGuard)
 @Roles('admin')
 export class AdminController {
-  constructor(private readonly admin: AdminService) {}
+  constructor(
+    private readonly admin: AdminService,
+    private readonly promoCodes: PromoCodesService,
+    private readonly payouts: PayoutsService,
+  ) {}
 
   @Get('stats')
   stats() {
@@ -97,5 +108,30 @@ export class AdminController {
   @Delete('categories/:slug')
   deleteCategory(@Param('slug') slug: string) {
     return this.admin.deleteCategory(slug);
+  }
+
+  @Get('promo-codes')
+  listPromoCodes() {
+    return this.promoCodes.list();
+  }
+
+  @Post('promo-codes')
+  createPromoCode(@Body() dto: CreatePromoCodeDto) {
+    return this.promoCodes.create(dto);
+  }
+
+  @Patch('promo-codes/:id')
+  updatePromoCode(@Param('id') id: string, @Body() dto: UpdatePromoCodeDto) {
+    return this.promoCodes.setActive(id, dto.active ?? true);
+  }
+
+  @Get('sellers/:id/payouts')
+  sellerLedger(@Param('id') sellerId: string) {
+    return this.payouts.ledger(sellerId);
+  }
+
+  @Post('sellers/:id/payouts')
+  recordPayout(@Param('id') sellerId: string, @Body() dto: RecordPayoutDto) {
+    return this.payouts.record(sellerId, dto);
   }
 }

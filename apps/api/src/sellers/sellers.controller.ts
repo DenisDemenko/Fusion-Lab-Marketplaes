@@ -14,6 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FirebaseAuthGuard, type AuthUser } from '../auth/firebase-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { MAX_UPLOAD_BYTES, SellersService } from './sellers.service';
+import { PayoutsService } from '../payouts/payouts.service';
 import {
   ApplySellerDto,
   CreateListingDto,
@@ -24,7 +25,10 @@ import {
 @Controller('seller')
 @UseGuards(FirebaseAuthGuard)
 export class SellersController {
-  constructor(private readonly sellers: SellersService) {}
+  constructor(
+    private readonly sellers: SellersService,
+    private readonly payouts: PayoutsService,
+  ) {}
 
   @Post('apply')
   apply(@CurrentUser() user: AuthUser, @Body() dto: ApplySellerDto) {
@@ -39,6 +43,12 @@ export class SellersController {
   @Get('orders')
   orders(@CurrentUser() user: AuthUser) {
     return this.sellers.orders(user.id);
+  }
+
+  @Get('payouts')
+  async myPayouts(@CurrentUser() user: AuthUser) {
+    const profile = await this.sellers.requireApprovedProfile(user.id);
+    return this.payouts.ledger(profile.id);
   }
 
   @Get('listings')

@@ -1,6 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { Prisma, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { randomReferralCode } from '../common/referral-code';
 
 // Rows created by prisma/seed.ts have no Firebase account behind them yet,
 // so they carry this prefix instead of a real UID.
@@ -18,25 +19,46 @@ export class UsersService {
   // marketplace (admin panel, seller approval) and must survive every
   // subsequent login — an upsert that wrote a default role here would
   // silently demote every admin on their next request.
+  //
+  // Stays a single atomic `upsert` (not find-then-branch) so two
+  // simultaneous first requests for a brand-new Firebase account can't
+  // both see "no row yet" and both try to create one. The referral code is
+  // generated inline rather than pre-checked for uniqueness: with a
+  // 32^7 code space a collision is astronomically unlikely, so it's
+  // cheaper to let the database's own unique constraint catch the rare
+  // case (retried below) than to pay a lookup on every single login for a
+  // value that only matters once, at creation.
   async syncFromFirebase(input: {
     firebaseUid: string;
     email: string;
     displayName?: string;
   }) {
-    try {
-      return await this.prisma.user.upsert({
-        where: { firebaseUid: input.firebaseUid },
-        update: { email: input.email, displayName: input.displayName },
-        create: {
-          firebaseUid: input.firebaseUid,
-          email: input.email,
-          displayName: input.displayName,
-        },
-      });
-    } catch (error) {
-      if (!isUniqueEmailViolation(error)) throw error;
-      return this.claimSeededAccount(input);
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        return await this.prisma.user.upsert({
+          where: { firebaseUid: input.firebaseUid },
+          update: { email: input.email, displayName: input.displayName },
+          create: {
+            firebaseUid: input.firebaseUid,
+            email: input.email,
+            displayName: input.displayName,
+            referralCode: randomReferralCode(),
+          },
+        });
+      } catch (error) {
+        if (isUniqueViolationOn(error, 'referralCode')) continue;
+        if (!isUniqueViolationOn(error, 'email')) throw error;
+        return this.claimSeededAccount(input);
+      }
     }
+
+    throw new Error(
+      'Could not create user: referral code collided 5 times in a row',
+    );
+  }
+
+  findByReferralCode(referralCode: string) {
+    return this.prisma.user.findUnique({ where: { referralCode } });
   }
 
   // The email is already taken by a row created before its owner ever
@@ -89,10 +111,10 @@ export class UsersService {
   }
 }
 
-function isUniqueEmailViolation(error: unknown): boolean {
+function isUniqueViolationOn(error: unknown, field: string): boolean {
   return (
     error instanceof Prisma.PrismaClientKnownRequestError &&
     error.code === 'P2002' &&
-    JSON.stringify(error.meta ?? {}).includes('email')
+    JSON.stringify(error.meta ?? {}).includes(field)
   );
 }

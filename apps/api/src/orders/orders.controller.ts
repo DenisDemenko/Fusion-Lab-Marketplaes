@@ -1,7 +1,8 @@
-import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { FirebaseAuthGuard, type AuthUser } from '../auth/firebase-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { OrdersService } from './orders.service';
+import { CheckoutDto } from './checkout.dto';
 
 @Controller('orders')
 @UseGuards(FirebaseAuthGuard)
@@ -12,8 +13,11 @@ export class OrdersController {
   // page needs to redirect to LiqPay in one response — the frontend never
   // has to make a second call to find out how to pay.
   @Post('checkout')
-  async checkout(@CurrentUser() user: AuthUser) {
-    const order = await this.orders.checkout(user.id);
+  async checkout(@CurrentUser() user: AuthUser, @Body() dto: CheckoutDto) {
+    const order = await this.orders.checkout(user.id, {
+      promoCode: dto.promoCode,
+      loyaltyPointsToSpend: dto.loyaltyPointsToSpend,
+    });
     return { order, payment: this.orders.checkoutPayload(order) };
   }
 

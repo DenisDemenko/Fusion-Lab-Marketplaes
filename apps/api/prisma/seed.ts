@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { randomReferralCode } from '../src/common/referral-code';
 
 // Fills an empty database with the catalogue the old Firebase site already
 // had: ten Fusion 360 courses (imported by scripts/import-courses-from-site.js)
@@ -108,6 +109,7 @@ async function main() {
       firebaseUid: `seed:${adminEmail}`,
       role: 'admin',
       displayName: 'Адміністратор Fusion Lab',
+      referralCode: randomReferralCode(),
     },
   });
 
@@ -119,6 +121,7 @@ async function main() {
       firebaseUid: `seed:${sellerEmail}`,
       role: 'seller',
       displayName: 'Fusion Lab',
+      referralCode: randomReferralCode(),
     },
   });
 

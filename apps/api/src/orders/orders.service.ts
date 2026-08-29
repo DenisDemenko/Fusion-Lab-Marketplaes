@@ -10,11 +10,15 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CartService } from '../cart/cart.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { LiqpayService } from '../payments/liqpay.service';
+import { PromoCodesService } from '../promo-codes/promo-codes.service';
+import { LoyaltyService } from '../loyalty/loyalty.service';
+import { ReferralsService } from '../referrals/referrals.service';
 import { commissionFor, formatUah } from '../common/money';
 
 const orderInclude = {
   items: { include: { listing: { select: { slug: true, kind: true } } } },
   payment: true,
+  promoCode: { select: { code: true } },
 } satisfies Prisma.OrderInclude;
 
 type OrderWithRelations = Prisma.OrderGetPayload<{
@@ -28,13 +32,20 @@ export class OrdersService {
     private readonly cart: CartService,
     private readonly notifications: NotificationsService,
     private readonly liqpay: LiqpayService,
+    private readonly promoCodes: PromoCodesService,
+    private readonly loyalty: LoyaltyService,
+    private readonly referrals: ReferralsService,
   ) {}
 
   // Checkout. Everything that must be true at once — stock is available,
-  // the listings are still published, the totals add up — is decided
-  // inside one transaction, so two simultaneous checkouts of the last item
+  // the listings are still published, the promo code is still valid, the
+  // totals add up — is decided inside one transaction, so two simultaneous
+  // checkouts of the last item (or the last use of a capped promo code)
   // cannot both succeed.
-  async checkout(userId: string) {
+  async checkout(
+    userId: string,
+    options: { promoCode?: string; loyaltyPointsToSpend?: number } = {},
+  ) {
     const cart = await this.cart.requireNonEmpty(userId);
 
     const unavailable = cart.items.filter(
@@ -112,13 +123,50 @@ export class OrdersService {
         }
       }
 
+      // Both discounts, and stock, are decided inside this one transaction:
+      // if anything downstream throws, Postgres rolls back the promo
+      // code's redemption count right along with the stock decrement —
+      // there is no window where a code is "spent" against an order that
+      // never actually happened.
+      let promoCodeId: string | undefined;
+      let promoDiscountMinor = 0;
+      if (options.promoCode) {
+        const resolved = await this.promoCodes.resolveForCheckout(
+          tx,
+          options.promoCode,
+          subtotalMinor,
+        );
+        promoCodeId = resolved.promoCode.id;
+        promoDiscountMinor = resolved.discountMinor;
+      }
+
+      const afterPromoMinor = subtotalMinor - promoDiscountMinor;
+
+      // Capped silently rather than rejected: a buyer asking to spend more
+      // points than the order can absorb just gets the maximum useful
+      // discount instead of an error interrupting checkout over a number
+      // that was never going to matter past this point anyway.
+      const requestedPoints = options.loyaltyPointsToSpend ?? 0;
+      const loyaltyBalance = await this.loyalty.balance(userId);
+      const loyaltyPointsSpent = Math.max(
+        0,
+        Math.min(requestedPoints, loyaltyBalance, afterPromoMinor),
+      );
+      const loyaltyDiscountMinor = loyaltyPointsSpent;
+
+      const totalMinor = afterPromoMinor - loyaltyDiscountMinor;
+
       const created = await tx.order.create({
         data: {
           number: orderNumber(),
           buyerId: userId,
           subtotalMinor,
-          totalMinor: subtotalMinor,
+          totalMinor,
           commissionMinor,
+          promoCodeId,
+          promoDiscountMinor,
+          loyaltyPointsSpent,
+          loyaltyDiscountMinor,
           items: {
             create: lines.map((line) => ({
               listingId: line.listingId,
@@ -131,11 +179,15 @@ export class OrdersService {
             })),
           },
           payment: {
-            create: { amountMinor: subtotalMinor, provider: 'liqpay' },
+            create: { amountMinor: totalMinor, provider: 'liqpay' },
           },
         },
         include: orderInclude,
       });
+
+      if (loyaltyPointsSpent > 0) {
+        await this.loyalty.spend(tx, userId, loyaltyPointsSpent, created.id);
+      }
 
       await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
 
@@ -219,12 +271,32 @@ export class OrdersService {
         skipDuplicates: true,
       });
 
-      return updated;
+      // Cashback is earned on what the buyer actually paid (totalMinor,
+      // after any promo/loyalty discount) — never on the pre-discount
+      // subtotal, which would let stacking a promo code with points
+      // manufacture more points than the money that changed hands.
+      await this.loyalty.earnForPurchase(
+        tx,
+        order.buyerId,
+        order.id,
+        updated.totalMinor,
+      );
+
+      const referralAward = await this.referrals.maybeAwardBonus(
+        tx,
+        order.buyerId,
+        order.id,
+      );
+
+      return { order: updated, referralAward };
     });
 
-    await this.notifyPaid(paid);
+    await this.notifyPaid(paid.order);
+    if (paid.referralAward.awarded && paid.referralAward.referrerId) {
+      await this.referrals.notifyBonusAwarded(paid.referralAward.referrerId);
+    }
 
-    return this.render(paid);
+    return this.render(paid.order);
   }
 
   async markFailed(orderNumber: string, reason?: string) {
@@ -379,6 +451,10 @@ export class OrdersService {
       totalMinor: order.totalMinor,
       totalLabel: formatUah(order.totalMinor),
       commissionMinor: order.commissionMinor,
+      promoCode: order.promoCode?.code ?? null,
+      promoDiscountMinor: order.promoDiscountMinor,
+      loyaltyPointsSpent: order.loyaltyPointsSpent,
+      loyaltyDiscountMinor: order.loyaltyDiscountMinor,
       createdAt: order.createdAt,
       paidAt: order.paidAt,
       payment: order.payment

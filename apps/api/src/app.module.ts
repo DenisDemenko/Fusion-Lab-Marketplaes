@@ -17,6 +17,12 @@ import { AdminModule } from './admin/admin.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AssistantModule } from './assistant/assistant.module';
 import { BridgeModule } from './bridge/bridge.module';
+import { PromoCodesModule } from './promo-codes/promo-codes.module';
+import { LoyaltyModule } from './loyalty/loyalty.module';
+import { ReferralsModule } from './referrals/referrals.module';
+import { PayoutsModule } from './payouts/payouts.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -35,6 +41,12 @@ import { BridgeModule } from './bridge/bridge.module';
     NotificationsModule,
     AssistantModule,
     BridgeModule,
+    PromoCodesModule,
+    LoyaltyModule,
+    ReferralsModule,
+    PayoutsModule,
+    ReviewsModule,
+    ChatModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

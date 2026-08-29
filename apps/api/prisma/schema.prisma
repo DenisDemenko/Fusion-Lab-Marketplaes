@@ -70,6 +70,26 @@ enum NotificationType {
   order_paid
   seller_application
   seller_approved
+  payout_recorded
+  referral_bonus
+  chat_message
+  review_posted
+}
+
+enum PromoCodeType {
+  percent
+  fixed
+}
+
+// Positive points = credit (earned), negative = debit (spent). Kept as a
+// signed ledger rather than a running balance column so "how did I end up
+// with 1200 points" always has an answer — see LoyaltyAccount.balance,
+// which is a cached sum of these rows, not a separate source of truth.
+enum LoyaltyTransactionType {
+  earned_purchase
+  earned_referral
+  spent_order
+  admin_adjustment
 }
 
 // Identity lives in Firebase Auth (email/password + Google). This table
@@ -84,13 +104,30 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  sellerProfile SellerProfile?
-  cart          Cart?
-  orders        Order[]
-  entitlements  Entitlement[]
-  notifications Notification[]
-  uploads       MediaAsset[]      @relation("MediaUploader")
-  threads       AssistantThread[]
+  // Stable, unique, short — handed out at account creation so a referral
+  // link exists from a user's very first session, before they've done
+  // anything else worth linking to. See ReferralsService.
+  referralCode String @unique
+
+  sellerProfile  SellerProfile?
+  cart           Cart?
+  orders         Order[]
+  entitlements   Entitlement[]
+  notifications  Notification[]
+  uploads        MediaAsset[]      @relation("MediaUploader")
+  threads        AssistantThread[]
+  loyaltyAccount LoyaltyAccount?
+  reviews        Review[]
+
+  // A referral is a fact about two users, not one — kept as two named
+  // relations so "who referred me" and "who I referred" are both direct
+  // queries instead of a self-join with a role column.
+  referralsMade     Referral[] @relation("ReferralsMade")
+  referralReceived  Referral?  @relation("ReferralReceived")
+
+  chatThreadsAsBuyer  ChatThread[]  @relation("ChatThreadsAsBuyer")
+  chatThreadsAsSeller ChatThread[]  @relation("ChatThreadsAsSeller")
+  chatMessages        ChatMessage[]
 }
 
 model SellerProfile {
@@ -108,6 +145,7 @@ model SellerProfile {
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   listings Listing[]
+  payouts  Payout[]
 }
 
 model Category {
@@ -165,6 +203,8 @@ model Listing {
   cartItems    CartItem[]
   orderItems   OrderItem[]
   entitlements Entitlement[]
+  reviews      Review[]
+  chatThreads  ChatThread[]
 
   @@unique([externalSource, externalId])
   @@index([status, kind])
@@ -226,14 +266,27 @@ model Order {
   totalMinor      Int
   commissionMinor Int @default(0)
 
+  // Both discounts are marketplace-absorbed, not deducted from what the
+  // seller earns: OrderItem.unitPriceMinor/commissionMinor are untouched
+  // by either, so a promo run or a buyer spending points never changes a
+  // seller's payout math. Frozen at checkout for the same reason prices
+  // are snapshotted onto OrderItem — a promo code edited or deleted later
+  // must not reinterpret an old order's total.
+  promoCodeId          String?
+  promoDiscountMinor   Int     @default(0)
+  loyaltyPointsSpent   Int     @default(0)
+  loyaltyDiscountMinor Int     @default(0)
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   paidAt    DateTime?
 
-  buyer        User          @relation(fields: [buyerId], references: [id], onDelete: Cascade)
-  items        OrderItem[]
-  payment      Payment?
-  entitlements Entitlement[]
+  buyer               User                 @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  promoCode           PromoCode?           @relation(fields: [promoCodeId], references: [id])
+  items               OrderItem[]
+  payment             Payment?
+  entitlements        Entitlement[]
+  loyaltyTransactions LoyaltyTransaction[]
 
   @@index([buyerId, status])
 }
@@ -322,6 +375,151 @@ model AssistantMessage {
   createdAt DateTime @default(now())
 
   thread AssistantThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, createdAt])
+}
+
+// One record per payout event. The seller's outstanding balance is never
+// stored — it is always (paid OrderItem earnings) minus (sum of these
+// rows), computed on read by PayoutsService. A stored balance column would
+// be a second source of truth that a missed update could silently
+// desync from the order history it is supposed to summarize.
+model Payout {
+  id          String   @id @default(uuid())
+  sellerId    String
+  amountMinor Int
+  note        String?
+  // Optional reporting window ("виплата за визначений період" in
+  // CONTEXT.md) — purely descriptive, not used to select which orders are
+  // covered. The balance calculation has no notion of periods; an admin
+  // just records what was actually transferred and when.
+  periodStart DateTime?
+  periodEnd   DateTime?
+  createdAt   DateTime  @default(now())
+
+  seller SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([sellerId, createdAt])
+}
+
+model PromoCode {
+  id   String        @id @default(uuid())
+  code String        @unique
+  type PromoCodeType
+  // percent: 1-100 (%); fixed: minor units off the subtotal.
+  value           Int
+  maxRedemptions  Int?
+  redemptionCount Int       @default(0)
+  active          Boolean   @default(true)
+  expiresAt       DateTime?
+  createdAt       DateTime  @default(now())
+
+  orders Order[]
+}
+
+// One row per user; the running total is a cache of the ledger below, kept
+// for a cheap read on every checkout screen. LoyaltyService.recompute()
+// exists precisely so this cache is never trusted blindly — see its
+// comment for when that matters.
+model LoyaltyAccount {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  balance   Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions LoyaltyTransaction[]
+}
+
+model LoyaltyTransaction {
+  id        String                 @id @default(uuid())
+  accountId String
+  type      LoyaltyTransactionType
+  // Signed: positive on earn, negative on spend. The account balance is
+  // literally the sum of this column for the account — see the model
+  // comment on LoyaltyAccount.
+  points    Int
+  orderId   String?
+  note      String?
+  createdAt DateTime               @default(now())
+
+  account LoyaltyAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  order   Order?         @relation(fields: [orderId], references: [id])
+
+  @@index([accountId, createdAt])
+}
+
+// The flagship domain model — see docs/adr/0005-referral-program.md for
+// the full reasoning. One row per *referred* user (@unique on referredId):
+// a person can only ever have been invited by one other person, which is
+// also what makes "did I already claim a code" a single lookup rather
+// than a query needing an ORDER BY / LIMIT 1.
+model Referral {
+  id           String    @id @default(uuid())
+  referrerId   String
+  referredId   String    @unique
+  bonusAwarded Boolean   @default(false)
+  awardedAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  referrer User @relation("ReferralsMade", fields: [referrerId], references: [id], onDelete: Cascade)
+  referred User @relation("ReferralReceived", fields: [referredId], references: [id], onDelete: Cascade)
+
+  @@index([referrerId])
+}
+
+// One review per (listing, user) — enforced by the unique constraint, not
+// just application logic, so a race between two tabs submitting "edit my
+// review" at once can't produce two rows. Eligibility (must have bought
+// the listing) is checked in ReviewsService since it needs a join Prisma's
+// schema can't express as a constraint.
+model Review {
+  id        String   @id @default(uuid())
+  listingId String
+  userId    String
+  rating    Int
+  body      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, userId])
+  @@index([listingId])
+}
+
+// One thread per (listing, buyer) pair — the seller side is implied by the
+// listing, so two buyers asking about the same listing never collide, and
+// a buyer re-opening the chat about a listing they already messaged about
+// lands back in the same thread instead of starting a fresh one.
+model ChatThread {
+  id        String   @id @default(uuid())
+  listingId String
+  buyerId   String
+  sellerId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listing  Listing       @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer    User          @relation("ChatThreadsAsBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller   User          @relation("ChatThreadsAsSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+
+  @@unique([listingId, buyerId])
+  @@index([sellerId])
+}
+
+model ChatMessage {
+  id        String    @id @default(uuid())
+  threadId  String
+  senderId  String
+  body      String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  thread ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([threadId, createdAt])
 }
