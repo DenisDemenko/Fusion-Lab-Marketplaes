@@ -795,5 +795,18 @@
     "approve": "Publish",
     "reject": "Reject",
     "rejectReasonPrompt": "Rejection reason:"
+  },
+  "salesManagerInvites": {
+    "title": "Sales manager",
+    "body": "Send an invitation by email — the recipient becomes a sales manager and can publish your books on Amazon KDP and Etsy. The role cannot be chosen; it only arrives through your invitation.",
+    "emailPlaceholder": "Manager email",
+    "send": "Send invitation",
+    "sending": "Sending…",
+    "revoke": "Revoke",
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "expired": "Expired",
+    "failed": "The action failed",
+    "notEmailed": "The invitation was created, but no letter was sent to {email} — mail is not configured on the server. Pass the link on another way or contact an administrator."
   }
 }
