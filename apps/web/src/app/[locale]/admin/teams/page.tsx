@@ -14,6 +14,12 @@ const FILTERS: { value: TeamStatus | ""; key: string }[] = [
   { value: "rejected", key: "filterRejected" },
 ];
 
+const TEAM_STATUS_TONE: Record<string, string> = {
+  pending: "bg-[var(--warning-soft)] text-[var(--warning)]",
+  published: "bg-[var(--success-soft)] text-[var(--success)]",
+  rejected: "bg-[var(--danger-soft)] text-[var(--danger)]",
+};
+
 export default function AdminTeamsPage() {
   return (
     <RequireAuth role="admin">
@@ -24,6 +30,7 @@ export default function AdminTeamsPage() {
 
 function AdminTeamsScreen() {
   const t = useTranslations("adminTeams");
+  const tStatus = useTranslations("enums.teamStatus");
   const tCommon = useTranslations("common");
 
   const [status, setStatus] = useState<TeamStatus | "">("pending");
@@ -144,8 +151,8 @@ function AdminTeamsScreen() {
                     </button>
                   </div>
                 ) : (
-                  <span className="badge bg-[var(--neutral-bg)] text-[var(--muted)]">
-                    {team.status}
+                  <span className={`badge ${TEAM_STATUS_TONE[team.status] ?? "bg-[var(--neutral-bg)] text-[var(--muted)]"}`}>
+                    {tStatus(team.status)}
                   </span>
                 )}
               </div>

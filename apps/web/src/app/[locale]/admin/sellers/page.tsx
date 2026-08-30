@@ -21,6 +21,12 @@ interface AdminSellerRow {
   _count: { listings: number };
 }
 
+const SELLER_STATUS_TONE: Record<string, string> = {
+  pending: "bg-[var(--warning-soft)] text-[var(--warning)]",
+  approved: "bg-[var(--success-soft)] text-[var(--success)]",
+  rejected: "bg-[var(--danger-soft)] text-[var(--danger)]",
+};
+
 export default function AdminSellersPage() {
   return (
     <RequireAuth role="admin">
@@ -31,6 +37,7 @@ export default function AdminSellersPage() {
 
 function SellersScreen() {
   const t = useTranslations("adminSellers");
+  const tStatus = useTranslations("enums.sellerStatus");
   const tCommon = useTranslations("common");
   const locale = useLocale() as Locale;
 
@@ -138,8 +145,8 @@ function SellersScreen() {
                     <p className="mt-2 text-sm text-[var(--muted)]">{seller.bio}</p>
                   ) : null}
                 </div>
-                <span className="badge bg-[var(--neutral-bg)] text-[var(--muted)]">
-                  {seller.status}
+                <span className={`badge ${SELLER_STATUS_TONE[seller.status] ?? "bg-[var(--neutral-bg)] text-[var(--muted)]"}`}>
+                  {tStatus(seller.status)}
                 </span>
               </div>
 

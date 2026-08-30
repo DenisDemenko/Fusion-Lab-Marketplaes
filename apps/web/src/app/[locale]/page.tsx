@@ -116,30 +116,21 @@ export default async function HomePage() {
           unexplained link. Dark and tech-accented on purpose: it breaks the
           run of light sections and signals "this one is not the shop". */}
       <section className="accent-tech relative my-12 overflow-hidden rounded-2xl bg-[#1f232e]">
-        {/* The strands occupy the band's own header strip: the section is
-            taller than its content needs so the animation has room to read
-            as a picture rather than a stripe behind text. It sits under a
-            gradient that dissolves it into the panel colour, so the copy
-            below always has flat ground to sit on — legibility does not
-            depend on where the waves happen to be. */}
-        {/* Twice the height it started at. The shader normalises by the
-            canvas height, so a short, very wide strip squeezed the strands
-            into a flat line — height is what gives them room, not scale.
-            No overlay on top: a scrim was dimming the glow into haze, and
-            the shader already outputs alpha from luminance, so everything
-            around the ribbons is transparent and the band's own colour
-            shows through unaided. */}
-        {/* The mobile height is not simply "the desktop one, smaller": at
-            375px wide a 28rem strip is taller than it is wide, and since
-            the shader normalises by height that turns the ribbons into a
-            thread floating in an empty box. Landscape-ish is what the
-            effect needs, so the phone gets a short strip. */}
-        {/* Shifted up rather than shortened. The ribbons sit in the middle
-            of the canvas and the shader scales them by its height, so
-            cropping the strip would shrink the animation along with the
-            dead space above it. Pulling the same canvas upward throws away
-            only the empty part; the section's overflow-hidden does the
-            cutting. */}
+        {/* The strands are the band's header strip, and three things about
+            it are load-bearing.
+            Height, not scale, is what sizes them: the shader normalises by
+            the canvas height, so a short wide strip squeezes the ribbons
+            into a flat line, and a strip taller than it is wide (which
+            28rem would be at 375px) leaves them a thread in an empty box —
+            hence a separate, shorter height for phones.
+            The strip is pulled up rather than cropped: the ribbons sit in
+            the canvas's middle, so trimming it would shrink the animation
+            along with the dead space above; overflow-hidden cuts the empty
+            part instead.
+            Nothing is laid over it: a scrim dimmed the glow into haze, and
+            the shader already derives alpha from luminance, so everywhere
+            the ribbons are not is transparent and the panel colour shows
+            through on its own. */}
         <div className="pointer-events-none absolute inset-x-0 -top-8 h-52 sm:-top-32 sm:h-[36rem]">
           <Strands
             colors={["#F97316", "#990c24", "#06B6D4"]}
@@ -174,10 +165,14 @@ export default async function HomePage() {
               {t("studioBody")}
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
+              {/* The wizard, not the studio. ?create=book opens Nova with
+                  book creation already in front of the reader — that is the
+                  whole difference from the button beside it, which lands on
+                  the panel and leaves finding it to you. */}
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages --
                   /studio is a rewrite to Nova, not a page of this app. */}
               <a
-                href="/studio"
+                href="/studio/?create=book"
                 className="btn-ghost !border-transparent !bg-white !text-[#1f232e] hover:!bg-[#e3e5ec]"
               >
                 {t("studioCta")}

@@ -113,7 +113,7 @@ export function LabHero() {
                 /studio is a rewrite to Nova, not a page here; see comment
                 above for why <Link> is wrong for it. */}
             <a
-              href="/studio"
+              href="/studio/?create=book"
               className="btn-ghost !border-transparent !bg-white !text-[#2b1a10] hover:!bg-[#f4ece1]"
             >
               {t("ctaCreateBook")}

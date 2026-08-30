@@ -184,6 +184,16 @@
       "paid": "Оплачено",
       "failed": "Оплата не пройшла",
       "cancelled": "Скасовано"
+    },
+    "sellerStatus": {
+      "pending": "На розгляді",
+      "approved": "Схвалено",
+      "rejected": "Відхилено"
+    },
+    "teamStatus": {
+      "pending": "На модерації",
+      "published": "Опубліковано",
+      "rejected": "Відхилено"
     }
   },
   "roleGate": {

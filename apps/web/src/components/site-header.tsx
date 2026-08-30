@@ -103,8 +103,10 @@ export function SiteHeader() {
 
           <LocaleSwitcher />
 
-          {/* Straight into Nova's book-creation panel, skipping the express
-              wizard the hero opens. A plain <a>: /studio is a rewrite to
+          {/* Straight into Nova with book creation already open — the same
+              destination the hero's button reaches, kept here because the
+              header is where someone returns to start another one. A plain
+              <a>: /studio is a rewrite to
               another application (next.config.ts), excluded from the i18n
               matcher, so next-intl's <Link> would prefix it with a locale
               and 404. Outlined rather than filled — the account action to
@@ -114,7 +116,7 @@ export function SiteHeader() {
               is a rewrite to Nova, so <Link> would both locale-prefix it
               and try to route it client-side. A full navigation is the
               point. */}
-          <a href="/studio" className="hidden btn-ghost sm:inline-flex">
+          <a href="/studio/?create=book" className="hidden btn-ghost sm:inline-flex">
             {t("createBook")}
           </a>
 

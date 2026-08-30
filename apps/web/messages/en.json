@@ -184,6 +184,16 @@
       "paid": "Paid",
       "failed": "Payment failed",
       "cancelled": "Cancelled"
+    },
+    "sellerStatus": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "teamStatus": {
+      "pending": "In review",
+      "published": "Published",
+      "rejected": "Rejected"
     }
   },
   "roleGate": {
