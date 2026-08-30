@@ -51,9 +51,9 @@ function SellerOrdersScreen() {
       <PageHeader title={t("title")} />
 
       {sales.length === 0 ? (
-        <p className="card mt-6 p-8 text-center text-[var(--muted)]">{t("empty")}</p>
+        <p className="card p-8 text-center text-[var(--muted)]">{t("empty")}</p>
       ) : (
-        <div className="card mt-6 overflow-x-auto">
+        <div className="card overflow-x-auto">
           <table className="w-full min-w-[640px] text-sm">
             <thead>
               <tr className="border-b border-[var(--line)] text-left text-[var(--muted)]">
@@ -88,13 +88,13 @@ function SellerOrdersScreen() {
                   <td className="px-4 py-3">
                     <OrderStatusBadge status={sale.orderStatus} />
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-right font-mono">
                     {formatUah(sale.unitPriceMinor * sale.quantity, locale)}
                   </td>
-                  <td className="px-4 py-3 text-right text-[var(--muted)]">
+                  <td className="px-4 py-3 text-right font-mono text-[var(--muted)]">
                     {formatUah(sale.commissionMinor, locale)}
                   </td>
-                  <td className="px-4 py-3 text-right font-medium">
+                  <td className="px-4 py-3 text-right font-mono font-medium">
                     {formatUah(sale.payoutMinor, locale)}
                   </td>
                 </tr>

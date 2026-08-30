@@ -57,7 +57,7 @@ function ReferralsScreen() {
         description={t("subtitle")}
       />
 
-      <div className="card mt-6 p-6">
+      <div className="card p-6">
         <p className="label">{t("linkLabel")}</p>
         <div className="flex gap-2">
           <input className="input" readOnly value={link} />

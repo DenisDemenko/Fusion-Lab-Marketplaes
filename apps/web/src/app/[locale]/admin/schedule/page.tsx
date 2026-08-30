@@ -87,7 +87,7 @@ function AdminScheduleScreen() {
     <div className="mx-auto max-w-3xl px-4 py-10">
       <PageHeader title={t("title")} />
 
-      <form onSubmit={create} className="card mt-6 space-y-4 p-6">
+      <form onSubmit={create} className="card space-y-4 p-6">
         <p className="label">{t("newSlot")}</p>
         <div>
           <label className="label" htmlFor="slot-title">{t("slotTitle")}</label>

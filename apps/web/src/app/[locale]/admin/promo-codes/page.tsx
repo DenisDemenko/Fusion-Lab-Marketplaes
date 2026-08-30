@@ -83,7 +83,7 @@ function PromoCodesScreen() {
     <div className="mx-auto max-w-3xl px-4 py-10">
       <PageHeader title={t("title")} />
 
-      <form onSubmit={create} className="card mt-6 grid gap-4 p-6 sm:grid-cols-2">
+      <form onSubmit={create} className="card grid gap-4 p-6 sm:grid-cols-2">
         <div>
           <label className="label" htmlFor="code">
             {t("codeLabel")}

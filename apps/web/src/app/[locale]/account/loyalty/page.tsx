@@ -58,7 +58,7 @@ function LoyaltyScreen() {
         description={t("subtitle")}
       />
 
-      <div className="card mt-6 p-6 text-center">
+      <div className="card p-6 text-center">
         <p className="text-sm text-[var(--muted)]">{t("currentBalance")}</p>
         <p className="mt-1 text-4xl font-semibold text-[var(--foreground)]">
           {history.balance}

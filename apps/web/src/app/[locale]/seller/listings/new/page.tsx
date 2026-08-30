@@ -56,7 +56,7 @@ function NewListingScreen() {
         description={t("subtitle")}
       />
 
-      <form onSubmit={submit} className="card mt-6 space-y-6 p-6">
+      <form onSubmit={submit} className="card space-y-6 p-6">
         <ListingFormFields values={values} onChange={setValues} />
 
         {error ? (

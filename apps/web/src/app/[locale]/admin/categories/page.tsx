@@ -72,7 +72,7 @@ function CategoriesScreen() {
     <div className="mx-auto max-w-2xl px-4 py-10">
       <PageHeader title={t("title")} />
 
-      <form onSubmit={create} className="card mt-6 flex gap-2 p-4">
+      <form onSubmit={create} className="card flex gap-2 p-4">
         <input
           className="input"
           placeholder={t("newCategoryPlaceholder")}

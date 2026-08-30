@@ -23,6 +23,7 @@ export default function SellerPage() {
 function SellerScreen() {
   const t = useTranslations("sellerHome");
   const tCommon = useTranslations("common");
+  const tStatus = useTranslations("enums.listingStatus");
   const locale = useLocale() as Locale;
   const { profile, refreshProfile } = useAuth();
   const [seller, setSeller] = useState<SellerProfile | null | undefined>(undefined);
@@ -98,14 +99,18 @@ function SellerScreen() {
         }
       />
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label={t("statItemsSold")} value={String(seller.stats.itemsSold)} />
         <Stat label={t("statRevenue")} value={formatUah(seller.stats.grossMinor, locale)} />
         <Stat
           label={t("statCommission")}
           value={formatUah(seller.stats.commissionMinor, locale)}
         />
-        <Stat label={t("statPayout")} value={formatUah(seller.stats.payoutMinor, locale)} />
+        <Stat
+          label={t("statPayout")}
+          value={formatUah(seller.stats.payoutMinor, locale)}
+          emphasis
+        />
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -113,7 +118,7 @@ function SellerScreen() {
           <p className="font-semibold text-[var(--foreground)]">{t("myListings")}</p>
           <p className="mt-1 text-sm text-[var(--muted)]">
             {Object.entries(seller.stats.listingsByStatus)
-              .map(([status, count]) => `${count} — ${status}`)
+              .map(([status, count]) => `${count} — ${tStatus(status)}`)
               .join(" · ") || t("noListingsYet")}
           </p>
         </Link>
@@ -138,11 +143,27 @@ function SellerScreen() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+// Суми набрані моноширинним: у сітці з чотирьох карток цифри мають
+// вирівнюватись по розрядах, інакше їх незручно порівнювати очима.
+function Stat({
+  label,
+  value,
+  emphasis = false,
+}: {
+  label: string;
+  value: string;
+  emphasis?: boolean;
+}) {
   return (
-    <div className="card p-5">
+    <div className={`card p-5 ${emphasis ? "border-l-4 border-l-[var(--accent)]" : ""}`}>
       <p className="text-sm text-[var(--muted)]">{label}</p>
-      <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{value}</p>
+      <p
+        className={`mt-1 font-mono text-xl font-semibold ${
+          emphasis ? "text-[var(--accent-dk)]" : "text-[var(--foreground)]"
+        }`}
+      >
+        {value}
+      </p>
     </div>
   );
 }

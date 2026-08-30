@@ -58,7 +58,7 @@ function NewTeamForm() {
         description={t("subtitle")}
       />
 
-      <form onSubmit={create} className="card mt-6 space-y-4 p-6">
+      <form onSubmit={create} className="card space-y-4 p-6">
         <div>
           <label className="label" htmlFor="team-name">{t("nameLabel")}</label>
           <input
