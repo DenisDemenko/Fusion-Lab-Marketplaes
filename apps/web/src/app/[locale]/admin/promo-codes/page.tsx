@@ -156,7 +156,7 @@ function PromoCodesScreen() {
         </div>
 
         {error ? (
-          <p className="sm:col-span-2 rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
+          <p className="sm:col-span-2 rounded-xl bg-[var(--danger-soft)] px-3.5 py-2.5 text-sm text-[var(--danger)]">
             {error}
           </p>
         ) : null}
@@ -205,7 +205,7 @@ function PromoCodesScreen() {
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`badge ${promo.active ? "bg-emerald-50 text-emerald-700" : "bg-[var(--neutral-bg)] text-[var(--muted)]"}`}
+                      className={`badge ${promo.active ? "bg-[var(--success-soft)] text-[var(--success)]" : "bg-[var(--neutral-bg)] text-[var(--muted)]"}`}
                     >
                       {promo.active ? t("statusActive") : t("statusDisabled")}
                     </span>

@@ -117,7 +117,7 @@ function CoverUploader({
         >
           {busy ? t("uploading") : cover ? t("replaceCover") : t("uploadCover")}
         </button>
-        {error ? <p className="mt-1 text-xs text-red-700">{error}</p> : null}
+        {error ? <p className="mt-1 text-xs text-[var(--danger)]">{error}</p> : null}
       </div>
     </div>
   );
@@ -208,7 +208,7 @@ function GalleryUploader({
       >
         {busy ? t("uploading") : t("addImage")}
       </button>
-      {error ? <p className="text-xs text-red-700">{error}</p> : null}
+      {error ? <p className="text-xs text-[var(--danger)]">{error}</p> : null}
     </div>
   );
 }
@@ -276,7 +276,7 @@ function AttachmentUploader({
               </div>
               <button
                 type="button"
-                className="shrink-0 text-sm text-red-700 hover:underline"
+                className="shrink-0 text-sm text-[var(--danger)] hover:underline"
                 onClick={() => void remove(file.id)}
               >
                 {t("delete")}
@@ -305,7 +305,7 @@ function AttachmentUploader({
       >
         {busy ? t("uploading") : t("addFile")}
       </button>
-      {error ? <p className="text-xs text-red-700">{error}</p> : null}
+      {error ? <p className="text-xs text-[var(--danger)]">{error}</p> : null}
     </div>
   );
 }

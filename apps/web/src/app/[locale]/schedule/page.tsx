@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { ClassSchedule } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { formatDateTime } from "@/lib/format";
@@ -80,11 +81,22 @@ export default function SchedulePage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="section-title">{t("title")}</h1>
-      <p className="mt-1 text-sm text-[var(--muted)]">{t("subtitle")}</p>
+      <PageHeader
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("subtitle")}
+      />
 
+      {/* Was on literal Tailwind reds, which ignore the palette B1
+          established and left this box the one cold thing on a warm page.
+          The danger tokens are the same idea, tuned to the rest. */}
       {error ? (
-        <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+        <p
+          role="alert"
+          className="mb-6 rounded-xl border border-[var(--danger)]/25 bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]"
+        >
+          {error}
+        </p>
       ) : null}
 
       {!slots || !myScheduleIds ? (
@@ -98,25 +110,74 @@ export default function SchedulePage() {
             const isMine = myScheduleIds.has(slot.id);
 
             return (
-              <li key={slot.id} className="card flex flex-wrap items-center gap-4 p-5">
+              <li
+                key={slot.id}
+                /* A booked slot gets an accent edge so "mine" is visible
+                   while scanning, without reading every button. A full one
+                   fades instead of disappearing — it still says when the
+                   lab is busy. */
+                className={`card flex flex-wrap items-center gap-4 border-l-4 p-5 transition-opacity ${
+                  isMine
+                    ? "border-l-[var(--accent)]"
+                    : seatsLeft <= 0
+                      ? "border-l-transparent opacity-65"
+                      : "border-l-transparent"
+                }`}
+              >
                 <div className="min-w-0 flex-1">
-                  <p className="font-mono text-xs text-[var(--muted)]">
-                    {formatDateTime(slot.startsAt, locale)}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-mono text-sm font-medium text-[var(--foreground)]">
+                      {formatDateTime(slot.startsAt, locale)}
+                    </p>
+                    {isMine ? (
+                      <span className="badge bg-[var(--success-soft)] text-[var(--success)]">
+                        {t("slotMine")}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-1 font-display font-semibold text-[var(--foreground)]">
+                    {slot.title}
                   </p>
-                  <p className="font-semibold text-[var(--foreground)]">{slot.title}</p>
                   {slot.direction ? (
-                    <span className="badge mt-1 bg-[var(--accent-soft)] text-[var(--accent)]">
+                    <span className="badge mt-1.5 bg-[var(--accent-soft)] text-[var(--accent)]">
                       {slot.direction}
                     </span>
                   ) : null}
                   {slot.description ? (
-                    <p className="mt-1 text-sm text-[var(--muted)]">{slot.description}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-[var(--muted)]">
+                      {slot.description}
+                    </p>
                   ) : null}
-                  <p className="mt-1 text-xs text-[var(--muted)]">
-                    {seatsLeft > 0
-                      ? t("seatsLeft", { left: seatsLeft, total: slot.capacity })
-                      : t("full")}
-                  </p>
+
+                  {/* Capacity was a grey caption, easy to miss on the one
+                      decision this page asks for. A bar makes "almost full"
+                      legible before the number is read. */}
+                  <div className="mt-3 max-w-56">
+                    <div className="flex items-baseline justify-between text-xs">
+                      <span className="text-[var(--muted)]">{t("seatsLabel")}</span>
+                      <span
+                        className={
+                          seatsLeft > 0
+                            ? "font-mono text-[var(--foreground)]"
+                            : "font-mono text-[var(--danger)]"
+                        }
+                      >
+                        {seatsLeft > 0
+                          ? t("seatsLeft", { left: seatsLeft, total: slot.capacity })
+                          : t("slotFull")}
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[var(--neutral-bg)]">
+                      <div
+                        className={`h-full rounded-full transition-[width] ${
+                          seatsLeft > 0 ? "bg-[var(--accent)]" : "bg-[var(--danger)]"
+                        }`}
+                        style={{
+                          width: `${Math.min(100, Math.round((slot.bookedCount / Math.max(1, slot.capacity)) * 100))}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {!firebaseUser ? (

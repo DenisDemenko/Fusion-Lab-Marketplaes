@@ -68,7 +68,7 @@ function AdminSellerPayoutsScreen() {
   }
 
   if (error && !ledger) {
-    return <p className="mx-auto max-w-2xl px-4 py-16 text-center text-red-700">{error}</p>;
+    return <p className="mx-auto max-w-2xl px-4 py-16 text-center text-[var(--danger)]">{error}</p>;
   }
 
   if (!ledger) {
@@ -133,7 +133,7 @@ function AdminSellerPayoutsScreen() {
         </div>
 
         {error ? (
-          <p className="rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
+          <p className="rounded-xl bg-[var(--danger-soft)] px-3.5 py-2.5 text-sm text-[var(--danger)]">
             {error}
           </p>
         ) : null}
@@ -155,7 +155,7 @@ function AdminSellerPayoutsScreen() {
               </div>
               <span
                 className={`font-semibold ${
-                  entry.amountMinor >= 0 ? "text-emerald-700" : "text-[var(--muted)]"
+                  entry.amountMinor >= 0 ? "text-[var(--success)]" : "text-[var(--muted)]"
                 }`}
               >
                 {entry.amountMinor >= 0 ? "+" : ""}

@@ -14,6 +14,46 @@ function uaLabel(label: string, locale: Locale) {
   return locale === "en" ? label.replace("грн", "UAH") : label;
 }
 
+// Four sections here repeated the same inline heading classes, so a change
+// to one silently left the others behind. The rule above each is what
+// separates them now — this page is a long read, and the sections had
+// nothing but a margin between them.
+function DetailSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="mt-10 border-t border-[var(--line)] pt-6">
+      <h2 className="font-display text-xl font-semibold tracking-tight text-[var(--foreground)]">
+        {title}
+      </h2>
+      <div className="mt-3">{children}</div>
+    </section>
+  );
+}
+
+// Browser discs in the theme's grey read as an afterthought next to the
+// rest of the page; a small accent square ties these lists to the
+// category colour the whole page is tinted with.
+function MarkedList({ items }: { items: string[] }) {
+  return (
+    <ul className="space-y-2">
+      {items.map((item, index) => (
+        <li key={index} className="flex gap-3 text-[var(--foreground)]">
+          <span
+            aria-hidden
+            className="mt-2 h-1.5 w-1.5 shrink-0 rounded-[2px] bg-[var(--accent)]"
+          />
+          <span className="leading-relaxed">{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export async function generateMetadata({ params }: PageProps<"/[locale]/catalog/[slug]">) {
   const { slug } = await params;
   const listing = await fetchListing(slug);
@@ -42,12 +82,24 @@ export default async function ListingPage({ params }: PageProps<"/[locale]/catal
     <div
       className={`mx-auto max-w-6xl px-4 py-8 ${accentClassForCategory(listing.category?.slug)}`}
     >
-      <nav className="mb-6 text-sm text-[var(--muted)]">
-        <Link href="/catalog" className="hover:text-[var(--foreground)]">
+      <nav
+        aria-label={t("breadcrumbCatalog")}
+        className="mb-6 flex items-center gap-2 text-sm text-[var(--muted)]"
+      >
+        <Link
+          href="/catalog"
+          className="transition-colors hover:text-[var(--accent)]"
+        >
           {t("breadcrumbCatalog")}
         </Link>
-        <span className="mx-2">/</span>
-        <span className="text-[var(--foreground)]">{listing.title}</span>
+        <span aria-hidden className="text-[var(--line)]">
+          /
+        </span>
+        {/* Truncated: a long listing title used to wrap the breadcrumb onto
+            a second line and push the whole page down. */}
+        <span className="truncate text-[var(--foreground)]">
+          {listing.title}
+        </span>
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
@@ -120,7 +172,7 @@ export default async function ListingPage({ params }: PageProps<"/[locale]/catal
               {listing.highlights.map((highlight, index) => (
                 <li
                   key={index}
-                  className="rounded-xl border border-[var(--line)] bg-white px-3.5 py-2.5 text-sm text-[var(--foreground)]"
+                  className="rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3.5 py-2.5 text-sm text-[var(--foreground)]"
                 >
                   {highlight}
                 </li>
@@ -129,43 +181,28 @@ export default async function ListingPage({ params }: PageProps<"/[locale]/catal
           ) : null}
 
           {listing.description ? (
-            <section className="mt-8">
-              <h2 className="text-xl font-semibold text-[var(--foreground)]">{t("aboutTitle")}</h2>
-              <p className="mt-2 whitespace-pre-line leading-relaxed text-[var(--foreground)]">
+            <DetailSection title={t("aboutTitle")}>
+              <p className="whitespace-pre-line leading-relaxed text-[var(--foreground)]">
                 {listing.description}
               </p>
-            </section>
+            </DetailSection>
           ) : null}
 
           {curriculum?.targetAudience?.length ? (
-            <section className="mt-8">
-              <h2 className="text-xl font-semibold text-[var(--foreground)]">
-                {t("targetAudienceTitle")}
-              </h2>
-              <ul className="mt-2 list-inside list-disc space-y-1 text-[var(--foreground)]">
-                {curriculum.targetAudience.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </section>
+            <DetailSection title={t("targetAudienceTitle")}>
+              <MarkedList items={curriculum.targetAudience} />
+            </DetailSection>
           ) : null}
 
           {curriculum?.results?.length ? (
-            <section className="mt-8">
-              <h2 className="text-xl font-semibold text-[var(--foreground)]">
-                {t("resultsTitle")}
-              </h2>
-              <ul className="mt-2 list-inside list-disc space-y-1 text-[var(--foreground)]">
-                {curriculum.results.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </section>
+            <DetailSection title={t("resultsTitle")}>
+              <MarkedList items={curriculum.results} />
+            </DetailSection>
           ) : null}
 
           {curriculum?.modules?.length ? (
-            <section className="mt-8">
-              <h2 className="text-xl font-semibold text-[var(--foreground)]">
+            <section className="mt-10 border-t border-[var(--line)] pt-6">
+              <h2 className="font-display text-xl font-semibold tracking-tight text-[var(--foreground)]">
                 {t("curriculumTitle")}
               </h2>
               <div className="mt-3 space-y-2">
@@ -211,12 +248,21 @@ export default async function ListingPage({ params }: PageProps<"/[locale]/catal
 
         <aside className="lg:sticky lg:top-24 lg:h-fit">
           <div className="card space-y-4 p-5">
-            <p className="text-3xl font-semibold text-[var(--foreground)]">
+            {/* The price is the one number the whole panel exists for, so
+                it gets the display face and an accent rule rather than
+                sitting as one more paragraph in the stack. */}
+            <p className="border-l-2 border-[var(--accent)] pl-3 font-display text-3xl font-semibold tracking-tight text-[var(--foreground)]">
               {uaLabel(listing.priceLabel, locale)}
             </p>
 
             {listing.stock !== null ? (
-              <p className="text-sm text-[var(--muted)]">
+              <p
+                className={`text-sm ${
+                  listing.stock > 0
+                    ? "text-[var(--muted)]"
+                    : "font-medium text-[var(--danger)]"
+                }`}
+              >
                 {listing.stock > 0
                   ? t("inStock", { count: listing.stock })
                   : t("outOfStock")}

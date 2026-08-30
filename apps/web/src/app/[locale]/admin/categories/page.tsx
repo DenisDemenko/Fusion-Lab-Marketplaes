@@ -84,7 +84,7 @@ function CategoriesScreen() {
       </form>
 
       {error ? (
-        <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="mt-4 rounded-xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
           {error}
         </p>
       ) : null}
@@ -104,7 +104,7 @@ function CategoriesScreen() {
               </span>
               <button
                 type="button"
-                className="text-sm text-red-700 hover:underline"
+                className="text-sm text-[var(--danger)] hover:underline"
                 onClick={() => void remove(category.slug)}
               >
                 {tCommon("delete")}

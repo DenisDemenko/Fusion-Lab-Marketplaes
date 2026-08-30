@@ -23,7 +23,8 @@
     "becomeSeller": "Become a seller",
     "adminPanel": "Admin panel",
     "signOut": "Sign out",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "createBook": "Create"
   },
   "footer": {
     "tagline": "A creative technical craft lab: Fusion 360 courses, 3D printing, CNC, drones.",
@@ -491,7 +492,8 @@
     "toPay": "Total due",
     "checkout": "Place order",
     "checkingOut": "Placing order…",
-    "checkoutFailed": "Couldn't place the order"
+    "checkoutFailed": "Couldn't place the order",
+    "itemsCount": "{count} items"
   },
   "chatThread": {
     "notFound": "Chat not found",
@@ -595,7 +597,8 @@
     "body": "Fusion Lab brings together workshops, modern technology, and creativity. From first model to finished piece — alongside professional mentors. Spend time together building wooden pieces, ceramics, robots, models, and your own projects. Fusion Lab is where making things becomes a family tradition.",
     "ctaBook": "Join a group session",
     "ctaDirections": "Browse our workshops",
-    "ctaSignIn": "Sign in / Register"
+    "ctaSignIn": "Sign in / Register",
+    "ctaCreateBook": "Write a book in 5 minutes"
   },
   "homePage": {
     "badgeLine": "Fusion 360 · 3D printing · CNC · drones",
@@ -612,7 +615,20 @@
     "featureCardMaterials": "Materials right away",
     "featureCardMaterialsBody": "Course files appear in \"My materials\" the moment payment clears — download any time.",
     "featureCardSeller": "Seller dashboard",
-    "featureCardSellerBody": "Create listings, upload materials, and track sales and payouts."
+    "featureCardSellerBody": "Create listings, upload materials, and track sales and payouts.",
+    "directionsTitle": "Lab directions",
+    "directionsBody": "Pick a direction to see the courses, books and products that belong to it.",
+    "studioEyebrow": "NOVA STUDIO",
+    "studioTitle": "Write your book with the studio",
+    "studioBody": "Describe the idea in one sentence and get a finished plan in five minutes: parts, chapters, characters and the ties between them. Then you write in your own editor instead of facing a blank page.",
+    "studioCta": "Write a book in 5 minutes",
+    "studioSecondary": "Open the studio",
+    "studioStepSeed": "The seed",
+    "studioStepSeedBody": "A sentence or two about what the book is.",
+    "studioStepCast": "Cast and ties",
+    "studioStepCastBody": "The studio proposes a cast; you accept or reroll.",
+    "studioStepPlan": "A finished plan",
+    "studioStepPlanBody": "Parts and chapters appear as they are written."
   },
   "catalogPage": {
     "metaTitle": "Catalog — Fusion Lab",
@@ -621,7 +637,12 @@
     "foundCount": "{count} results found",
     "emptyTitle": "Nothing found",
     "emptyBody": "Try different words or clear your filters.",
-    "resetSearch": "Clear search"
+    "resetSearch": "Clear search",
+    "eyebrow": "Catalog",
+    "description": "Step-by-step courses, books and products from the lab. Filters fold into the link — save it or send it on.",
+    "activeFilters": "Applied",
+    "pagePrev": "Back",
+    "pageNext": "Next"
   },
   "catalogDetail": {
     "metaNotFound": "Not found — Fusion Lab",
@@ -650,7 +671,11 @@
     "book": "Book a seat",
     "booking": "Booking…",
     "cancelBooking": "Cancel booking",
-    "cancelling": "Cancelling…"
+    "cancelling": "Cancelling…",
+    "eyebrow": "On-site · Mynai",
+    "seatsLabel": "Seats",
+    "slotFull": "No seats left",
+    "slotMine": "You are booked"
   },
   "accountBookings": {
     "title": "My bookings",

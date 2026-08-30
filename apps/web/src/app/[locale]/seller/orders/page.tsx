@@ -36,7 +36,7 @@ function SellerOrdersScreen() {
   }, []);
 
   if (error) {
-    return <p className="mx-auto max-w-4xl px-4 py-16 text-red-700">{error}</p>;
+    return <p className="mx-auto max-w-4xl px-4 py-16 text-[var(--danger)]">{error}</p>;
   }
 
   if (!sales) {

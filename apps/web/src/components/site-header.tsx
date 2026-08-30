@@ -103,6 +103,21 @@ export function SiteHeader() {
 
           <LocaleSwitcher />
 
+          {/* Straight into Nova's book-creation panel, skipping the express
+              wizard the hero opens. A plain <a>: /studio is a rewrite to
+              another application (next.config.ts), excluded from the i18n
+              matcher, so next-intl's <Link> would prefix it with a locale
+              and 404. Outlined rather than filled — the account action to
+              its right is the header's one primary button. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages --
+              the rule assumes /studio is a page of this app. It is not: it
+              is a rewrite to Nova, so <Link> would both locale-prefix it
+              and try to route it client-side. A full navigation is the
+              point. */}
+          <a href="/studio" className="hidden btn-ghost sm:inline-flex">
+            {t("createBook")}
+          </a>
+
           {!mounted || loading ? (
             <span className="px-3 py-2 text-sm text-[var(--muted)]">…</span>
           ) : firebaseUser ? (
@@ -158,7 +173,7 @@ export function SiteHeader() {
                   <button
                     type="button"
                     role="menuitem"
-                    className="w-full rounded-lg px-3 py-2 text-left text-sm text-red-700 hover:bg-red-50"
+                    className="w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--danger)] hover:bg-[var(--danger-soft)]"
                     onClick={async () => {
                       setMenuOpen(false);
                       await signOut();

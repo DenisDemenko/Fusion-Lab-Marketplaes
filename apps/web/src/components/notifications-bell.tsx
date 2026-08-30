@@ -27,7 +27,7 @@ export function NotificationsBell() {
       >
         {t("label")}
         {unread > 0 ? (
-          <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-red-600 px-1 text-[11px] font-semibold text-white">
+          <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-[var(--danger)] px-1 text-[11px] font-semibold text-white">
             {unread}
           </span>
         ) : null}
@@ -45,7 +45,7 @@ export function NotificationsBell() {
                   notification did or did not appear without a reload. */}
               <span
                 title={connected ? t("live") : t("notLive")}
-                className={`h-2 w-2 rounded-full ${connected ? "bg-emerald-500" : "bg-[var(--line)]"}`}
+                className={`h-2 w-2 rounded-full ${connected ? "bg-[var(--success)]" : "bg-[var(--line)]"}`}
               />
               {unread > 0 ? (
                 <button

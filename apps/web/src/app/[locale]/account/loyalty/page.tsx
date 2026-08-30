@@ -41,7 +41,7 @@ function LoyaltyScreen() {
   }, []);
 
   if (error) {
-    return <p className="mx-auto max-w-2xl px-4 py-16 text-center text-red-700">{error}</p>;
+    return <p className="mx-auto max-w-2xl px-4 py-16 text-center text-[var(--danger)]">{error}</p>;
   }
 
   if (!history) {
@@ -81,7 +81,7 @@ function LoyaltyScreen() {
                 </p>
               </div>
               <span
-                className={`font-semibold ${tx.points > 0 ? "text-emerald-700" : "text-red-700"}`}
+                className={`font-semibold ${tx.points > 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
               >
                 {tx.points > 0 ? "+" : ""}
                 {tx.points}

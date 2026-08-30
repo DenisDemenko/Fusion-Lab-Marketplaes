@@ -45,7 +45,7 @@ export function MessageSellerButton({ listingId }: { listingId: string }) {
       >
         {busy ? t("opening") : t("messageSeller")}
       </button>
-      {error ? <p className="mt-1 text-xs text-red-700">{error}</p> : null}
+      {error ? <p className="mt-1 text-xs text-[var(--danger)]">{error}</p> : null}
     </div>
   );
 }

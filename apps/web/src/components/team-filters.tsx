@@ -46,7 +46,7 @@ export function TeamFilters() {
           className={`rounded-full border px-3 py-1.5 text-sm ${
             activeDirection === ""
               ? "border-[var(--foreground)] bg-[var(--foreground)] text-white"
-              : "border-[var(--line)] bg-white text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
+              : "border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
           }`}
         >
           {t("allDirections")}
@@ -59,7 +59,7 @@ export function TeamFilters() {
             className={`rounded-full border px-3 py-1.5 text-sm ${
               activeDirection === direction
                 ? "border-[var(--foreground)] bg-[var(--foreground)] text-white"
-                : "border-[var(--line)] bg-white text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
+                : "border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
             }`}
           >
             {direction}

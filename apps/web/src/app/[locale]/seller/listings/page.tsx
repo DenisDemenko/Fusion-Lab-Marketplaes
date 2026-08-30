@@ -18,9 +18,9 @@ export default function SellerListingsPage() {
 
 const STATUS_STYLE: Record<string, string> = {
   draft: "bg-[var(--neutral-bg)] text-[var(--muted)]",
-  pending_review: "bg-amber-50 text-amber-700",
-  published: "bg-emerald-50 text-emerald-700",
-  rejected: "bg-red-50 text-red-700",
+  pending_review: "bg-[var(--warning-soft)] text-[var(--warning)]",
+  published: "bg-[var(--success-soft)] text-[var(--success)]",
+  rejected: "bg-[var(--danger-soft)] text-[var(--danger)]",
   archived: "bg-[var(--neutral-bg)] text-[var(--muted)]",
 };
 
@@ -48,7 +48,7 @@ function ListingsScreen() {
   }, []);
 
   if (error) {
-    return <p className="mx-auto max-w-4xl px-4 py-16 text-red-700">{error}</p>;
+    return <p className="mx-auto max-w-4xl px-4 py-16 text-[var(--danger)]">{error}</p>;
   }
 
   if (!listings) {

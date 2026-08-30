@@ -109,7 +109,7 @@ function ChatThreadScreen() {
   if (error) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <p className="text-red-700">{error}</p>
+        <p className="text-[var(--danger)]">{error}</p>
         <Link href="/chat" className="btn-ghost mt-4">
           {t("backToMessages")}
         </Link>

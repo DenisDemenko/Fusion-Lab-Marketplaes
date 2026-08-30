@@ -60,7 +60,7 @@ function OrderScreen() {
   if (error) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center">
-        <p className="text-red-700">{error}</p>
+        <p className="text-[var(--danger)]">{error}</p>
         <Link href="/account/orders" className="btn-ghost mt-4">
           {t("backToOrders")}
         </Link>
@@ -118,13 +118,13 @@ function OrderScreen() {
             <span>{formatUah(order.subtotalMinor, locale)}</span>
           </div>
           {order.promoDiscountMinor > 0 ? (
-            <div className="flex items-center justify-between text-sm text-emerald-700">
+            <div className="flex items-center justify-between text-sm text-[var(--success)]">
               <span>{t("promoCodeLabel", { code: order.promoCode ?? "" })}</span>
               <span>−{formatUah(order.promoDiscountMinor, locale)}</span>
             </div>
           ) : null}
           {order.loyaltyDiscountMinor > 0 ? (
-            <div className="flex items-center justify-between text-sm text-emerald-700">
+            <div className="flex items-center justify-between text-sm text-[var(--success)]">
               <span>{t("loyaltyPaidLabel", { points: order.loyaltyPointsSpent })}</span>
               <span>−{formatUah(order.loyaltyDiscountMinor, locale)}</span>
             </div>
@@ -140,7 +140,7 @@ function OrderScreen() {
 
       {order.status === "paid" ? (
         <div className="card mt-6 p-5">
-          <p className="font-medium text-emerald-700">{t("paidStatus")}</p>
+          <p className="font-medium text-[var(--success)]">{t("paidStatus")}</p>
           <p className="mt-1 text-sm text-[var(--muted)]">{t("paidBody")}</p>
           <Link href="/account/library" className="btn-primary mt-4">
             {t("goToLibrary")}
@@ -195,7 +195,7 @@ function OrderScreen() {
         </div>
       ) : (
         <div className="card mt-6 p-5">
-          <p className="font-medium text-red-700">{t("failedStatus")}</p>
+          <p className="font-medium text-[var(--danger)]">{t("failedStatus")}</p>
           <p className="mt-1 text-sm text-[var(--muted)]">{t("failedBody")}</p>
           <Link href="/catalog" className="btn-ghost mt-4">
             {tCommon("toCatalog")}

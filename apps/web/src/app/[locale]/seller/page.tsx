@@ -41,7 +41,7 @@ function SellerScreen() {
   }, []);
 
   if (error) {
-    return <p className="mx-auto max-w-2xl px-4 py-16 text-red-700">{error}</p>;
+    return <p className="mx-auto max-w-2xl px-4 py-16 text-[var(--danger)]">{error}</p>;
   }
 
   if (seller === undefined) {
@@ -133,7 +133,7 @@ function SellerScreen() {
       </div>
 
       {profile?.role !== "seller" ? (
-        <p className="mt-6 text-sm text-amber-700">{t("roleNotUpdated")}</p>
+        <p className="mt-6 text-sm text-[var(--warning)]">{t("roleNotUpdated")}</p>
       ) : null}
     </div>
   );

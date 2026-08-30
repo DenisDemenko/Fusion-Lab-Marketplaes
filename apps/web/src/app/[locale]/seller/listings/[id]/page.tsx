@@ -26,9 +26,9 @@ export default function EditListingPage() {
 
 const STATUS_STYLE: Record<string, string> = {
   draft: "bg-[var(--neutral-bg)] text-[var(--muted)]",
-  pending_review: "bg-amber-50 text-amber-700",
-  published: "bg-emerald-50 text-emerald-700",
-  rejected: "bg-red-50 text-red-700",
+  pending_review: "bg-[var(--warning-soft)] text-[var(--warning)]",
+  published: "bg-[var(--success-soft)] text-[var(--success)]",
+  rejected: "bg-[var(--danger-soft)] text-[var(--danger)]",
   archived: "bg-[var(--neutral-bg)] text-[var(--muted)]",
 };
 
@@ -66,7 +66,7 @@ function EditListingScreen() {
   if (loadError) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <p className="text-red-700">{loadError}</p>
+        <p className="text-[var(--danger)]">{loadError}</p>
         <Link href="/seller/listings" className="btn-ghost mt-4">
           {t("backToListings")}
         </Link>
@@ -149,13 +149,13 @@ function EditListingScreen() {
       <h1 className="section-title mt-3">{listing.title}</h1>
 
       {listing.status === "rejected" && listing.rejectionReason ? (
-        <p className="mt-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="mt-3 rounded-xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
           {t("rejectionReasonLabel", { reason: listing.rejectionReason })}
         </p>
       ) : null}
 
       {locked ? (
-        <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
+        <p className="mt-3 rounded-xl bg-[var(--warning-soft)] px-4 py-3 text-sm text-[var(--warning)]">
           {t("lockedNotice")}
         </p>
       ) : null}
@@ -166,7 +166,7 @@ function EditListingScreen() {
         </fieldset>
 
         {saveError ? (
-          <p className="rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
+          <p className="rounded-xl bg-[var(--danger-soft)] px-3.5 py-2.5 text-sm text-[var(--danger)]">
             {saveError}
           </p>
         ) : null}
@@ -189,7 +189,7 @@ function EditListingScreen() {
       </div>
 
       {publishProblems ? (
-        <div className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mt-6 rounded-xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
           <p className="font-medium">{t("notReadyTitle")}</p>
           <ul className="mt-1.5 list-inside list-disc">
             {publishProblems.map((problem, index) => (

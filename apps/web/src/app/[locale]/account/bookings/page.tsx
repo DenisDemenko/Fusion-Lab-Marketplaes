@@ -55,7 +55,7 @@ function BookingsScreen() {
       <h1 className="section-title">{t("title")}</h1>
 
       {error ? (
-        <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+        <p className="mt-4 rounded-xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">{error}</p>
       ) : null}
 
       {!bookings ? (

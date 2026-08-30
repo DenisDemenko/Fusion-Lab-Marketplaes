@@ -72,7 +72,7 @@ export function RoleGate({ children }: { children: React.ReactNode }) {
       </div>
 
       {error ? (
-        <p className="mt-4 rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
+        <p className="mt-4 rounded-xl bg-[var(--danger-soft)] px-3.5 py-2.5 text-sm text-[var(--danger)]">
           {error}
         </p>
       ) : null}

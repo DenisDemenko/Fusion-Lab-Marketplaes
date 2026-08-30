@@ -86,7 +86,7 @@ function AdminTeamsScreen() {
             className={`rounded-full border px-3 py-1.5 text-sm ${
               status === filter.value
                 ? "border-[var(--foreground)] bg-[var(--foreground)] text-white"
-                : "border-[var(--line)] bg-white text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
+                : "border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
             }`}
           >
             {t(filter.key as "filterAll")}
@@ -94,7 +94,7 @@ function AdminTeamsScreen() {
         ))}
       </div>
 
-      {error ? <p className="mt-4 text-sm text-red-700">{error}</p> : null}
+      {error ? <p className="mt-4 text-sm text-[var(--danger)]">{error}</p> : null}
 
       {!teams ? (
         <p className="mt-6 text-[var(--muted)]">{tCommon("loading")}</p>
@@ -119,7 +119,7 @@ function AdminTeamsScreen() {
                       {team.direction ?? ""} · {t("membersCount", { count: team.memberCount })}
                     </p>
                     {team.status === "rejected" && team.rejectionReason ? (
-                      <p className="text-xs text-red-700">{team.rejectionReason}</p>
+                      <p className="text-xs text-[var(--danger)]">{team.rejectionReason}</p>
                     ) : null}
                   </div>
                 </div>

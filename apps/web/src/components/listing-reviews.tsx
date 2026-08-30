@@ -97,7 +97,7 @@ export function ListingReviews({ listingId }: { listingId: string }) {
       {firebaseUser ? (
         mine && !editing ? (
           <div className="card mt-3 p-4">
-            <p className="text-sm text-amber-600">{"★".repeat(mine.rating)}</p>
+            <p className="text-sm text-[var(--warning)]">{"★".repeat(mine.rating)}</p>
             {mine.body ? <p className="mt-1 text-sm text-[var(--foreground)]">{mine.body}</p> : null}
             <div className="mt-2 flex gap-3 text-sm">
               <button
@@ -109,7 +109,7 @@ export function ListingReviews({ listingId }: { listingId: string }) {
               </button>
               <button
                 type="button"
-                className="text-red-700 hover:underline"
+                className="text-[var(--danger)] hover:underline"
                 onClick={() => void remove()}
               >
                 {t("delete")}
@@ -124,7 +124,7 @@ export function ListingReviews({ listingId }: { listingId: string }) {
                   key={star}
                   type="button"
                   onClick={() => setRating(star)}
-                  className={`text-2xl ${star <= rating ? "text-amber-500" : "text-[var(--muted)]"}`}
+                  className={`text-2xl ${star <= rating ? "text-[var(--warning)]" : "text-[var(--muted)]"}`}
                   aria-label={t("starRating", { star })}
                 >
                   ★
@@ -137,7 +137,7 @@ export function ListingReviews({ listingId }: { listingId: string }) {
               value={body}
               onChange={(event) => setBody(event.target.value)}
             />
-            {error ? <p className="text-sm text-red-700">{error}</p> : null}
+            {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
             <div className="flex gap-2">
               <button type="submit" className="btn-primary" disabled={busy}>
                 {mine ? t("save") : t("leaveReview")}
@@ -168,7 +168,7 @@ export function ListingReviews({ listingId }: { listingId: string }) {
                   {formatDate(review.createdAt, locale)}
                 </p>
               </div>
-              <p className="text-sm text-amber-600">{"★".repeat(review.rating)}</p>
+              <p className="text-sm text-[var(--warning)]">{"★".repeat(review.rating)}</p>
               {review.body ? (
                 <p className="mt-1 text-sm text-[var(--foreground)]">{review.body}</p>
               ) : null}

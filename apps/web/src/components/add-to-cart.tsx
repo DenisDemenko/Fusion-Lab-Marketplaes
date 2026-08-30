@@ -43,7 +43,7 @@ export function AddToCart({ listing }: { listing: ListingDetail }) {
   if (owned) {
     return (
       <div className="space-y-2">
-        <p className="text-sm text-emerald-700">{t("alreadyOwned")}</p>
+        <p className="text-sm text-[var(--success)]">{t("alreadyOwned")}</p>
         <Link href="/account/library" className="btn-primary w-full">
           {t("openLibrary")}
         </Link>
@@ -92,7 +92,7 @@ export function AddToCart({ listing }: { listing: ListingDetail }) {
         </button>
       )}
 
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
     </div>
   );
 }

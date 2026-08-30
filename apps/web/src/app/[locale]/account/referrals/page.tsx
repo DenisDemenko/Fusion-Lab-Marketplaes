@@ -35,7 +35,7 @@ function ReferralsScreen() {
   }, []);
 
   if (error) {
-    return <p className="mx-auto max-w-2xl px-4 py-16 text-center text-red-700">{error}</p>;
+    return <p className="mx-auto max-w-2xl px-4 py-16 text-center text-[var(--danger)]">{error}</p>;
   }
 
   if (!info) {
@@ -106,8 +106,8 @@ function ReferralsScreen() {
                 <span
                   className={`badge ${
                     invitee.bonusAwarded
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "bg-amber-50 text-amber-700"
+                      ? "bg-[var(--success-soft)] text-[var(--success)]"
+                      : "bg-[var(--warning-soft)] text-[var(--warning)]"
                   }`}
                 >
                   {invitee.bonusAwarded ? t("bonusAwarded") : t("bonusPending")}

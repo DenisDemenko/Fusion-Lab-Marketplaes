@@ -10,6 +10,7 @@ import type {
 } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
 import { Link, useRouter } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { ApiError, api, mediaUrl } from "@/lib/api-client";
 import { useCart } from "@/lib/cart-context";
@@ -125,9 +126,16 @@ function CartScreen() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="section-title">{t("title")}</h1>
+      <PageHeader
+        title={t("title")}
+        actions={
+          <p className="font-mono text-sm text-[var(--muted)]">
+            {t("itemsCount", { count: cart.count })}
+          </p>
+        }
+      />
 
-      <div className="mt-6 space-y-3">
+      <div className="space-y-3">
         {cart.items.map((item) => {
           const cover = mediaUrl(item.listing.coverUrl);
           const isProduct = item.listing.kind === "product";
@@ -176,7 +184,7 @@ function CartScreen() {
 
                   <button
                     type="button"
-                    className="text-sm text-red-700 hover:underline"
+                    className="text-sm text-[var(--danger)] hover:underline"
                     onClick={() => void remove(item.listing.id)}
                   >
                     {t("remove")}
@@ -196,8 +204,8 @@ function CartScreen() {
         <div>
           <p className="label">{t("promoLabel")}</p>
           {appliedPromo ? (
-            <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5">
-              <span className="text-sm text-emerald-800">
+            <div className="flex items-center justify-between rounded-xl border border-[var(--success)]/25 bg-[var(--success-soft)] px-3.5 py-2.5">
+              <span className="text-sm text-[var(--success)]">
                 {t("promoApplied", {
                   code: appliedPromo.code,
                   amount: formatUah(appliedPromo.discountMinor, locale),
@@ -205,7 +213,7 @@ function CartScreen() {
               </span>
               <button
                 type="button"
-                className="text-sm text-emerald-700 hover:underline"
+                className="text-sm text-[var(--success)] hover:underline"
                 onClick={() => {
                   setAppliedPromo(null);
                   setPromoInput("");
@@ -233,7 +241,7 @@ function CartScreen() {
             </div>
           )}
           {promoError ? (
-            <p className="mt-1.5 text-sm text-red-700">{promoError}</p>
+            <p className="mt-1.5 text-sm text-[var(--danger)]">{promoError}</p>
           ) : null}
         </div>
 
@@ -270,13 +278,13 @@ function CartScreen() {
           <span>{formatUah(subtotalMinor, locale)}</span>
         </div>
         {promoDiscountMinor > 0 ? (
-          <div className="flex items-center justify-between text-sm text-emerald-700">
+          <div className="flex items-center justify-between text-sm text-[var(--success)]">
             <span>{t("promoDiscount")}</span>
             <span>−{formatUah(promoDiscountMinor, locale)}</span>
           </div>
         ) : null}
         {loyaltyDiscountMinor > 0 ? (
-          <div className="flex items-center justify-between text-sm text-emerald-700">
+          <div className="flex items-center justify-between text-sm text-[var(--success)]">
             <span>{t("loyaltyDiscount")}</span>
             <span>−{formatUah(loyaltyDiscountMinor, locale)}</span>
           </div>
@@ -285,7 +293,9 @@ function CartScreen() {
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--line)] pt-4">
           <div>
             <p className="text-sm text-[var(--muted)]">{t("toPay")}</p>
-            <p className="text-2xl font-semibold text-[var(--foreground)]">
+            {/* The figure the whole screen builds towards, so it carries the
+                display face rather than matching the line items above it. */}
+            <p className="font-display text-3xl font-semibold tracking-tight text-[var(--foreground)]">
               {formatUah(totalMinor, locale)}
             </p>
           </div>
@@ -303,7 +313,7 @@ function CartScreen() {
       </div>
 
       {error ? (
-        <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="mt-4 rounded-xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
           {error}
         </p>
       ) : null}

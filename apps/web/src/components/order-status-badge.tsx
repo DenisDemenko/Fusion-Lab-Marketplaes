@@ -2,9 +2,9 @@ import { useTranslations } from "next-intl";
 import type { OrderStatus } from "@fusion-lab/shared-types";
 
 const STYLES: Record<OrderStatus, string> = {
-  paid: "bg-emerald-50 text-emerald-700",
-  pending: "bg-amber-50 text-amber-700",
-  failed: "bg-red-50 text-red-700",
+  paid: "bg-[var(--success-soft)] text-[var(--success)]",
+  pending: "bg-[var(--warning-soft)] text-[var(--warning)]",
+  failed: "bg-[var(--danger-soft)] text-[var(--danger)]",
   cancelled: "bg-[var(--neutral-bg)] text-[var(--muted)]",
 };
 

@@ -102,6 +102,22 @@ export function LabHero() {
             <Link href="/login" className="btn-ghost !bg-transparent !text-white !border-white/40 hover:!bg-white/10">
               {t("ctaSignIn")}
             </Link>
+            {/* Nova's express wizard (Wisart Book Crealiry.md §3.4). A plain
+                <a>, not next-intl's <Link>: /studio is a rewrite to another
+                application, not a route of this one, so it must not be
+                locale-prefixed — see next.config.ts and middleware's matcher.
+                White fill rather than a fourth outline: it is the newest
+                offer on this page and the only one that leaves for another
+                product, so it should not read as one more secondary link. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages --
+                /studio is a rewrite to Nova, not a page here; see comment
+                above for why <Link> is wrong for it. */}
+            <a
+              href="/studio"
+              className="btn-ghost !border-transparent !bg-white !text-[#2b1a10] hover:!bg-[#f4ece1]"
+            >
+              {t("ctaCreateBook")}
+            </a>
           </div>
         </div>
       </div>

@@ -69,7 +69,7 @@ function AccountTeamsScreen() {
         </Link>
       </div>
 
-      {error ? <p className="mt-4 text-sm text-red-700">{error}</p> : null}
+      {error ? <p className="mt-4 text-sm text-[var(--danger)]">{error}</p> : null}
 
       {invites && invites.length > 0 ? (
         <div className="mt-6">

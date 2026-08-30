@@ -63,7 +63,7 @@ export function SellerApplyForm({
       </div>
 
       {error ? (
-        <p className="rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
+        <p className="rounded-xl bg-[var(--danger-soft)] px-3.5 py-2.5 text-sm text-[var(--danger)]">
           {error}
         </p>
       ) : null}

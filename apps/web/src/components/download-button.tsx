@@ -62,7 +62,7 @@ export function DownloadButton({ file }: { file: MediaSummary }) {
       >
         {busy ? t("downloading") : t("download")}
       </button>
-      {error ? <p className="mt-1 text-xs text-red-700">{error}</p> : null}
+      {error ? <p className="mt-1 text-xs text-[var(--danger)]">{error}</p> : null}
     </div>
   );
 }

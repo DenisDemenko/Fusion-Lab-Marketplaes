@@ -40,7 +40,7 @@ function OrdersScreen() {
   }, []);
 
   if (error) {
-    return <p className="mx-auto max-w-3xl px-4 py-16 text-center text-red-700">{error}</p>;
+    return <p className="mx-auto max-w-3xl px-4 py-16 text-center text-[var(--danger)]">{error}</p>;
   }
 
   if (!orders) {

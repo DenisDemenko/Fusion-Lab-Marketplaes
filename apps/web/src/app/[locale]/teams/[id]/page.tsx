@@ -70,7 +70,7 @@ export default async function TeamDetailPage({
           {team.members.map((member) => (
             <li
               key={member.id}
-              className="rounded-full border border-[var(--line)] bg-white px-3.5 py-1.5 text-sm text-[var(--foreground)]"
+              className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-1.5 text-sm text-[var(--foreground)]"
             >
               {member.displayName}
               {member.role === "owner" ? ` · ${t("ownerLabel")}` : ""}

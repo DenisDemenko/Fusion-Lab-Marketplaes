@@ -99,7 +99,7 @@ function SellersScreen() {
             className={`rounded-full border px-3.5 py-1.5 text-sm ${
               status === tab.value
                 ? "border-[var(--foreground)] bg-[var(--foreground)] text-white"
-                : "border-[var(--line)] bg-white text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
+                : "border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
             }`}
           >
             {tab.label}
@@ -108,7 +108,7 @@ function SellersScreen() {
       </div>
 
       {error ? (
-        <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="mt-4 rounded-xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
           {error}
         </p>
       ) : null}

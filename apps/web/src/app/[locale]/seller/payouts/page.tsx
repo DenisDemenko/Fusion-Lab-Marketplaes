@@ -38,7 +38,7 @@ function PayoutsScreen() {
   }, []);
 
   if (error) {
-    return <p className="mx-auto max-w-3xl px-4 py-16 text-center text-red-700">{error}</p>;
+    return <p className="mx-auto max-w-3xl px-4 py-16 text-center text-[var(--danger)]">{error}</p>;
   }
 
   if (!ledger) {
@@ -84,7 +84,7 @@ function PayoutsScreen() {
               </div>
               <span
                 className={`font-semibold ${
-                  entry.amountMinor >= 0 ? "text-emerald-700" : "text-[var(--muted)]"
+                  entry.amountMinor >= 0 ? "text-[var(--success)]" : "text-[var(--muted)]"
                 }`}
               >
                 {entry.amountMinor >= 0 ? "+" : ""}

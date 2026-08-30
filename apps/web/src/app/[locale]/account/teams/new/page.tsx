@@ -125,7 +125,7 @@ function NewTeamForm() {
           <span>{t("consentLabel")}</span>
         </label>
 
-        {error ? <p className="text-sm text-red-700">{error}</p> : null}
+        {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
 
         <button type="submit" className="btn-primary" disabled={creating}>
           {creating ? t("creating") : t("create")}

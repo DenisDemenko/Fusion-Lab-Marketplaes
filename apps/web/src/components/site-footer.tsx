@@ -5,7 +5,7 @@ export function SiteFooter() {
   const t = useTranslations("footer");
 
   return (
-    <footer className="mt-16 border-t border-[var(--line)] bg-white">
+    <footer className="mt-16 border-t border-[var(--line)] bg-[var(--surface)]">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3">
         <div>
           <p className="font-semibold">Fusion Lab</p>

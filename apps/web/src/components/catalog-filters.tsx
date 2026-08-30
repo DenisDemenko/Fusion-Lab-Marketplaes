@@ -47,7 +47,7 @@ export function CatalogFilters({ categories }: { categories: CategorySummary[] }
   const activeSort = searchParams.get("sort") ?? "";
 
   return (
-    <aside className="card h-fit space-y-5 p-5">
+    <aside className="card h-fit space-y-5 p-5 lg:sticky lg:top-24">
       <div>
         <p className="label">{t("kindLabel")}</p>
         <div className="flex flex-wrap gap-2">
@@ -55,11 +55,16 @@ export function CatalogFilters({ categories }: { categories: CategorySummary[] }
             <button
               key={kind.value}
               type="button"
+              aria-pressed={activeKind === kind.value}
               onClick={() => apply("kind", kind.value)}
-              className={`rounded-full border px-3 py-1.5 text-sm ${
+              /* Selection is the accent, not `--foreground`: a dark brown
+                 chip reads as a heading rather than as "this one is on",
+                 and the same accent already marks the current page in the
+                 pager below the results. */
+              className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
                 activeKind === kind.value
-                  ? "border-[var(--foreground)] bg-[var(--foreground)] text-white"
-                  : "border-[var(--line)] bg-white text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
+                  ? "border-[var(--accent)] bg-[var(--accent)] font-medium text-white"
+                  : "border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]"
               }`}
             >
               {kind.label}

@@ -41,7 +41,7 @@ function ManageTeamScreen({ teamId }: { teamId: string }) {
     return <p className="mx-auto max-w-2xl px-4 py-10 text-[var(--muted)]">{tCommon("loading")}</p>;
   }
   if (team === null) {
-    return <p className="mx-auto max-w-2xl px-4 py-10 text-red-700">{t("notFound")}</p>;
+    return <p className="mx-auto max-w-2xl px-4 py-10 text-[var(--danger)]">{t("notFound")}</p>;
   }
 
   return (
@@ -55,12 +55,12 @@ function ManageTeamScreen({ teamId }: { teamId: string }) {
             : t("statusPending")}
       </p>
       {team.status === "rejected" && team.rejectionReason ? (
-        <p className="mt-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="mt-2 rounded-xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
           {team.rejectionReason}
         </p>
       ) : null}
 
-      {error ? <p className="mt-4 text-sm text-red-700">{error}</p> : null}
+      {error ? <p className="mt-4 text-sm text-[var(--danger)]">{error}</p> : null}
 
       <div className="card mt-6 p-6">
         <p className="label">{t("membersTitle")}</p>
@@ -68,7 +68,7 @@ function ManageTeamScreen({ teamId }: { teamId: string }) {
           {team.members.map((member) => (
             <li
               key={member.id}
-              className="rounded-full border border-[var(--line)] bg-white px-3.5 py-1.5 text-sm text-[var(--foreground)]"
+              className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-1.5 text-sm text-[var(--foreground)]"
             >
               {member.displayName}
               {member.role === "owner" ? ` · ${t("ownerLabel")}` : ""}
@@ -131,8 +131,8 @@ function InviteForm({ teamId, onInvited }: { teamId: string; onInvited: () => vo
           {inviting ? t("inviting") : t("invite")}
         </button>
       </div>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
-      {success ? <p className="text-sm text-emerald-700">{t("inviteSent")}</p> : null}
+      {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+      {success ? <p className="text-sm text-[var(--success)]">{t("inviteSent")}</p> : null}
     </form>
   );
 }
@@ -201,7 +201,7 @@ function PhotoUploader({
         >
           {busy ? t("uploading") : photo ? t("replacePhoto") : t("uploadPhoto")}
         </button>
-        {error ? <p className="mt-1 text-xs text-red-700">{error}</p> : null}
+        {error ? <p className="mt-1 text-xs text-[var(--danger)]">{error}</p> : null}
       </div>
     </div>
   );
@@ -258,7 +258,7 @@ function ResultsUploader({
               <span className="truncate text-sm text-[var(--foreground)]">{file.filename}</span>
               <button
                 type="button"
-                className="shrink-0 text-sm text-red-700 hover:underline"
+                className="shrink-0 text-sm text-[var(--danger)] hover:underline"
                 onClick={() => void remove(file.id)}
               >
                 {t("delete")}
@@ -288,7 +288,7 @@ function ResultsUploader({
       >
         {busy ? t("uploading") : t("addResult")}
       </button>
-      {error ? <p className="mt-1 text-xs text-red-700">{error}</p> : null}
+      {error ? <p className="mt-1 text-xs text-[var(--danger)]">{error}</p> : null}
     </div>
   );
 }
