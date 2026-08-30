@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { AdminStats } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { api } from "@/lib/api-client";
 
@@ -82,7 +83,7 @@ function AdminDashboard() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="section-title">{t("title")}</h1>
+      <PageHeader title={t("title")} />
 
       {error ? (
         <p className="mt-4 rounded-xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">

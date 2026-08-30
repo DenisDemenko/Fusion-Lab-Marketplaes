@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import type { PayoutLedger } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { api } from "@/lib/api-client";
 import { formatDate, formatUah } from "@/lib/format";
@@ -83,9 +84,9 @@ function AdminSellerPayoutsScreen() {
         {t("backToSellers")}
       </Link>
 
-      <h1 className="section-title mt-3">{t("title")}</h1>
+      <PageHeader title={t("title")} />
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-3">
         <div className="card p-5">
           <p className="text-sm text-[var(--muted)]">{t("earned")}</p>
           <p className="mt-1 text-xl font-semibold">{uaLabel(ledger.earnedLabel, locale)}</p>

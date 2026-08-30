@@ -8,6 +8,7 @@ import type {
   UserRole,
 } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
@@ -102,7 +103,7 @@ function UsersScreen() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="section-title">{t("title")}</h1>
+      <PageHeader title={t("title")} />
 
       <form
         className="mt-5 flex gap-2"

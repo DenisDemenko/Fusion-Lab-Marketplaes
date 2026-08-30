@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { SellerProfile } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
@@ -87,17 +88,15 @@ function SellerScreen() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="section-title">{seller.displayName}</h1>
-          <p className="mt-1 text-sm text-[var(--muted)]">
-            {t("commissionLabel", { percent: seller.commissionPercent })}
-          </p>
-        </div>
-        <Link href="/seller/listings/new" className="btn-accent">
-          {t("newListing")}
-        </Link>
-      </div>
+      <PageHeader
+        title={seller.displayName}
+        description={t("commissionLabel", { percent: seller.commissionPercent })}
+        actions={
+          <Link href="/seller/listings/new" className="btn-accent">
+            {t("newListing")}
+          </Link>
+        }
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label={t("statItemsSold")} value={String(seller.stats.itemsSold)} />

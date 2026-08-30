@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import type { OrderStatus } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { OrderStatusBadge } from "@/components/order-status-badge";
 import { api } from "@/lib/api-client";
@@ -62,9 +63,9 @@ function OrdersScreen() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="section-title">{t("title")}</h1>
+      <PageHeader title={t("title")} />
 
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
         {TABS.map((tab) => (
           <button
             key={tab.value || "all"}

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { CheckoutPayment, Order } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { OrderStatusBadge } from "@/components/order-status-badge";
 import { api } from "@/lib/api-client";
@@ -80,16 +81,18 @@ function OrderScreen() {
         {t("backToOrders")}
       </Link>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="section-title">{t("orderTitle", { number: order.number })}</h1>
-        <OrderStatusBadge status={order.status} />
-      </div>
-      <p className="mt-1 text-sm text-[var(--muted)]">
-        {t("createdAt", { date: formatDateTime(order.createdAt, locale) })}
-        {order.paidAt
-          ? ` · ${t("paidAt", { date: formatDateTime(order.paidAt, locale) })}`
-          : ""}
-      </p>
+      {/* The status is what the reader came to check, so it sits in the
+          header's action slot rather than below the dates. */}
+      <PageHeader
+        title={t("orderTitle", { number: order.number })}
+        description={
+          t("createdAt", { date: formatDateTime(order.createdAt, locale) }) +
+          (order.paidAt
+            ? ` · ${t("paidAt", { date: formatDateTime(order.paidAt, locale) })}`
+            : "")
+        }
+        actions={<OrderStatusBadge status={order.status} />}
+      />
 
       <div className="card mt-6 divide-y divide-[var(--line)]">
         {order.items.map((item) => (

@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import type { MyTeam, TeamInvite, TeamStatus } from "@fusion-lab/shared-types";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { api } from "@/lib/api-client";
 
@@ -63,7 +64,7 @@ function AccountTeamsScreen() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="section-title">{t("title")}</h1>
+        <PageHeader title={t("title")} />
         <Link href="/account/teams/new" className="btn-primary shrink-0">
           {t("createTeam")}
         </Link>

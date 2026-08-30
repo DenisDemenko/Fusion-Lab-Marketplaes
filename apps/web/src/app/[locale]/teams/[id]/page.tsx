@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { mediaUrl } from "@/lib/api-client";
 import { fetchTeam } from "@/lib/server-api";
 
@@ -55,9 +56,7 @@ export default async function TeamDetailPage({
         </span>
       </div>
 
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--foreground)]">
-        {team.name}
-      </h1>
+      <PageHeader title={team.name} />
       <p className="mt-3 whitespace-pre-line text-[var(--foreground)]">
         {team.description}
       </p>

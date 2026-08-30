@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { ListingCard, ListingStatus } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { api } from "@/lib/api-client";
 
@@ -93,9 +94,9 @@ function ModerationScreen() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="section-title">{t("title")}</h1>
+      <PageHeader title={t("title")} />
 
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
         {TABS.map((tab) => (
           <button
             key={tab.value || "all"}

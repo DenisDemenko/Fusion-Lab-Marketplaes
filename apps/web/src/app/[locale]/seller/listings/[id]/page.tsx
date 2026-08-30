@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { SellerListingDetail } from "@fusion-lab/shared-types";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import {
   ListingFormFields,
@@ -146,7 +147,7 @@ function EditListingScreen() {
         </span>
       </div>
 
-      <h1 className="section-title mt-3">{listing.title}</h1>
+      <PageHeader title={listing.title} />
 
       {listing.status === "rejected" && listing.rejectionReason ? (
         <p className="mt-3 rounded-xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">

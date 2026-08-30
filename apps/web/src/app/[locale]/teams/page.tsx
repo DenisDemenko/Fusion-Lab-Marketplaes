@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { TeamCard } from "@/components/team-card";
 import { TeamFilters } from "@/components/team-filters";
 import { fetchTeams } from "@/lib/server-api";
@@ -23,8 +24,10 @@ export default async function TeamsPage({
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="section-title">{t("title")}</h1>
-          <p className="mt-1 text-sm text-[var(--muted)]">{t("subtitle")}</p>
+          <PageHeader
+            title={t("title")}
+            description={t("subtitle")}
+          />
         </div>
         <Link href="/account/teams/new" className="btn-primary shrink-0">
           {t("createTeam")}

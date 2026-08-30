@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { ChatThreadSummary } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { api } from "@/lib/api-client";
 import { formatDateTime } from "@/lib/format";
@@ -58,7 +59,7 @@ function ChatInboxScreen() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="section-title">{t("title")}</h1>
+      <PageHeader title={t("title")} />
 
       <div className="card mt-6 divide-y divide-[var(--line)]">
         {threads.map((thread) => (

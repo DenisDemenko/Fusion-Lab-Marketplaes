@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { LessonProgressEntry, LibraryItemDetail } from "@fusion-lab/shared-types";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/api-client";
@@ -79,15 +80,16 @@ function LibraryItemScreen() {
         {t("backToLibrary")}
       </Link>
 
-      <h1 className="section-title mt-3">{item.listing.title}</h1>
+      <PageHeader
+        title={item.listing.title}
+        description={
+          totalLessons > 0
+            ? t("progressLabel", { done: completedSet.size, total: totalLessons })
+            : undefined
+        }
+      />
 
-      {totalLessons > 0 ? (
-        <p className="mt-1 text-sm text-[var(--muted)]">
-          {t("progressLabel", { done: completedSet.size, total: totalLessons })}
-        </p>
-      ) : null}
-
-      <div className="mt-6 space-y-6">
+      <div className="space-y-6">
         {modules.map((module, moduleIndex) => (
           <section key={moduleIndex} className="card p-5">
             <h2 className="font-display text-lg font-semibold text-[var(--foreground)]">

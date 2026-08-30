@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { ListingCard } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { api } from "@/lib/api-client";
 
@@ -60,7 +61,7 @@ function ListingsScreen() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="section-title">{t("title")}</h1>
+        <PageHeader title={t("title")} />
         <Link href="/seller/listings/new" className="btn-accent">
           {t("newListing")}
         </Link>

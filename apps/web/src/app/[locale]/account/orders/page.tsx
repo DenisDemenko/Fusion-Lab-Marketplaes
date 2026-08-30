@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { Order } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { api } from "@/lib/api-client";
 import { formatDateTime } from "@/lib/format";
@@ -62,9 +63,9 @@ function OrdersScreen() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="section-title">{t("title")}</h1>
+      <PageHeader title={t("title")} />
 
-      <div className="mt-6 space-y-3">
+      <div className="space-y-3">
         {orders.map((order) => (
           <Link
             key={order.id}

@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import type { PayoutLedger } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
+import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { api } from "@/lib/api-client";
 import { formatDate, formatUah } from "@/lib/format";
@@ -49,9 +50,9 @@ function PayoutsScreen() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="section-title">{t("title")}</h1>
+      <PageHeader title={t("title")} />
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-3">
         <div className="card p-5">
           <p className="text-sm text-[var(--muted)]">{t("totalEarned")}</p>
           <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">
