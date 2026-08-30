@@ -7,7 +7,8 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": ["NOVA_ORIGIN"]
     },
     "lint": {
       "dependsOn": ["^build"]
