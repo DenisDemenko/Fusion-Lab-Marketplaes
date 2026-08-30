@@ -23,6 +23,20 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: postgresql://fusionlab:fusionlab@localhost:5432/fusionlab
+      # apps/web/src/lib/firebase.ts викликає initializeApp() на рівні
+      # модуля, тож `next build` імпортує його ще на кроці збирання
+      # конфігурації сторінок і без ключа падає з auth/invalid-api-key —
+      # саме на /[locale]/catalog/[slug]. Збірці потрібне лише НЕпорожнє
+      # значення: initializeApp/getAuth не ходять у мережу, перевірка
+      # ключа відбувається аж при реальному вході.
+      #
+      # Тому тут навмисно заглушки, а не справжні значення: у CI ніхто не
+      # автентифікується, а зайвий раз вписувати робочу конфігурацію в
+      # репозиторій немає причин. Справжні значення живуть у змінних
+      # Vercel і в .env розробника.
+      NEXT_PUBLIC_FIREBASE_API_KEY: ci-build-placeholder
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ci-build-placeholder.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: ci-build-placeholder
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
