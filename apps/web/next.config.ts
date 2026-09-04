@@ -23,14 +23,36 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 // працює як і раніше, без спроб проксувати неіснуючий сервіс.
 const novaOrigin = process.env.NOVA_ORIGIN?.replace(/\/$/, "");
 
+// Друкується в Build Logs Vercel. Раніше відсутність NOVA_ORIGIN нічим не
+// проявлялася: rewrites() мовчки повертав [], збірка вважалась успішною, а
+// /studio віддавав 404 — і ззовні неможливо було відрізнити «змінна не
+// дійшла до збірки» від «правило програло маршрутизації». Один рядок у
+// логу знімає це питання назавжди.
+console.log(
+  novaOrigin
+    ? `[next.config] NOVA_ORIGIN = ${novaOrigin} — rewrite /studio увімкнено`
+    : "[next.config] NOVA_ORIGIN не заданий — /studio НЕ проксується в Nova"
+);
+
 const nextConfig: NextConfig = {
   async rewrites() {
-    if (!novaOrigin) return [];
+    if (!novaOrigin) return { beforeFiles: [], afterFiles: [], fallback: [] };
 
-    return [
-      { source: "/studio", destination: novaOrigin },
-      { source: "/studio/:path*", destination: `${novaOrigin}/:path*` },
-    ];
+    // Саме beforeFiles, а не короткий масив (він рівнозначний afterFiles):
+    // весь маркетплейс живе під динамічним сегментом app/[locale]/, який
+    // теж готовий підхопити /studio — як «локаль» з назвою studio — і
+    // віддати 404. Саме це показував заголовок відповіді
+    // `X-Matched-Path: /[locale]`. beforeFiles виконується до маршрутів
+    // застосунку, тож префікс дістається Nova незалежно від того, що
+    // з'явиться всередині [locale] згодом.
+    return {
+      beforeFiles: [
+        { source: "/studio", destination: novaOrigin },
+        { source: "/studio/:path*", destination: `${novaOrigin}/:path*` },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
   },
 };
 
