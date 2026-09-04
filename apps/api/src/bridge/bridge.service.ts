@@ -52,6 +52,31 @@ const PUBLIC_KINDS: ReadonlySet<BridgeFileKind> = new Set<BridgeFileKind>(['cove
 // marketplace only lists and sells it. Nothing here edits book content —
 // a re-publish overwrites the mirrored fields and that is the whole
 // contract.
+/**
+ * Ім'я файла з multipart приходить у latin1, а не в UTF-8.
+ *
+ * Так влаштований busboy під multer: за замовчуванням він читає параметри
+ * Content-Disposition однобайтовим кодуванням, тож «Система_продажів.pdf»
+ * доїжджає як «Ð¡Ð¸ÑÑÐµÐ¼Ð°_Ð¿ÑÐ¾Ð´Ð°Ð¶ÑÐ².pdf» — і саме в такому
+ * вигляді показувався покупцеві в картці товару.
+ *
+ * Перекодовуємо назад, але ОБЕРЕЖНО: якщо ім'я вже коректне (латиниця,
+ * або клієнт надіслав його правильно), повторне перекодування зіпсувало б
+ * його. Тому спершу перевіряємо, що результат — валідний UTF-8 і що він
+ * узагалі відрізняється від вихідного.
+ */
+export function decodeMultipartFilename(raw: string): string {
+  if (!raw || !/[\u0080-\u00ff]/.test(raw)) return raw;
+  try {
+    const bytes = Buffer.from(raw, 'latin1');
+    const decoded = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    return decoded;
+  } catch {
+    // Не UTF-8 у latin1-обгортці — значить ім'я таким і було задумане.
+    return raw;
+  }
+}
+
 @Injectable()
 export class BridgeService {
   constructor(
@@ -231,9 +256,11 @@ export class BridgeService {
       });
     }
 
+    const originalName = decodeMultipartFilename(file.originalname);
+
     const { storageKey, sizeBytes } = await this.storage.save(
       `listings/${listing.id}`,
-      file.originalname,
+      originalName,
       file.buffer,
     );
 
@@ -247,7 +274,7 @@ export class BridgeService {
         // Обкладинку й уривок бачать усі — це і є вітрина товару; сам файл
         // книги лише тим, хто має на неї право.
         access: PUBLIC_KINDS.has(kind) ? 'public' : 'entitled',
-        filename: file.originalname,
+        filename: originalName,
         mimeType: file.mimetype,
         sizeBytes,
         storageKey,
