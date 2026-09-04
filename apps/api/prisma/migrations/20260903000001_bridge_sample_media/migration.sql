@@ -1,0 +1,11 @@
+-- Free sample: the opening pages of a book, public before purchase.
+--
+-- A separate MediaKind rather than a public "attachment": the bridge
+-- replaces files within their own kind, so a sample sharing the kind of the
+-- book file would delete the book on every re-send, and vice versa.
+--
+-- ALTER TYPE ... ADD VALUE cannot be used in the same transaction that then
+-- writes rows with the new value (PostgreSQL restriction). This migration
+-- only adds the value; the first row using it comes from a later request,
+-- so the restriction is not hit.
+ALTER TYPE "MediaKind" ADD VALUE IF NOT EXISTS 'sample';

@@ -53,7 +53,12 @@ enum MediaKind {
   // strip on the catalog detail page (docs/migration-plan.md Phase D4).
   // Always `access: public`: these are marketing images, not paid
   // content, so they carry no entitlement gate.
+  //
+  // `sample` is the opening pages of a book, cut from the very file the
+  // buyer would receive and readable by anyone: a reader trusts the prose,
+  // not the blurb. Public like `gallery`, but a document, not an image.
   gallery
+  sample
 }
 
 // public = catalog imagery, served to anyone. entitled = the paid payload
