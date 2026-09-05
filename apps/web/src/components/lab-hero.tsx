@@ -67,11 +67,15 @@ export function LabHero() {
               "linear-gradient(to right, rgba(43,26,16,.82) 0%, rgba(43,26,16,.6) var(--mx), rgba(43,26,16,.22) 100%)",
           }}
         />
+        {/* Стирання заливки — точний градієнт: 100% (заливки нема, картинка
+            видно) просто під курсором до 0% (заливка повна) рівно на 450px
+            від курсора. Раніше коло було 38rem (~608px) із затуханням лише
+            на перших 70% радіуса — тепер весь радіус і є ці 450px. */}
         <div
           className="absolute inset-0 transition-[background] duration-300 ease-out"
           style={{
             background:
-              "radial-gradient(38rem circle at var(--mx) var(--my), rgba(43,26,16,0) 0%, rgba(43,26,16,.35) 70%)",
+              "radial-gradient(450px circle at var(--mx) var(--my), rgba(43,26,16,0) 0%, rgba(43,26,16,.35) 100%)",
           }}
         />
       </div>
