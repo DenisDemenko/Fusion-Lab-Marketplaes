@@ -21,13 +21,27 @@ export function ListingCard({ listing }: { listing: ListingCardDto }) {
       className={`card group flex h-full flex-col overflow-hidden transition hover:shadow-md ${accentClassForCategory(listing.category?.slug)}`}
       data-testid="listing-card"
     >
-      <div className="aspect-[16/10] overflow-hidden bg-[var(--neutral-bg)]">
+      {/*
+        Книзі — вертикальна рамка й ціле зображення. У ландшафтній 16:10 з
+        `object-cover` вертикальна обкладинка втрачала назву: у кадр
+        потрапляла лише середня смуга. 3:4 замість 2:3 узято свідомо —
+        картка не має витягуватись удвічі вищою за сусідні в тому ж рядку,
+        а `object-contain` однаково показує обкладинку цілком, з вузькими
+        полями обабіч.
+      */}
+      <div
+        className={`overflow-hidden bg-[var(--neutral-bg)] ${
+          listing.kind === "book" ? "aspect-[3/4]" : "aspect-[16/10]"
+        }`}
+      >
         {cover ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={cover}
             alt=""
-            className="h-full w-full object-cover transition group-hover:scale-[1.02]"
+            className={`h-full w-full transition group-hover:scale-[1.02] ${
+              listing.kind === "book" ? "object-contain" : "object-cover"
+            }`}
             loading="lazy"
           />
         ) : (

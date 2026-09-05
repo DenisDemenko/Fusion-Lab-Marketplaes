@@ -105,16 +105,75 @@ export default async function ListingPage({ params }: PageProps<"/[locale]/catal
       <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
         <div>
           <div className="card overflow-hidden">
-            <div className="aspect-[16/9] bg-[var(--neutral-bg)]">
-              {cover ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={cover}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              ) : null}
-            </div>
+            {/*
+              КНИГА НЕ ВЛІЗАЄ В ЛАНДШАФТНУ РАМКУ. Обкладинка книги —
+              вертикальна (наша, зібрана Студією, рівно 2:3), а рамка була
+              16:9 з `object-cover`: у кадр потрапляла тільки середня смуга,
+              і покупець бачив книгу без назви — її зрізало згори.
+
+              Тому для книги рамка не задає пропорцію взагалі: зображення
+              показується цілим (`object-contain`), по центру, і обмежене
+              лише висотою екрана, щоб на широкому моніторі не виросло на
+              півтори сторінки. Для решти товарів усе лишається як було:
+              фото виробу в ландшафтній рамці кадрується осмислено, і
+              міняти це немає причин.
+            */}
+            {listing.kind === "book" ? (
+              <div className="flex items-center justify-center bg-[var(--neutral-bg)] p-4">
+                {cover ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={cover}
+                    alt=""
+                    className="max-h-[70vh] w-auto max-w-full object-contain"
+                  />
+                ) : null}
+              </div>
+            ) : (
+              <div className="aspect-[16/9] bg-[var(--neutral-bg)]">
+                {cover ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={cover}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : null}
+              </div>
+            )}
+
+            {/* Free sample, directly under the cover.
+                The cover says what the book is; these pages show how it is
+                written, and that is what the decision actually turns on. So
+                the link sits on the cover card itself — the first thing the
+                eye reaches after the picture — rather than further down
+                among prices and technical details.
+
+                A plain <a> to the file, not a viewer: the buyer downloads
+                the same PDF the book is made of and reads it in whatever
+                they normally read PDFs. Building a reader here would add a
+                dependency and a way to fail, and would still be worse than
+                the reader they already use.
+
+                No target="_blank": media.controller.ts serves everything
+                that is not an image with `Content-Disposition: attachment`,
+                so this downloads without navigating. A blank tab would open
+                and close again for nothing. */}
+            {(() => {
+              const sample = listing.media.find((asset) => asset.kind === "sample");
+              if (!sample) return null;
+              const href = mediaUrl(sample.downloadUrl);
+              return href ? (
+                <a
+                  href={href}
+                  download={sample.filename}
+                  className="flex flex-col items-center gap-0.5 border-t border-[var(--line)] px-4 py-3 text-center hover:bg-[var(--neutral-bg)]"
+                >
+                  <span className="text-sm font-semibold">{t("readSample")}</span>
+                  <span className="text-xs text-[var(--muted)]">{t("readSampleHint")}</span>
+                </a>
+              ) : null;
+            })()}
           </div>
 
           {/* Additional public images (docs/migration-plan.md Phase D4) —
