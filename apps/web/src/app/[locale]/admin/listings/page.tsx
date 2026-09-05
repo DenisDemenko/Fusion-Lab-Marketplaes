@@ -19,6 +19,18 @@ type AdminListingRow = ListingCard & {
   lockedFiles: number;
 };
 
+// The moderation status is the entire point of this row — a queue admin
+// scans top to bottom for what needs a decision. One neutral grey badge
+// for every status made "published" and "rejected" look the same at a
+// glance; these mirror the state tokens B1 already defined.
+const STATUS_STYLES: Record<ListingStatus, string> = {
+  draft: "bg-[var(--neutral-bg)] text-[var(--muted)]",
+  pending_review: "bg-[var(--warning-soft)] text-[var(--warning)]",
+  published: "bg-[var(--success-soft)] text-[var(--success)]",
+  rejected: "bg-[var(--danger-soft)] text-[var(--danger)]",
+  archived: "bg-[var(--neutral-bg)] text-[var(--muted)]",
+};
+
 export default function AdminListingsPage() {
   return (
     <RequireAuth role="admin">
@@ -104,7 +116,7 @@ function ModerationScreen() {
             onClick={() => setStatus(tab.value)}
             className={`rounded-full border px-3.5 py-1.5 text-sm ${
               status === tab.value
-                ? "border-[var(--foreground)] bg-[var(--foreground)] text-white"
+                ? "border-[var(--accent)] bg-[var(--accent)] text-white"
                 : "border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
             }`}
           >
@@ -146,7 +158,7 @@ function ModerationScreen() {
                   ) : null}
                 </div>
 
-                <span className="badge bg-[var(--neutral-bg)] text-[var(--muted)]">
+                <span className={`badge ${STATUS_STYLES[listing.status]}`}>
                   {tStatus(listing.status)}
                 </span>
               </div>

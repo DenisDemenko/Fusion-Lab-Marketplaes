@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import type { ChatMessageEntry, ChatThreadMessages } from "@fusion-lab/shared-types";
 import type { Locale } from "@/i18n/routing";
@@ -10,7 +10,23 @@ import { Link } from "@/i18n/navigation";
 import { RequireAuth } from "@/components/require-auth";
 import { API_URL, api } from "@/lib/api-client";
 import { auth } from "@/lib/firebase";
-import { formatDateTime } from "@/lib/format";
+import { formatDate } from "@/lib/format";
+
+// Messages in one thread are read top to bottom in a single sitting, so the
+// full "02.09.2026, 14:31" under every bubble repeated the same date dozens
+// of times to say one thing that changes twice a day at most. The date moves
+// up into a rule between days, and each bubble keeps only the clock — mono,
+// like every other timestamp in the app.
+function formatClock(value: string, locale: Locale): string {
+  return new Date(value).toLocaleTimeString(locale === "en" ? "en-US" : "uk-UA", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function dayKey(value: string): string {
+  return new Date(value).toDateString();
+}
 
 export default function ChatThreadPage() {
   return (
@@ -136,24 +152,60 @@ function ChatThreadScreen() {
         {data.thread.listingTitle}
       </Link>
 
-      <div className="card mt-4 flex-1 space-y-3 overflow-y-auto p-4">
+      {/* The thread was a flat stack of evenly spaced bubbles, each with its
+          own full timestamp, so five messages fired off in a row looked like
+          five separate exchanges and a two-week-old conversation looked like
+          today's. Consecutive messages from the same side now close up into
+          one run that is timestamped once, at its end, and a day rule marks
+          where the conversation was picked up again. */}
+      <div className="card mt-4 flex-1 overflow-y-auto p-4">
         {data.messages.length === 0 ? (
           <p className="text-center text-sm text-[var(--muted)]">{t("writeFirstMessage")}</p>
         ) : (
-          data.messages.map((message) => (
-            <div key={message.id} className={message.mine ? "text-right" : "text-left"}>
-              <p
-                className={`inline-block max-w-[80%] whitespace-pre-line rounded-2xl px-3.5 py-2 text-sm ${
-                  message.mine ? "bg-[var(--foreground)] text-white" : "bg-[var(--neutral-bg)] text-[var(--foreground)]"
-                }`}
-              >
-                {message.body}
-              </p>
-              <p className="mt-0.5 text-xs text-[var(--muted)]">
-                {formatDateTime(message.createdAt, locale)}
-              </p>
-            </div>
-          ))
+          data.messages.map((message, index) => {
+            const previous = index > 0 ? data.messages[index - 1] : null;
+            const next = index + 1 < data.messages.length ? data.messages[index + 1] : null;
+            const newDay = !previous || dayKey(previous.createdAt) !== dayKey(message.createdAt);
+            const startsRun = newDay || !previous || previous.mine !== message.mine;
+            const endsRun =
+              !next ||
+              next.mine !== message.mine ||
+              dayKey(next.createdAt) !== dayKey(message.createdAt);
+
+            return (
+              <Fragment key={message.id}>
+                {newDay ? (
+                  <div className={`flex items-center gap-3 ${index === 0 ? "pb-3" : "py-4"}`}>
+                    <span className="h-px flex-1 bg-[var(--line)]" />
+                    <span className="font-mono text-[11px] tracking-wide text-[var(--muted)]">
+                      {formatDate(message.createdAt, locale)}
+                    </span>
+                    <span className="h-px flex-1 bg-[var(--line)]" />
+                  </div>
+                ) : null}
+                <div
+                  className={`${newDay ? "" : startsRun ? "mt-4" : "mt-1"} ${
+                    message.mine ? "text-right" : "text-left"
+                  }`}
+                >
+                  <p
+                    className={`inline-block max-w-[80%] whitespace-pre-line rounded-2xl px-3.5 py-2 text-left text-sm ${
+                      message.mine
+                        ? `bg-[var(--foreground)] text-white ${endsRun ? "rounded-br-sm" : ""}`
+                        : `bg-[var(--neutral-bg)] text-[var(--foreground)] ${endsRun ? "rounded-bl-sm" : ""}`
+                    }`}
+                  >
+                    {message.body}
+                  </p>
+                  {endsRun ? (
+                    <p className="mt-1 font-mono text-[11px] text-[var(--muted)]">
+                      {formatClock(message.createdAt, locale)}
+                    </p>
+                  ) : null}
+                </div>
+              </Fragment>
+            );
+          })
         )}
         <div ref={bottomRef} />
       </div>

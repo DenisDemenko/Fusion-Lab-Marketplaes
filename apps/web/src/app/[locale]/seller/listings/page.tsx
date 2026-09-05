@@ -7,7 +7,7 @@ import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
-import { api } from "@/lib/api-client";
+import { api, mediaUrl } from "@/lib/api-client";
 
 export default function SellerListingsPage() {
   return (
@@ -71,25 +71,42 @@ function ListingsScreen() {
         <p className="card mt-6 p-8 text-center text-[var(--muted)]">{t("emptyBody")}</p>
       ) : (
         <div className="mt-6 space-y-3">
-          {listings.map((listing) => (
-            <Link
-              key={listing.id}
-              href={`/seller/listings/${listing.id}`}
-              className="card flex items-center justify-between gap-4 p-4 transition hover:shadow-md"
-            >
-              <div>
-                <p className="font-medium text-[var(--foreground)]">{listing.title}</p>
-                <p className="text-sm text-[var(--muted)]">
-                  {tKind(listing.kind)} · {uaLabel(listing.priceLabel, locale)}
-                </p>
-              </div>
-              <span
-                className={`badge ${STATUS_STYLE[listing.status] ?? "bg-[var(--neutral-bg)] text-[var(--muted)]"}`}
+          {listings.map((listing) => {
+            const cover = mediaUrl(listing.coverUrl);
+
+            return (
+              <Link
+                key={listing.id}
+                href={`/seller/listings/${listing.id}`}
+                className="card flex items-center gap-4 p-4 transition hover:shadow-md"
               >
-                {tStatus(listing.status)}
-              </span>
-            </Link>
-          ))}
+                {/* Rows used to be text only, so a list of ten drafts and
+                    products looked like one undifferentiated block. A
+                    thumbnail — the same cover a buyer sees in the catalog —
+                    makes each row recognizable at a glance instead of by
+                    re-reading titles. */}
+                <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-[var(--neutral-bg)]">
+                  {cover ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={cover} alt="" className="h-full w-full object-cover" />
+                  ) : null}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-[var(--foreground)]">{listing.title}</p>
+                  <p className="text-sm text-[var(--muted)]">
+                    {tKind(listing.kind)} · {uaLabel(listing.priceLabel, locale)}
+                  </p>
+                </div>
+
+                <span
+                  className={`shrink-0 badge ${STATUS_STYLE[listing.status] ?? "bg-[var(--neutral-bg)] text-[var(--muted)]"}`}
+                >
+                  {tStatus(listing.status)}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

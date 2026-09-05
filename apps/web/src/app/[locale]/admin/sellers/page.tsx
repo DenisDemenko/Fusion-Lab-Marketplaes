@@ -104,10 +104,14 @@ function SellersScreen() {
             key={tab.value || "all"}
             type="button"
             onClick={() => setStatus(tab.value)}
-            className={`rounded-full border px-3.5 py-1.5 text-sm ${
+            /* The selected tab was drawn in the near-black foreground, the
+               same ink as the headings above it, so it read as a title
+               rather than as the filter currently in force. Selection is
+               an accent job. */
+            className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
               status === tab.value
-                ? "border-[var(--foreground)] bg-[var(--foreground)] text-white"
-                : "border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
+                ? "border-[var(--accent)] bg-[var(--accent)] font-semibold text-white"
+                : "border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]"
             }`}
           >
             {tab.label}
@@ -130,19 +134,36 @@ function SellersScreen() {
           {sellers.map((seller) => (
             <div key={seller.id} className="card p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-[var(--foreground)]">
+                {/* Name, contact, application date and listing count were
+                    one grey run-on line separated by middots, so nothing in
+                    it could be found by scanning. The name leads, the email
+                    is the contact under it, and the two facts an admin
+                    actually weighs — how long this has been waiting and
+                    whether the seller has anything to sell — sit on their
+                    own line in mono, with the count in full ink once it is
+                    non-zero. */}
+                <div className="min-w-0">
+                  <p className="font-display font-semibold text-[var(--foreground)]">
                     {seller.displayName}
                   </p>
-                  <p className="text-sm text-[var(--muted)]">
-                    {t("appliedInfo", {
-                      email: seller.user.email,
-                      date: formatDate(seller.createdAt, locale),
-                      count: seller._count.listings,
-                    })}
+                  <p className="mt-0.5 text-sm break-all text-[var(--muted)]">
+                    {seller.user.email}
+                  </p>
+                  <p className="mt-1.5 flex flex-wrap items-center gap-x-2 font-mono text-xs text-[var(--muted)]">
+                    <span>{t("appliedOn", { date: formatDate(seller.createdAt, locale) })}</span>
+                    <span aria-hidden="true">·</span>
+                    <span
+                      className={
+                        seller._count.listings > 0 ? "text-[var(--foreground)]" : undefined
+                      }
+                    >
+                      {t("listingsCount", { count: seller._count.listings })}
+                    </span>
                   </p>
                   {seller.bio ? (
-                    <p className="mt-2 text-sm text-[var(--muted)]">{seller.bio}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+                      {seller.bio}
+                    </p>
                   ) : null}
                 </div>
                 <span className={`badge ${SELLER_STATUS_TONE[seller.status] ?? "bg-[var(--neutral-bg)] text-[var(--muted)]"}`}>

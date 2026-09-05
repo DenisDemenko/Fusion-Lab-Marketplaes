@@ -12,7 +12,25 @@ export class PrismaService
 {
   constructor() {
     super({
-      adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+      adapter: new PrismaPg(
+        {
+          connectionString: process.env.DATABASE_URL,
+          // The adapter builds a pg.Pool from this config. Bounds are
+          // explicit because the defaults are not: Railway's Postgres has a
+          // finite connection cap, and an unbounded wait on `connect()` turns
+          // an exhausted pool into requests that hang instead of failing.
+          max: Number(process.env.DATABASE_POOL_MAX ?? 10),
+          connectionTimeoutMillis: 10_000,
+          idleTimeoutMillis: 30_000,
+        },
+        {
+          // Without this, an error on an idle pooled client only reaches the
+          // adapter's debug channel, which is off in production — the
+          // connection dies silently and the next request pays for it.
+          onPoolError: (error) =>
+            console.error('[prisma] pool error on an idle client:', error),
+        },
+      ),
     });
   }
 

@@ -38,16 +38,31 @@ function AdminDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // The two moderation queues are the only links on this page that ask
+  // for action rather than report a fact — a pending count sitting in the
+  // same grey caption as "Керування категоріями" made an empty queue and a
+  // backlog of forty look the same at a glance.
+  const queueBody = (pending: number | undefined) => {
+    if (pending === undefined) return "…";
+    return pending > 0 ? (
+      <span className="badge bg-[var(--warning-soft)] text-[var(--warning)]">
+        {t("pendingCount", { count: pending })}
+      </span>
+    ) : (
+      <span className="text-[var(--muted)]">{t("queueClear")}</span>
+    );
+  };
+
   const links = [
     {
       href: "/admin/listings",
       title: t("listingsModeration"),
-      body: stats ? t("pendingCount", { count: stats.listingsPending }) : "…",
+      body: queueBody(stats?.listingsPending),
     },
     {
       href: "/admin/sellers",
       title: t("sellerApplications"),
-      body: stats ? t("pendingSellers", { count: stats.sellersPending }) : "…",
+      body: queueBody(stats?.sellersPending),
     },
     {
       href: "/admin/users",
@@ -78,6 +93,11 @@ function AdminDashboard() {
       href: "/admin/teams",
       title: t("teamsTitle"),
       body: t("teamsBody"),
+    },
+    {
+      href: "/admin/infrastructure",
+      title: t("infrastructureTitle"),
+      body: t("infrastructureBody"),
     },
   ];
 
@@ -114,7 +134,7 @@ function AdminDashboard() {
         {links.map((link) => (
           <Link key={link.href} href={link.href} className="card p-5 transition hover:shadow-md">
             <p className="font-semibold text-[var(--foreground)]">{link.title}</p>
-            <p className="mt-1.5 text-sm text-[var(--muted)]">{link.body}</p>
+            <div className="mt-1.5 text-sm text-[var(--muted)]">{link.body}</div>
           </Link>
         ))}
       </div>
@@ -126,7 +146,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="card p-5">
       <p className="text-sm text-[var(--muted)]">{label}</p>
-      <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{value}</p>
+      <p className="mt-1 font-mono text-xl font-semibold text-[var(--foreground)]">{value}</p>
     </div>
   );
 }

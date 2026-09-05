@@ -73,7 +73,7 @@ function OrdersScreen() {
             onClick={() => setStatus(tab.value)}
             className={`rounded-full border px-3.5 py-1.5 text-sm ${
               status === tab.value
-                ? "border-[var(--foreground)] bg-[var(--foreground)] text-white"
+                ? "border-[var(--accent)] bg-[var(--accent)] text-white"
                 : "border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
             }`}
           >
@@ -108,7 +108,10 @@ function OrdersScreen() {
             <tbody className="divide-y divide-[var(--line)]">
               {orders.map((order) => (
                 <tr key={order.id}>
-                  <td className="px-4 py-3 font-medium text-[var(--foreground)]">
+                  {/* The order number is an identifier, not prose — mono
+                      sets it apart the same way a promo code or a slug
+                      does elsewhere in the admin. */}
+                  <td className="px-4 py-3 font-mono font-medium text-[var(--foreground)]">
                     {order.number}
                   </td>
                   <td className="px-4 py-3 text-[var(--muted)]">{order.buyerEmail}</td>
@@ -120,7 +123,7 @@ function OrdersScreen() {
                       ? `${order.payment.provider} · ${order.payment.status}`
                       : "—"}
                   </td>
-                  <td className="px-4 py-3 text-right font-medium">
+                  <td className="px-4 py-3 text-right font-mono font-medium">
                     {uaLabel(order.totalLabel, locale)}
                   </td>
                   <td className="px-4 py-3 text-[var(--muted)]">

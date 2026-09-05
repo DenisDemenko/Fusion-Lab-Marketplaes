@@ -38,6 +38,16 @@ export default async function TeamsPage({
         <TeamFilters />
       </div>
 
+      {/* The grid alone never says how many teams matched a filter versus
+          how many exist in total — a silent count next to the search bar,
+          same job as the schedule page's seat count, just for a filter
+          instead of a booking. */}
+      {teams.length > 0 ? (
+        <p className="mt-4 text-sm text-[var(--muted)]">
+          {t("resultsCount", { count: teams.length })}
+        </p>
+      ) : null}
+
       {teams.length === 0 ? (
         <div className="card mt-6 p-10 text-center">
           <p className="font-medium text-[var(--foreground)]">{t("emptyTitle")}</p>

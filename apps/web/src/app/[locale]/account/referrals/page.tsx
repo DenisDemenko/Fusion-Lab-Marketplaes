@@ -84,13 +84,27 @@ function ReferralsScreen() {
         </p>
       ) : null}
 
+      {/* The two numbers this whole program is about were buried mid-
+          sentence in plain body text. Pulled into stat tiles — the same
+          "big display figure over a muted label" shape the loyalty balance
+          uses — so the payoff reads before the list below does. */}
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <div className="card p-5 text-center">
+          <p className="font-display text-3xl font-semibold tracking-tight text-[var(--foreground)]">
+            {info.invited.length}
+          </p>
+          <p className="mt-1 text-sm text-[var(--muted)]">{t("statInvited")}</p>
+        </div>
+        <div className="card p-5 text-center">
+          <p className="font-display text-3xl font-semibold tracking-tight text-[var(--foreground)]">
+            {info.totalBonusPoints}
+          </p>
+          <p className="mt-1 text-sm text-[var(--muted)]">{t("statPoints")}</p>
+        </div>
+      </div>
+
       <div className="mt-6">
-        <p className="font-medium text-[var(--foreground)]">
-          {t("invitedSummary", {
-            count: info.invited.length,
-            points: info.totalBonusPoints,
-          })}
-        </p>
+        <p className="label mb-0">{t("invitedListTitle")}</p>
 
         {info.invited.length === 0 ? (
           <p className="card mt-3 p-8 text-center text-[var(--muted)]">{t("emptyInvited")}</p>

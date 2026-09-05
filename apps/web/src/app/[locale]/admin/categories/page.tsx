@@ -92,6 +92,8 @@ function CategoriesScreen() {
 
       {!categories ? (
         <p className="mt-6 text-[var(--muted)]">{tCommon("loading")}</p>
+      ) : categories.length === 0 ? (
+        <p className="card mt-6 p-8 text-center text-[var(--muted)]">{t("empty")}</p>
       ) : (
         <ul className="card mt-6 divide-y divide-[var(--line)]">
           {categories.map((category) => (
@@ -101,7 +103,10 @@ function CategoriesScreen() {
             >
               <span>
                 {category.name}{" "}
-                <span className="text-[var(--muted)]">({category.slug})</span>
+                {/* The slug is the identifier a URL or an API call actually
+                    uses — mono sets it apart from the human-facing name
+                    next to it instead of reading as the same kind of text. */}
+                <span className="font-mono text-[var(--muted)]">({category.slug})</span>
               </span>
               <button
                 type="button"

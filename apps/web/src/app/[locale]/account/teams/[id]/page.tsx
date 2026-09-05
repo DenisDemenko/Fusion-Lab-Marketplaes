@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import type { MediaSummary, MyTeam } from "@fusion-lab/shared-types";
+import type { MediaSummary, MyTeam, TeamStatus } from "@fusion-lab/shared-types";
 import { PageHeader } from "@/components/page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { api, ApiError, mediaUrl } from "@/lib/api-client";
@@ -15,6 +15,16 @@ export default function ManageTeamPage() {
       <ManageTeamScreen teamId={params.id} />
     </RequireAuth>
   );
+}
+
+// Same state, same three tones, as the "my teams" list this page is
+// reached from — a status word buried in the header description read as
+// filler text; a badge reads as the one fact the owner actually checks on
+// return.
+function statusBadgeClass(status: TeamStatus) {
+  if (status === "published") return "badge bg-[var(--success-soft)] text-[var(--success)]";
+  if (status === "rejected") return "badge bg-[var(--danger-soft)] text-[var(--danger)]";
+  return "badge bg-[var(--warning-soft)] text-[var(--warning)]";
 }
 
 function ManageTeamScreen({ teamId }: { teamId: string }) {
@@ -49,12 +59,14 @@ function ManageTeamScreen({ teamId }: { teamId: string }) {
     <div className="mx-auto max-w-2xl px-4 py-10">
       <PageHeader
         title={team.name}
-        description={
-          team.status === "published"
-            ? t("statusPublished")
-            : team.status === "rejected"
-              ? t("statusRejected")
-              : t("statusPending")
+        actions={
+          <span className={statusBadgeClass(team.status)}>
+            {team.status === "published"
+              ? t("statusPublished")
+              : team.status === "rejected"
+                ? t("statusRejected")
+                : t("statusPending")}
+          </span>
         }
       />
       {team.status === "rejected" && team.rejectionReason ? (
@@ -71,10 +83,17 @@ function ManageTeamScreen({ teamId }: { teamId: string }) {
           {team.members.map((member) => (
             <li
               key={member.id}
-              className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-1.5 text-sm text-[var(--foreground)]"
+              className="flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--surface)] py-1.5 pl-3.5 pr-2 text-sm text-[var(--foreground)]"
             >
               {member.displayName}
-              {member.role === "owner" ? ` · ${t("ownerLabel")}` : ""}
+              {/* Was " · власник" appended as plain text — indistinguishable
+                  from the name it trails at a glance. A chip reads as a role,
+                  not a suffix. */}
+              {member.role === "owner" ? (
+                <span className="badge bg-[var(--accent-soft)] px-2 py-0.5 text-[10px] text-[var(--accent)]">
+                  {t("ownerLabel")}
+                </span>
+              ) : null}
             </li>
           ))}
         </ul>

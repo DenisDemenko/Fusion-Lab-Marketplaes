@@ -100,20 +100,27 @@ function NewTeamForm() {
         <div>
           <p className="label">{t("membersLabel")}</p>
           <p className="mb-2 text-xs text-[var(--muted)]">{t("membersHint")}</p>
+          {/* Four identical placeholders in a column read as one blurred
+              field, not four people to invite. A number pins each row to
+              a specific seat on the team. */}
           <div className="space-y-2">
             {memberEmails.map((email, index) => (
-              <input
-                key={index}
-                type="email"
-                className="input"
-                placeholder={t("memberEmailPlaceholder")}
-                value={email}
-                onChange={(event) => {
-                  const next = [...memberEmails];
-                  next[index] = event.target.value;
-                  setMemberEmails(next);
-                }}
-              />
+              <div key={index} className="flex items-center gap-2">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[var(--line)] font-mono text-xs text-[var(--muted)]">
+                  {index + 1}
+                </span>
+                <input
+                  type="email"
+                  className="input"
+                  placeholder={t("memberEmailPlaceholder")}
+                  value={email}
+                  onChange={(event) => {
+                    const next = [...memberEmails];
+                    next[index] = event.target.value;
+                    setMemberEmails(next);
+                  }}
+                />
+              </div>
             ))}
           </div>
         </div>

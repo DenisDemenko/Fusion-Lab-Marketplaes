@@ -58,7 +58,12 @@ function AccountScreen() {
         description={profile?.email ?? undefined}
         actions={
           <span className="badge bg-[var(--accent-soft)] text-[var(--accent)]">
-            {t("roleLabel", { role: profile?.role ?? "—" })}
+            {/* Was the raw enum ("sales_manager") leaking straight into the
+                badge — every other role display in the app translates it
+                first. */}
+            {t("roleLabel", {
+              role: profile?.role ? t(`roleLabels.${profile.role}`) : "—",
+            })}
           </span>
         }
       />

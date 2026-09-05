@@ -91,10 +91,18 @@ function SellerOrdersScreen() {
                   <td className="px-4 py-3 text-right font-mono">
                     {formatUah(sale.unitPriceMinor * sale.quantity, locale)}
                   </td>
+                  {/* A bare number here reads as another amount, not as
+                      what it is — the platform's cut, subtracted from the
+                      sale before the seller is paid. The minus sign makes
+                      that arithmetic visible instead of implied. */}
                   <td className="px-4 py-3 text-right font-mono text-[var(--muted)]">
-                    {formatUah(sale.commissionMinor, locale)}
+                    −{formatUah(sale.commissionMinor, locale)}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono font-medium">
+                  {/* Payout is the number this whole table exists to
+                      answer — what the seller actually gets — so it carries
+                      full-weight foreground color instead of matching the
+                      other columns. */}
+                  <td className="px-4 py-3 text-right font-mono font-semibold text-[var(--foreground)]">
                     {formatUah(sale.payoutMinor, locale)}
                   </td>
                 </tr>

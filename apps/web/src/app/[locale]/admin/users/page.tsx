@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect, useState } from "react";
 import type {
   Permission,
+  SellerStatus,
   UserPermissionsAdminView,
   UserRole,
 } from "@fusion-lab/shared-types";
@@ -31,6 +32,14 @@ const ALL_PERMISSIONS: Permission[] = [
   "books:write",
 ];
 
+// The same three tones the seller and team moderation screens use, so a
+// seller sitting in review looks the same wherever an admin meets them.
+const SELLER_STATUS_TONE: Record<string, string> = {
+  pending: "bg-[var(--warning-soft)] text-[var(--warning)]",
+  approved: "bg-[var(--success-soft)] text-[var(--success)]",
+  rejected: "bg-[var(--danger-soft)] text-[var(--danger)]",
+};
+
 interface AdminUserRow {
   id: string;
   email: string;
@@ -53,6 +62,7 @@ export default function AdminUsersPage() {
 function UsersScreen() {
   const t = useTranslations("adminUsers");
   const tCommon = useTranslations("common");
+  const tSellerStatus = useTranslations("enums.sellerStatus");
   const locale = useLocale() as Locale;
   const { profile } = useAuth();
   const [query, setQuery] = useState("");
@@ -151,17 +161,38 @@ function UsersScreen() {
                   <tr>
                     <td className="px-4 py-3">
                       <p className="font-medium text-[var(--foreground)]">{user.email}</p>
+                      {/* The seller status was interpolated raw ("продавець:
+                          pending") into a grey caption — a moderation state
+                          shown both untranslated and untinted. */}
                       {user.sellerProfile ? (
-                        <p className="text-xs text-[var(--muted)]">
-                          {t("sellerStatusLabel", { status: user.sellerProfile.status })}
-                        </p>
+                        <span
+                          className={`badge mt-1 px-2 py-0.5 text-[10px] ${
+                            SELLER_STATUS_TONE[user.sellerProfile.status] ??
+                            "bg-[var(--neutral-bg)] text-[var(--muted)]"
+                          }`}
+                        >
+                          {t("sellerStatusLabel", {
+                            status: tSellerStatus(user.sellerProfile.status as SellerStatus),
+                          })}
+                        </span>
                       ) : null}
                     </td>
-                    <td className="px-4 py-3 text-[var(--muted)]">
+                    <td className="px-4 py-3 font-mono text-[var(--muted)]">
                       {formatDate(user.createdAt, locale)}
                     </td>
-                    <td className="px-4 py-3">{user._count.orders}</td>
-                    <td className="px-4 py-3">{user._count.entitlements}</td>
+                    {/* Dates and counts are figures, not prose — mono lets the
+                        columns be compared down the page, and a user who has
+                        bought nothing stops looking like one who has. */}
+                    <td
+                      className={`px-4 py-3 font-mono ${user._count.orders === 0 ? "text-[var(--muted)]" : "font-medium text-[var(--foreground)]"}`}
+                    >
+                      {user._count.orders}
+                    </td>
+                    <td
+                      className={`px-4 py-3 font-mono ${user._count.entitlements === 0 ? "text-[var(--muted)]" : "font-medium text-[var(--foreground)]"}`}
+                    >
+                      {user._count.entitlements}
+                    </td>
                     <td className="px-4 py-3">
                       <select
                         className="rounded-lg border border-[var(--line)] px-2 py-1.5 text-sm"
@@ -188,7 +219,12 @@ function UsersScreen() {
                             void toggleSalesApproval(user.id, event.target.checked)
                           }
                         />
-                        <span className="text-xs text-[var(--muted)]">
+                        {/* Granted and withheld access read identically in
+                            grey — the one column on this table that decides
+                            what a person can do. */}
+                        <span
+                          className={`text-xs ${user.salesApproved ? "font-medium text-[var(--success)]" : "text-[var(--muted)]"}`}
+                        >
                           {user.salesApproved ? t("approved") : t("notApproved")}
                         </span>
                       </label>
@@ -284,7 +320,10 @@ function PermissionsPanel({
             <span className="text-sm text-[var(--muted)]">{t("noPermissions")}</span>
           ) : (
             data.effective.map((permission) => (
-              <span key={permission} className="badge bg-[var(--neutral-bg)] text-[var(--foreground)]">
+              <span
+                key={permission}
+                className="badge bg-[var(--neutral-bg)] font-mono text-[var(--foreground)]"
+              >
                 {permission}
               </span>
             ))
@@ -298,12 +337,34 @@ function PermissionsPanel({
           const fromPreset = data.rolePreset.includes(permission);
 
           return (
-            <div key={permission} className="card p-3">
-              <p className="mono text-xs font-medium text-[var(--foreground)]">{permission}</p>
-              <p className="mt-0.5 text-xs text-[var(--muted)]">
-                {fromPreset ? t("fromRolePreset") : t("notInRolePreset")}
-                {override ? ` · ${t(override.granted ? "overrideGrant" : "overrideRevoke")}` : ""}
-              </p>
+            // A manual override is the only thing on this panel that is not
+            // simply the role doing its job — it was appended to the same grey
+            // line as the preset note, so the exceptions an admin is actually
+            // looking for were the least visible thing here. The card carrying
+            // one now owns an accent edge, and the direction of the override
+            // is coloured. (`mono` was also not a class Tailwind knows, so the
+            // permission key had never actually been set in mono.)
+            <div
+              key={permission}
+              className={`card p-3 ${override ? "border-[var(--accent)]" : ""}`}
+            >
+              <p className="font-mono text-xs font-medium text-[var(--foreground)]">{permission}</p>
+              <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                <span className="text-xs text-[var(--muted)]">
+                  {fromPreset ? t("fromRolePreset") : t("notInRolePreset")}
+                </span>
+                {override ? (
+                  <span
+                    className={`badge px-2 py-0.5 text-[10px] ${
+                      override.granted
+                        ? "bg-[var(--success-soft)] text-[var(--success)]"
+                        : "bg-[var(--danger-soft)] text-[var(--danger)]"
+                    }`}
+                  >
+                    {t(override.granted ? "overrideGrant" : "overrideRevoke")}
+                  </span>
+                ) : null}
+              </div>
               <div className="mt-2 flex gap-1.5">
                 <button
                   type="button"

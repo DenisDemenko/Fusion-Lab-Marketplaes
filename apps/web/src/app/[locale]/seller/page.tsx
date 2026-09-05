@@ -20,6 +20,16 @@ export default function SellerPage() {
   );
 }
 
+// Same status -> color mapping as seller/listings and the listing editor,
+// so a status reads the same wherever it appears in the seller area.
+const STATUS_STYLE: Record<string, string> = {
+  draft: "bg-[var(--neutral-bg)] text-[var(--muted)]",
+  pending_review: "bg-[var(--warning-soft)] text-[var(--warning)]",
+  published: "bg-[var(--success-soft)] text-[var(--success)]",
+  rejected: "bg-[var(--danger-soft)] text-[var(--danger)]",
+  archived: "bg-[var(--neutral-bg)] text-[var(--muted)]",
+};
+
 function SellerScreen() {
   const t = useTranslations("sellerHome");
   const tCommon = useTranslations("common");
@@ -116,11 +126,26 @@ function SellerScreen() {
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         <Link href="/seller/listings" className="card p-5 transition hover:shadow-md">
           <p className="font-semibold text-[var(--foreground)]">{t("myListings")}</p>
-          <p className="mt-1 text-sm text-[var(--muted)]">
-            {Object.entries(seller.stats.listingsByStatus)
-              .map(([status, count]) => `${count} — ${tStatus(status)}`)
-              .join(" · ") || t("noListingsYet")}
-          </p>
+          {/* This used to be one grey sentence ("3 — Опубліковано · 2 —
+              Чернетка"), which reads as a caption rather than the state of
+              the seller's inventory. Status is the whole point of this
+              card, so each count now gets the same color a listing's own
+              badge uses — draft vs. pending vs. published is visible
+              before any text is read. */}
+          {Object.keys(seller.stats.listingsByStatus).length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {Object.entries(seller.stats.listingsByStatus).map(([status, count]) => (
+                <span
+                  key={status}
+                  className={`badge ${STATUS_STYLE[status] ?? "bg-[var(--neutral-bg)] text-[var(--muted)]"}`}
+                >
+                  <span className="font-mono">{count}</span> {tStatus(status)}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-1 text-sm text-[var(--muted)]">{t("noListingsYet")}</p>
+          )}
         </Link>
 
         <Link href="/seller/orders" className="card p-5 transition hover:shadow-md">

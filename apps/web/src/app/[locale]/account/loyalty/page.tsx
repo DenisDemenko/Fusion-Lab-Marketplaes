@@ -60,7 +60,11 @@ function LoyaltyScreen() {
 
       <div className="card p-6 text-center">
         <p className="text-sm text-[var(--muted)]">{t("currentBalance")}</p>
-        <p className="mt-1 text-4xl font-semibold text-[var(--foreground)]">
+        {/* The one number this whole page exists to show, so it gets the
+            display face and tight tracking used elsewhere for a headline
+            figure (cart's total, a listing's price) — it was sitting in
+            plain body weight like any other line. */}
+        <p className="mt-1 font-display text-4xl font-semibold tracking-tight text-[var(--foreground)]">
           {history.balance}
         </p>
         <p className="mt-1 text-sm text-[var(--muted)]">
@@ -83,8 +87,11 @@ function LoyaltyScreen() {
                   {tx.orderNumber ? ` · ${tx.orderNumber}` : ""}
                 </p>
               </div>
+              {/* A ledger of point deltas is technical/numeric data, same
+                  as the seat counts and dates elsewhere in the app — mono
+                  reads as "a figure", not as a word next to other words. */}
               <span
-                className={`font-semibold ${tx.points > 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
+                className={`font-mono font-semibold ${tx.points > 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
               >
                 {tx.points > 0 ? "+" : ""}
                 {tx.points}

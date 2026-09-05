@@ -63,7 +63,14 @@ function OrdersScreen() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <PageHeader title={t("title")} />
+      <PageHeader
+        title={t("title")}
+        actions={
+          <p className="font-mono text-sm text-[var(--muted)]">
+            {t("ordersCount", { count: orders.length })}
+          </p>
+        }
+      />
 
       <div className="space-y-3">
         {orders.map((order) => (
@@ -73,8 +80,11 @@ function OrdersScreen() {
             className="card flex flex-wrap items-center justify-between gap-3 p-5 transition hover:shadow-md"
           >
             <div>
-              <p className="font-medium text-[var(--foreground)]">{order.number}</p>
-              <p className="text-sm text-[var(--muted)]">
+              {/* The order number is an identifier, not prose — the mono
+                  face is what the design system reserves for that (same
+                  reasoning as the date/count line below it). */}
+              <p className="font-mono font-medium text-[var(--foreground)]">{order.number}</p>
+              <p className="font-mono text-sm text-[var(--muted)]">
                 {t("createdItemsCount", {
                   date: formatDateTime(order.createdAt, locale),
                   count: order.items.length,

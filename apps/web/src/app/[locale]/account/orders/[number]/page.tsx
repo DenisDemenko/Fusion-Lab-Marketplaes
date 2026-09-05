@@ -104,7 +104,7 @@ function OrderScreen() {
               >
                 {item.title}
               </Link>
-              <p className="text-sm text-[var(--muted)]">
+              <p className="font-mono text-sm text-[var(--muted)]">
                 {t("itemQuantityPrice", {
                   quantity: item.quantity,
                   price: formatUah(item.unitPriceMinor, locale),
@@ -134,7 +134,11 @@ function OrderScreen() {
           ) : null}
           <div className="flex items-center justify-between border-t border-[var(--line)] pt-2">
             <span className="font-medium text-[var(--foreground)]">{t("total")}</span>
-            <span className="text-xl font-semibold">
+            {/* The figure this whole card totals up to, so it gets the same
+                display-face treatment the cart's total already has —
+                rather than matching the body-text size of every line
+                above it. */}
+            <span className="font-display text-2xl font-semibold tracking-tight text-[var(--foreground)]">
               {uaLabel(order.totalLabel, locale)}
             </span>
           </div>

@@ -9,6 +9,15 @@ import { RequireAuth } from "@/components/require-auth";
 import { api } from "@/lib/api-client";
 import { formatDate, formatUah } from "@/lib/format";
 
+// Same idea as the seller dashboard's status pills: what an entry *is*
+// (money coming in from a sale vs. an actual bank payout going out)
+// matters as much as its sign, and reading "+ ₴450" still leaves that
+// question to the description text.
+const ENTRY_STYLE: Record<string, string> = {
+  sale: "bg-[var(--success-soft)] text-[var(--success)]",
+  payout: "bg-[var(--accent-soft)] text-[var(--accent)]",
+};
+
 export default function SellerPayoutsPage() {
   return (
     <RequireAuth>
@@ -24,6 +33,7 @@ function uaLabel(label: string, locale: Locale) {
 function PayoutsScreen() {
   const t = useTranslations("sellerPayouts");
   const tCommon = useTranslations("common");
+  const tEntryType = useTranslations("enums.payoutEntryType");
   const locale = useLocale() as Locale;
   const [ledger, setLedger] = useState<PayoutLedger | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -52,22 +62,26 @@ function PayoutsScreen() {
     <div className="mx-auto max-w-3xl px-4 py-10">
       <PageHeader title={t("title")} />
 
+      {/* Money figures elsewhere in the seller area (dashboard stats, the
+          orders table) are set in JetBrains Mono so digits line up; these
+          three cards were the one place still on the proportional body
+          face. */}
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="card p-5">
           <p className="text-sm text-[var(--muted)]">{t("totalEarned")}</p>
-          <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">
+          <p className="mt-1 font-mono text-xl font-semibold text-[var(--foreground)]">
             {uaLabel(ledger.earnedLabel, locale)}
           </p>
         </div>
         <div className="card p-5">
           <p className="text-sm text-[var(--muted)]">{t("totalPaidOut")}</p>
-          <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">
+          <p className="mt-1 font-mono text-xl font-semibold text-[var(--foreground)]">
             {uaLabel(ledger.paidOutLabel, locale)}
           </p>
         </div>
         <div className="card border-[var(--accent)] p-5">
           <p className="text-sm text-[var(--muted)]">{t("outstanding")}</p>
-          <p className="mt-1 text-xl font-semibold text-[var(--accent)]">
+          <p className="mt-1 font-mono text-xl font-semibold text-[var(--accent)]">
             {uaLabel(ledger.outstandingLabel, locale)}
           </p>
         </div>
@@ -80,11 +94,18 @@ function PayoutsScreen() {
           {ledger.entries.map((entry, index) => (
             <div key={index} className="flex items-center justify-between gap-3 p-4">
               <div>
-                <p className="font-medium text-[var(--foreground)]">{entry.description}</p>
-                <p className="text-xs text-[var(--muted)]">{formatDate(entry.date, locale)}</p>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`badge ${ENTRY_STYLE[entry.type] ?? "bg-[var(--neutral-bg)] text-[var(--muted)]"}`}
+                  >
+                    {tEntryType(entry.type)}
+                  </span>
+                  <p className="font-medium text-[var(--foreground)]">{entry.description}</p>
+                </div>
+                <p className="mt-1 text-xs text-[var(--muted)]">{formatDate(entry.date, locale)}</p>
               </div>
               <span
-                className={`font-semibold ${
+                className={`font-mono font-semibold ${
                   entry.amountMinor >= 0 ? "text-[var(--success)]" : "text-[var(--muted)]"
                 }`}
               >

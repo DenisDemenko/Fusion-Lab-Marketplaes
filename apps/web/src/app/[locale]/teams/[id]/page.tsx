@@ -69,10 +69,18 @@ export default async function TeamDetailPage({
           {team.members.map((member) => (
             <li
               key={member.id}
-              className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-1.5 text-sm text-[var(--foreground)]"
+              className="flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--surface)] py-1.5 pl-3.5 pr-2 text-sm text-[var(--foreground)]"
             >
               {member.displayName}
-              {member.role === "owner" ? ` · ${t("ownerLabel")}` : ""}
+              {/* Was " · власник" appended as plain text, easy to miss next
+                  to the name it trails. A chip reads as a role, not a
+                  suffix — same treatment as the owner's own team-management
+                  view of this same list. */}
+              {member.role === "owner" ? (
+                <span className="badge bg-[var(--accent-soft)] px-2 py-0.5 text-[10px] text-[var(--accent)]">
+                  {t("ownerLabel")}
+                </span>
+              ) : null}
             </li>
           ))}
         </ul>

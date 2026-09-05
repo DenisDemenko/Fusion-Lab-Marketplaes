@@ -153,30 +153,99 @@ function AdminScheduleScreen() {
         <p className="mt-6 text-[var(--muted)]">{tCommon("loading")}</p>
       ) : (
         <div className="mt-6 space-y-3">
-          {slots.map((slot) => (
-            <div key={slot.id} className="card flex flex-wrap items-center justify-between gap-3 p-5">
-              <div>
-                <p className="font-mono text-xs text-[var(--muted)]">
-                  {formatDateTime(slot.startsAt, locale)}
-                </p>
-                <p className="font-semibold text-[var(--foreground)]">{slot.title}</p>
-                <p className="text-sm text-[var(--muted)]">
-                  {t("bookedOf", { booked: slot.bookedCount, capacity: slot.capacity })}
-                  {slot.status === "cancelled" ? ` · ${t("cancelledLabel")}` : ""}
-                </p>
+          {slots.map((slot) => {
+            const isCancelled = slot.status === "cancelled";
+            const isFull = slot.bookedCount >= slot.capacity;
+            const filled = Math.min(
+              100,
+              Math.round((slot.bookedCount / Math.max(1, slot.capacity)) * 100),
+            );
+
+            return (
+              <div
+                key={slot.id}
+                /* A cancelled session used to differ from a live one only by
+                   the word "cancelled" tacked onto the end of a grey line.
+                   It keeps its place in the list but stops competing with
+                   the sessions that still need running. */
+                className={`card flex flex-wrap items-center justify-between gap-4 p-5 ${
+                  isCancelled ? "opacity-60" : ""
+                }`}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {/* The date is what identifies a row on a schedule, and
+                        it was the faintest thing in it. Same weight as the
+                        public schedule gives it. */}
+                    <p className="font-mono text-sm font-medium text-[var(--foreground)]">
+                      {formatDateTime(slot.startsAt, locale)}
+                    </p>
+                    {isCancelled ? (
+                      <span className="badge bg-[var(--neutral-bg)] text-[var(--muted)]">
+                        {t("cancelledLabel")}
+                      </span>
+                    ) : isFull ? (
+                      <span className="badge bg-[var(--success-soft)] text-[var(--success)]">
+                        {t("full")}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-1 font-display font-semibold text-[var(--foreground)]">
+                    {slot.title}
+                  </p>
+
+                  {/* Booked-of-capacity was a grey caption, though filling
+                      the room is the reason this page exists. A bar shows
+                      an empty session and a sold-out one at a glance; here
+                      full is good news, so it reads success, not danger. */}
+                  <div className="mt-3 max-w-56">
+                    <div className="flex items-baseline justify-between text-xs">
+                      <span className="text-[var(--muted)]">{t("occupancy")}</span>
+                      <span
+                        className={`font-mono ${
+                          isFull && !isCancelled
+                            ? "text-[var(--success)]"
+                            : "text-[var(--foreground)]"
+                        }`}
+                      >
+                        {slot.bookedCount} / {slot.capacity}
+                      </span>
+                    </div>
+                    <div
+                      role="img"
+                      aria-label={t("bookedOf", {
+                        booked: slot.bookedCount,
+                        capacity: slot.capacity,
+                      })}
+                      className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[var(--neutral-bg)]"
+                    >
+                      <div
+                        className={`h-full rounded-full ${
+                          isCancelled
+                            ? "bg-[var(--muted)]"
+                            : isFull
+                              ? "bg-[var(--success)]"
+                              : "bg-[var(--accent)]"
+                        }`}
+                        style={{ width: `${filled}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {slot.status === "scheduled" ? (
+                  <button
+                    type="button"
+                    className="btn-danger shrink-0"
+                    disabled={busyId === slot.id}
+                    onClick={() => void cancelSlot(slot.id)}
+                  >
+                    {busyId === slot.id ? tCommon("loading") : t("cancelSlot")}
+                  </button>
+                ) : null}
               </div>
-              {slot.status === "scheduled" ? (
-                <button
-                  type="button"
-                  className="btn-danger shrink-0"
-                  disabled={busyId === slot.id}
-                  onClick={() => void cancelSlot(slot.id)}
-                >
-                  {busyId === slot.id ? tCommon("loading") : t("cancelSlot")}
-                </button>
-              ) : null}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

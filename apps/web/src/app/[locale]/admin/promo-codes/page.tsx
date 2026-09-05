@@ -22,6 +22,10 @@ function PromoCodesScreen() {
   const tCommon = useTranslations("common");
   const locale = useLocale() as Locale;
   const [codes, setCodes] = useState<PromoCode[] | null>(null);
+  // Expiry is measured against the moment the list was fetched. Reading the
+  // clock during render is impure: an unrelated re-render could flip a row
+  // from active to expired mid-session, with nothing on screen explaining it.
+  const [loadedAt, setLoadedAt] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -34,6 +38,7 @@ function PromoCodesScreen() {
   async function load() {
     try {
       setCodes(await api.get<PromoCode[]>("/admin/promo-codes"));
+      setLoadedAt(Date.now());
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : tCommon("loadError"));
     }
@@ -171,6 +176,11 @@ function PromoCodesScreen() {
         </button>
       </form>
 
+      {/* "active" was the only signal shown, but a code past its expiry
+          date still read as active until someone clicked into it — the
+          date sitting right there in its own column made no visual claim
+          about the code's state. Expired now overrides the flag in the
+          badge and tints its own date red. */}
       {!codes ? (
         <p className="mt-6 text-[var(--muted)]">{tCommon("loading")}</p>
       ) : codes.length === 0 ? (
@@ -189,39 +199,74 @@ function PromoCodesScreen() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--line)]">
-              {codes.map((promo) => (
-                <tr key={promo.id}>
-                  <td className="px-4 py-3 font-mono font-medium">{promo.code}</td>
-                  <td className="px-4 py-3">
-                    {promo.type === "percent"
-                      ? `${promo.value}%`
-                      : formatUah(promo.value, locale)}
-                  </td>
-                  <td className="px-4 py-3">
-                    {promo.redemptionCount}
-                    {promo.maxRedemptions ? ` / ${promo.maxRedemptions}` : ""}
-                  </td>
-                  <td className="px-4 py-3 text-[var(--muted)]">
-                    {promo.expiresAt ? formatDate(promo.expiresAt, locale) : "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`badge ${promo.active ? "bg-[var(--success-soft)] text-[var(--success)]" : "bg-[var(--neutral-bg)] text-[var(--muted)]"}`}
-                    >
-                      {promo.active ? t("statusActive") : t("statusDisabled")}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      type="button"
-                      className="text-sm text-[var(--muted)] hover:underline"
-                      onClick={() => void toggle(promo.id, promo.active)}
-                    >
-                      {promo.active ? t("disable") : t("enable")}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {codes.map((promo) => {
+                const isExpired = promo.expiresAt
+                  ? new Date(promo.expiresAt).getTime() < loadedAt
+                  : false;
+                const usageRatio = promo.maxRedemptions
+                  ? Math.min(100, Math.round((promo.redemptionCount / promo.maxRedemptions) * 100))
+                  : null;
+
+                return (
+                  <tr key={promo.id}>
+                    <td className="px-4 py-3 font-mono font-medium">{promo.code}</td>
+                    <td className="px-4 py-3">
+                      {promo.type === "percent"
+                        ? `${promo.value}%`
+                        : formatUah(promo.value, locale)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="font-mono">
+                        {promo.redemptionCount}
+                        {promo.maxRedemptions ? ` / ${promo.maxRedemptions}` : ""}
+                      </span>
+                      {/* Redemption count alone hides how close a limited
+                          code is to running out — a bar makes "almost
+                          exhausted" legible the same way the schedule page
+                          makes "almost full" legible. */}
+                      {usageRatio !== null ? (
+                        <div className="mt-1.5 h-1 w-20 overflow-hidden rounded-full bg-[var(--neutral-bg)]">
+                          <div
+                            className={`h-full rounded-full ${usageRatio >= 100 ? "bg-[var(--danger)]" : "bg-[var(--accent)]"}`}
+                            style={{ width: `${usageRatio}%` }}
+                          />
+                        </div>
+                      ) : null}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={isExpired ? "text-[var(--danger)]" : "text-[var(--muted)]"}>
+                        {promo.expiresAt ? formatDate(promo.expiresAt, locale) : "—"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`badge ${
+                          isExpired
+                            ? "bg-[var(--danger-soft)] text-[var(--danger)]"
+                            : promo.active
+                              ? "bg-[var(--success-soft)] text-[var(--success)]"
+                              : "bg-[var(--neutral-bg)] text-[var(--muted)]"
+                        }`}
+                      >
+                        {isExpired
+                          ? t("statusExpired")
+                          : promo.active
+                            ? t("statusActive")
+                            : t("statusDisabled")}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        type="button"
+                        className="text-sm text-[var(--muted)] hover:underline"
+                        onClick={() => void toggle(promo.id, promo.active)}
+                      >
+                        {promo.active ? t("disable") : t("enable")}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

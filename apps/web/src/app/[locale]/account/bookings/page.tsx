@@ -25,10 +25,15 @@ function BookingsScreen() {
   const [bookings, setBookings] = useState<MyClassBooking[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  // "Now", captured once per load rather than read inline during render —
+  // Date.now() is impure, and the lint rule (rightly) won't let a render
+  // call it directly.
+  const [now, setNow] = useState(0);
 
   async function load() {
     try {
       setBookings(await api.get<MyClassBooking[]>("/me/bookings"));
+      setNow(Date.now());
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : t("loadFailed"));
     }
@@ -70,24 +75,44 @@ function BookingsScreen() {
         </div>
       ) : (
         <ul className="mt-6 space-y-3">
-          {bookings.map((booking) => (
-            <li key={booking.id} className="card flex flex-wrap items-center justify-between gap-3 p-5">
-              <div>
-                <p className="font-mono text-xs text-[var(--muted)]">
-                  {formatDateTime(booking.schedule.startsAt, locale)}
-                </p>
-                <p className="font-semibold text-[var(--foreground)]">{booking.schedule.title}</p>
-              </div>
-              <button
-                type="button"
-                className="btn-ghost shrink-0"
-                disabled={busyId === booking.schedule.id}
-                onClick={() => void cancel(booking.schedule.id)}
+          {bookings.map((booking) => {
+            // A booking for a session that already happened looked exactly
+            // like an upcoming one — same card, same "Cancel" button that
+            // no longer means anything. Fading it and swapping the action
+            // for a plain status makes the list read as history vs. what's
+            // still ahead at a glance.
+            const isPast = now > 0 && new Date(booking.schedule.startsAt).getTime() < now;
+
+            return (
+              <li
+                key={booking.id}
+                className={`card flex flex-wrap items-center justify-between gap-3 p-5 ${
+                  isPast ? "opacity-60" : ""
+                }`}
               >
-                {busyId === booking.schedule.id ? t("cancelling") : t("cancel")}
-              </button>
-            </li>
-          ))}
+                <div>
+                  <p className="font-mono text-xs text-[var(--muted)]">
+                    {formatDateTime(booking.schedule.startsAt, locale)}
+                  </p>
+                  <p className="font-semibold text-[var(--foreground)]">{booking.schedule.title}</p>
+                </div>
+                {isPast ? (
+                  <span className="badge shrink-0 bg-[var(--neutral-bg)] text-[var(--muted)]">
+                    {t("past")}
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn-ghost shrink-0"
+                    disabled={busyId === booking.schedule.id}
+                    onClick={() => void cancel(booking.schedule.id)}
+                  >
+                    {busyId === booking.schedule.id ? t("cancelling") : t("cancel")}
+                  </button>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

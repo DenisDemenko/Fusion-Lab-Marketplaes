@@ -23,6 +23,51 @@ function uaLabel(label: string, locale: Locale) {
   return locale === "en" ? label.replace("грн", "UAH") : label;
 }
 
+// The three totals repeated the same label/value markup three times over,
+// and all three were set at one size in the body font — money, in a system
+// that keeps the mono face for money. Outstanding is the figure this page
+// exists to act on, so it carries the size; when it is zero the card stops
+// shouting in accent and says the account is square instead.
+function LedgerTotal({
+  label,
+  value,
+  tone = "plain",
+  note,
+}: {
+  label: string;
+  value: string;
+  tone?: "plain" | "due" | "settled";
+  note?: string;
+}) {
+  // Written out per tone rather than assembled from a token name: Tailwind
+  // only ever sees class strings that appear literally in the source.
+  const TONES = {
+    plain: {
+      card: "card p-5",
+      value: "mt-1 font-mono text-xl font-semibold text-[var(--foreground)]",
+      note: "badge mt-2 bg-[var(--neutral-bg)] text-[var(--muted)]",
+    },
+    due: {
+      card: "card border-[var(--accent)] p-5",
+      value: "mt-1 font-mono text-2xl font-semibold text-[var(--accent)]",
+      note: "badge mt-2 bg-[var(--accent-soft)] text-[var(--accent)]",
+    },
+    settled: {
+      card: "card border-[var(--success)] p-5",
+      value: "mt-1 font-mono text-2xl font-semibold text-[var(--success)]",
+      note: "badge mt-2 bg-[var(--success-soft)] text-[var(--success)]",
+    },
+  }[tone];
+
+  return (
+    <div className={TONES.card}>
+      <p className="text-sm text-[var(--muted)]">{label}</p>
+      <p className={TONES.value}>{value}</p>
+      {note ? <span className={TONES.note}>{note}</span> : null}
+    </div>
+  );
+}
+
 function AdminSellerPayoutsScreen() {
   const t = useTranslations("adminSellerPayouts");
   const tCommon = useTranslations("common");
@@ -87,20 +132,14 @@ function AdminSellerPayoutsScreen() {
       <PageHeader title={t("title")} />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="card p-5">
-          <p className="text-sm text-[var(--muted)]">{t("earned")}</p>
-          <p className="mt-1 text-xl font-semibold">{uaLabel(ledger.earnedLabel, locale)}</p>
-        </div>
-        <div className="card p-5">
-          <p className="text-sm text-[var(--muted)]">{t("paidOut")}</p>
-          <p className="mt-1 text-xl font-semibold">{uaLabel(ledger.paidOutLabel, locale)}</p>
-        </div>
-        <div className="card border-[var(--accent)] p-5">
-          <p className="text-sm text-[var(--muted)]">{t("outstanding")}</p>
-          <p className="mt-1 text-xl font-semibold text-[var(--accent)]">
-            {uaLabel(ledger.outstandingLabel, locale)}
-          </p>
-        </div>
+        <LedgerTotal label={t("earned")} value={uaLabel(ledger.earnedLabel, locale)} />
+        <LedgerTotal label={t("paidOut")} value={uaLabel(ledger.paidOutLabel, locale)} />
+        <LedgerTotal
+          label={t("outstanding")}
+          value={uaLabel(ledger.outstandingLabel, locale)}
+          tone={ledger.outstandingMinor > 0 ? "due" : "settled"}
+          note={ledger.outstandingMinor > 0 ? undefined : t("settled")}
+        />
       </div>
 
       <form onSubmit={record} className="card mt-6 space-y-4 p-6">
@@ -148,22 +187,46 @@ function AdminSellerPayoutsScreen() {
         <p className="card mt-6 p-8 text-center text-[var(--muted)]">{t("emptyHistory")}</p>
       ) : (
         <div className="card mt-6 divide-y divide-[var(--line)]">
-          {ledger.entries.map((entry, index) => (
-            <div key={index} className="flex items-center justify-between gap-3 p-4">
-              <div>
-                <p className="font-medium text-[var(--foreground)]">{entry.description}</p>
-                <p className="text-xs text-[var(--muted)]">{formatDate(entry.date, locale)}</p>
+          {/* A payout row is whatever note the admin typed — "card
+              transfer" reads exactly like a sale did, and the sign was
+              carried only by a colour that made the payouts, the entries
+              this page is about, look disabled. The ledger already knows
+              which kind each entry is, so each row now says so. */}
+          {ledger.entries.map((entry, index) => {
+            const isPayout = entry.type === "payout";
+
+            return (
+              <div key={index} className="flex items-center justify-between gap-3 p-4">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`badge ${
+                        isPayout
+                          ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                          : "bg-[var(--success-soft)] text-[var(--success)]"
+                      }`}
+                    >
+                      {isPayout ? t("entryPayout") : t("entrySale")}
+                    </span>
+                    <span className="font-mono text-xs text-[var(--muted)]">
+                      {formatDate(entry.date, locale)}
+                    </span>
+                  </div>
+                  <p className="mt-1.5 text-sm leading-relaxed text-[var(--foreground)]">
+                    {entry.description}
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 font-mono font-semibold ${
+                    isPayout ? "text-[var(--foreground)]" : "text-[var(--success)]"
+                  }`}
+                >
+                  {entry.amountMinor >= 0 ? "+" : ""}
+                  {formatUah(entry.amountMinor, locale)}
+                </span>
               </div>
-              <span
-                className={`font-semibold ${
-                  entry.amountMinor >= 0 ? "text-[var(--success)]" : "text-[var(--muted)]"
-                }`}
-              >
-                {entry.amountMinor >= 0 ? "+" : ""}
-                {formatUah(entry.amountMinor, locale)}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

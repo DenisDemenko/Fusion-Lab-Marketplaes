@@ -85,16 +85,20 @@ function AdminTeamsScreen() {
     <div className="mx-auto max-w-4xl px-4 py-10">
       <PageHeader title={t("title")} />
 
+      {/* The chosen filter was painted in --foreground, the same near-black
+          the page sets headings in, so the active state read as a heading
+          rather than as a choice. Selection is an accent job — the catalog
+          filters were corrected the same way. */}
       <div className="flex flex-wrap gap-2">
         {FILTERS.map((filter) => (
           <button
             key={filter.value}
             type="button"
             onClick={() => setStatus(filter.value)}
-            className={`rounded-full border px-3 py-1.5 text-sm ${
+            className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
               status === filter.value
-                ? "border-[var(--foreground)] bg-[var(--foreground)] text-white"
-                : "border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--neutral-bg)]"
+                ? "border-[var(--accent)] bg-[var(--accent)] font-semibold text-white"
+                : "border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]"
             }`}
           >
             {t(filter.key as "filterAll")}
@@ -121,13 +125,31 @@ function AdminTeamsScreen() {
                       <img src={photo} alt="" className="h-full w-full object-cover" />
                     ) : null}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-semibold text-[var(--foreground)]">{team.name}</p>
-                    <p className="text-sm text-[var(--muted)]">
-                      {team.direction ?? ""} · {t("membersCount", { count: team.memberCount })}
-                    </p>
+                    {/* The direction is a taxonomy value, not prose — the
+                        public team card already gives it an accent badge, so
+                        the moderation list showing it as grey text meant the
+                        same field looked like two different things. It also
+                        removes the dangling "· 3 учасники" a team with no
+                        direction used to render. */}
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                      {team.direction ? (
+                        <span className="badge bg-[var(--accent-soft)] text-[var(--accent)]">
+                          {team.direction}
+                        </span>
+                      ) : null}
+                      <span className="font-mono text-xs text-[var(--muted)]">
+                        {t("membersCount", { count: team.memberCount })}
+                      </span>
+                    </div>
+                    {/* A rejection reason is the one piece of moderator
+                        writing on this screen; as a bare red caption it was
+                        the smallest text in the row. */}
                     {team.status === "rejected" && team.rejectionReason ? (
-                      <p className="text-xs text-[var(--danger)]">{team.rejectionReason}</p>
+                      <p className="mt-2 border-l-2 border-[var(--danger)] bg-[var(--danger-soft)] py-1 pl-2.5 text-xs leading-relaxed text-[var(--danger)]">
+                        {team.rejectionReason}
+                      </p>
                     ) : null}
                   </div>
                 </div>

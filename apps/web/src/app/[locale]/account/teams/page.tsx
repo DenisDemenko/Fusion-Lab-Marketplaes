@@ -14,6 +14,17 @@ function statusLabel(status: TeamStatus, t: ReturnType<typeof useTranslations<"a
   return t("statusPending");
 }
 
+// Was a plain grey caption under the team name, the same weight as every
+// other line on the row, so the one thing that actually changes between
+// teams (pending / published / rejected) was the easiest thing to miss.
+// Color it like the rest of the design system's state badges (schedule's
+// "mine"/"full", the catalog category chip).
+function statusBadgeClass(status: TeamStatus) {
+  if (status === "published") return "badge bg-[var(--success-soft)] text-[var(--success)]";
+  if (status === "rejected") return "badge bg-[var(--danger-soft)] text-[var(--danger)]";
+  return "badge bg-[var(--warning-soft)] text-[var(--warning)]";
+}
+
 export default function AccountTeamsPage() {
   return (
     <RequireAuth>
@@ -129,7 +140,9 @@ function AccountTeamsScreen() {
               >
                 <div>
                   <p className="font-medium text-[var(--foreground)]">{team.name}</p>
-                  <p className="text-sm text-[var(--muted)]">{statusLabel(team.status, t)}</p>
+                  <span className={`mt-1 ${statusBadgeClass(team.status)}`}>
+                    {statusLabel(team.status, t)}
+                  </span>
                 </div>
                 <span className="badge bg-[var(--neutral-bg)] text-[var(--muted)]">
                   {t("membersCount", { count: team.memberCount })}
