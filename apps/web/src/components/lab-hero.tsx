@@ -80,7 +80,16 @@ export function LabHero() {
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:py-24">
         <div className="max-w-xl">
-          <p className="text-sm font-medium tracking-wide text-[#e7b78f]">
+          {/* Великий знак Fusion Lab (метал, F — craft-orange, L — tech-blue)
+              над рядком адреси — той самий crop, що й у site-header.tsx,
+              лише більший і без обмеження в 9×9: тут це не іконка поруч із
+              написом, а самостійний знак секції. */}
+          <img
+            src="/fusion-lab-mark-hero.png"
+            alt=""
+            className="h-20 w-auto sm:h-28"
+          />
+          <p className="mt-4 text-sm font-medium tracking-wide text-[#e7b78f]">
             {t("eyebrow")}
           </p>
           <h1 className="mt-4 font-display text-4xl font-bold leading-tight text-white sm:text-5xl">
