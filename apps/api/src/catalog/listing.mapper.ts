@@ -102,8 +102,20 @@ export function toOwnerListingDetail(listing: ListingWithRelations) {
     gallery: media
       .filter((asset) => asset.kind === 'gallery')
       .map(toMediaSummary),
+    // The free sample is public by definition, so it must not sit among
+    // "files for buyers" in the cabinet — that heading would be a lie about
+    // who can read it. Its own field instead: visible to the owner, grouped
+    // honestly.
+    sample: media.find((asset) => asset.kind === 'sample')
+      ? toMediaSummary(media.find((asset) => asset.kind === 'sample')!)
+      : null,
     attachments: media
-      .filter((asset) => asset.kind !== 'cover' && asset.kind !== 'gallery')
+      .filter(
+        (asset) =>
+          asset.kind !== 'cover' &&
+          asset.kind !== 'gallery' &&
+          asset.kind !== 'sample',
+      )
       .map(toMediaSummary),
   };
 }

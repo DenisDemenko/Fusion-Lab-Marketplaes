@@ -33,6 +33,26 @@ const STATUS_STYLE: Record<string, string> = {
   archived: "bg-[var(--neutral-bg)] text-[var(--muted)]",
 };
 
+// Browser discs (list-disc) read as an afterthought inside a danger box
+// that is otherwise fully styled — a small square in the same danger tone
+// as the text ties the markers to the message instead of to the browser
+// default, matching catalog/[slug]'s MarkedList.
+function ProblemList({ problems }: { problems: string[] }) {
+  return (
+    <ul className="mt-1.5 space-y-1">
+      {problems.map((problem, index) => (
+        <li key={index} className="flex gap-2.5">
+          <span
+            aria-hidden
+            className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-[2px] bg-[var(--danger)]"
+          />
+          <span>{problem}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function EditListingScreen() {
   const t = useTranslations("sellerListingEdit");
   const tCommon = useTranslations("common");
@@ -185,6 +205,7 @@ function EditListingScreen() {
           cover={listing.cover}
           gallery={listing.gallery}
           attachments={listing.attachments}
+          sample={listing.sample ?? null}
           onChange={() => void load()}
         />
       </div>
@@ -192,11 +213,7 @@ function EditListingScreen() {
       {publishProblems ? (
         <div className="mt-6 rounded-xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
           <p className="font-medium">{t("notReadyTitle")}</p>
-          <ul className="mt-1.5 list-inside list-disc">
-            {publishProblems.map((problem, index) => (
-              <li key={index}>{problem}</li>
-            ))}
-          </ul>
+          <ProblemList problems={publishProblems} />
         </div>
       ) : null}
 

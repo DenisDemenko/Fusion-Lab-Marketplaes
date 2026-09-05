@@ -30,7 +30,16 @@ export type ListingStatus =
   | "rejected"
   | "archived";
 export type OrderStatus = "pending" | "paid" | "failed" | "cancelled";
-export type MediaKind = "cover" | "attachment" | "video" | "gallery";
+// `sample` — the opening pages of a book, cut from the very file the buyer
+// would receive and public like a cover: a reader trusts the prose, not the
+// blurb. Kept a kind of its own because the bridge replaces files within
+// their own kind, and a sample sharing the book file's kind would delete it.
+export type MediaKind =
+  | "cover"
+  | "attachment"
+  | "video"
+  | "gallery"
+  | "sample";
 export type MediaAccess = "public" | "entitled";
 
 export interface SellerSummary {
@@ -132,6 +141,10 @@ export interface SellerListingDetail extends ListingCard {
   // plan.md Phase D4) — split out from `attachments` so the cabinet can
   // offer a distinct gallery section.
   gallery: MediaSummary[];
+  // The free sample, kept out of `attachments` on purpose: that list is
+  // labelled "files for buyers" in the cabinet, and a sample is readable by
+  // everyone — grouping it there would be a lie about who can open it.
+  sample: MediaSummary | null;
   attachments: MediaSummary[];
 }
 

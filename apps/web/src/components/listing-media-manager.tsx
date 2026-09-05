@@ -18,12 +18,15 @@ export function ListingMediaManager({
   cover,
   gallery,
   attachments,
+  sample = null,
   onChange,
 }: {
   listingId: string;
   cover: MediaSummary | null;
   gallery: MediaSummary[];
   attachments: MediaSummary[];
+  /** Free sample, when the listing has one. Read-only here — see below. */
+  sample?: MediaSummary | null;
   onChange: () => void;
 }) {
   const t = useTranslations("mediaManager");
@@ -48,6 +51,24 @@ export function ListingMediaManager({
           onChange={onChange}
         />
       </div>
+
+      {/* The free sample is shown but not editable here: it is cut from the
+          published PDF by the Studio and replaced on every republish, so a
+          delete button in this cabinet would promise control the cabinet
+          does not have — the next publish would bring the file straight
+          back. Managing it belongs where it is made. */}
+      {sample ? (
+        <div>
+          <p className="label">{t("sample")}</p>
+          <p className="text-sm">
+            {sample.filename}{" "}
+            <span className="text-[var(--muted)]">
+              · {Math.round(sample.sizeBytes / 1024)} KB
+            </span>
+          </p>
+          <p className="mt-1 text-xs text-[var(--muted)]">{t("sampleHint")}</p>
+        </div>
+      ) : null}
     </div>
   );
 }
