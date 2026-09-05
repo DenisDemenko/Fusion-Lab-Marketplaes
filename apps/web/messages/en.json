@@ -108,6 +108,8 @@
     "noImagesYet": "No images yet.",
     "addImage": "Add image",
     "filesForBuyers": "Files for buyers (available after payment)",
+    "sample": "Free sample",
+    "sampleHint": "The opening pages, public to everyone. Produced by the Studio when publishing and refreshed together with the book.",
     "coverUploadFailed": "Could not upload the cover",
     "none": "none",
     "uploading": "Uploading…",
@@ -254,7 +256,8 @@
     "grantedAt": "Unlocked {date}",
     "orderSuffix": "order {number}",
     "noFilesYet": "The seller hasn't added any files for this yet.",
-    "openCourse": "Open course curriculum →"
+    "openCourse": "Open course curriculum →",
+    "openBook": "Open the book"
   },
   "accountLibraryItem": {
     "backToLibrary": "← My materials",
@@ -262,7 +265,11 @@
     "progressLabel": "{done} of {total} lessons completed",
     "watched": "Watched",
     "videoUnavailable": "This video link isn't valid",
-    "noCurriculum": "This listing has no curriculum."
+    "noCurriculum": "This listing has no curriculum.",
+    "bookFilesTitle": "Your copy",
+    "materialsTitle": "Materials",
+    "downloadBook": "Download the book",
+    "noFilesYet": "No files here yet. They will appear on this page as soon as the seller adds them."
   },
   "accountLoyalty": {
     "loadFailed": "Couldn't load this",
@@ -656,6 +663,8 @@
   },
   "catalogDetail": {
     "metaNotFound": "Not found — Fusion Lab",
+    "readSample": "Download a free sample",
+    "readSampleHint": "The opening pages as a PDF — read before you buy",
     "breadcrumbCatalog": "Catalog",
     "sellerLabel": "Seller: {name}",
     "aboutTitle": "What this is about",

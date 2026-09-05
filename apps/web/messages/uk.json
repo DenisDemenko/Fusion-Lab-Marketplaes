@@ -108,6 +108,8 @@
     "noImagesYet": "Зображень ще немає.",
     "addImage": "Додати зображення",
     "filesForBuyers": "Файли для покупців (доступні після оплати)",
+    "sample": "Безкоштовний уривок",
+    "sampleHint": "Перші сторінки книги, відкриті всім. Формується Студією під час публікації й оновлюється разом із книгою.",
     "coverUploadFailed": "Не вдалося завантажити обкладинку",
     "none": "немає",
     "uploading": "Завантажую…",
@@ -254,7 +256,8 @@
     "grantedAt": "Відкрито {date}",
     "orderSuffix": "замовлення {number}",
     "noFilesYet": "Продавець ще не додав файлів до цього матеріалу.",
-    "openCourse": "Відкрити програму курсу →"
+    "openCourse": "Відкрити програму курсу →",
+    "openBook": "Відкрити книгу"
   },
   "accountLibraryItem": {
     "backToLibrary": "← Мої матеріали",
@@ -262,7 +265,11 @@
     "progressLabel": "Пройдено {done} з {total} занять",
     "watched": "Переглянуто",
     "videoUnavailable": "Посилання на відео недійсне",
-    "noCurriculum": "У цього лістингу немає програми занять."
+    "noCurriculum": "У цього лістингу немає програми занять.",
+    "bookFilesTitle": "Ваш примірник",
+    "materialsTitle": "Матеріали",
+    "downloadBook": "Завантажити книгу",
+    "noFilesYet": "Файлів тут ще немає. Щойно продавець їх додасть, вони зʼявляться на цій сторінці."
   },
   "accountLoyalty": {
     "loadFailed": "Помилка завантаження",
@@ -656,6 +663,8 @@
   },
   "catalogDetail": {
     "metaNotFound": "Не знайдено — Fusion Lab",
+    "readSample": "Завантажити безкоштовний уривок",
+    "readSampleHint": "Перші сторінки книги у PDF — прочитайте до покупки",
     "breadcrumbCatalog": "Каталог",
     "sellerLabel": "Продавець: {name}",
     "aboutTitle": "Про що це",

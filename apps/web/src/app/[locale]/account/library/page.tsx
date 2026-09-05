@@ -67,6 +67,11 @@ function LibraryScreen() {
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
+        actions={
+          <p className="font-mono text-sm text-[var(--muted)]">
+            {t("materialsCount", { count: entries.length })}
+          </p>
+        }
       />
 
       <div className="space-y-4">
@@ -80,7 +85,10 @@ function LibraryScreen() {
                 >
                   {entry.listing.title}
                 </Link>
-                <p className="text-sm text-[var(--muted)]">
+                {/* A grant date plus an order reference is the same shape
+                    as the date/count line on the orders list — mono for
+                    the same reason: it's data to scan, not prose. */}
+                <p className="font-mono text-sm text-[var(--muted)]">
                   {t("grantedAt", { date: formatDate(entry.grantedAt, locale) })}
                   {entry.orderNumber
                     ? ` · ${t("orderSuffix", { number: entry.orderNumber })}`
@@ -88,12 +96,18 @@ function LibraryScreen() {
                 </p>
               </div>
 
-              {entry.listing.kind === "course" ? (
+              {/*
+                Посилання «відкрити» показувалось ЛИШЕ для курсів — тобто
+                куплену книгу покупець не міг відкрити взагалі: назва вела
+                назад у каталог, на сторінку продажу вже купленого. Тепер
+                книга веде на свою сторінку в бібліотеці, де лежить файл.
+              */}
+              {entry.listing.kind === "course" || entry.listing.kind === "book" ? (
                 <Link
                   href={`/account/library/${entry.listing.slug}`}
                   className="shrink-0 text-sm font-medium text-[var(--accent)] hover:underline"
                 >
-                  {t("openCourse")}
+                  {entry.listing.kind === "book" ? t("openBook") : t("openCourse")}
                 </Link>
               ) : null}
             </div>

@@ -11,7 +11,22 @@ import { auth } from "@/lib/firebase";
 // are fetched with the token, turned into a blob URL, and handed to a
 // synthetic <a download> — which is what makes the browser save the file
 // under its real name instead of navigating to it.
-export function DownloadButton({ file }: { file: MediaSummary }) {
+export function DownloadButton({
+  file,
+  label,
+  className = "btn-ghost",
+}: {
+  file: MediaSummary;
+  /**
+   * Підпис кнопки. За замовчуванням — нейтральне «Завантажити», бо поруч
+   * у списку вже стоїть назва файла. Але там, де файл ОДИН і він і є
+   * причиною, чому покупець відкрив сторінку (книга в бібліотеці),
+   * кнопка має називати саме дію: «Завантажити книгу».
+   */
+  label?: string;
+  /** `btn-ghost` у переліках, `btn-primary` там, де це головна дія. */
+  className?: string;
+}) {
   const t = useTranslations("downloadButton");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,12 +70,12 @@ export function DownloadButton({ file }: { file: MediaSummary }) {
     <div className="text-right">
       <button
         type="button"
-        className="btn-ghost"
+        className={className}
         onClick={() => void download()}
         disabled={busy}
         data-testid="download-file"
       >
-        {busy ? t("downloading") : t("download")}
+        {busy ? t("downloading") : (label ?? t("download"))}
       </button>
       {error ? <p className="mt-1 text-xs text-[var(--danger)]">{error}</p> : null}
     </div>
