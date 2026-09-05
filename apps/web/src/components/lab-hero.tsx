@@ -56,26 +56,23 @@ export function LabHero() {
             fetchPriority="high"
           />
         </picture>
-        {/* Two layers: a soft base wash (lighter than the original site's,
-            and now anchored to the pointer's x position rather than a
-            fixed diagonal) plus a brighter radial "clearing" right where
-            the pointer is, so the image never reads as uniformly brown. */}
+        {/* Single wash layer: the same left-to-right gradient as before,
+            but masked by a 450px radial spot around the pointer so the
+            wash itself goes fully transparent under the cursor and fades
+            back in to its normal depth at 450px away. (Previously this was
+            two stacked semi-transparent layers — a fixed wash plus a
+            separate radial "clearing" on top — which could never actually
+            reach 0% under the cursor because the two alphas compounded
+            instead of one replacing the other.) */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 transition-[mask-position,-webkit-mask-position] duration-300 ease-out"
           style={{
             background:
               "linear-gradient(to right, rgba(43,26,16,.82) 0%, rgba(43,26,16,.6) var(--mx), rgba(43,26,16,.22) 100%)",
-          }}
-        />
-        {/* Стирання заливки — точний градієнт: 100% (заливки нема, картинка
-            видно) просто під курсором до 0% (заливка повна) рівно на 450px
-            від курсора. Раніше коло було 38rem (~608px) із затуханням лише
-            на перших 70% радіуса — тепер весь радіус і є ці 450px. */}
-        <div
-          className="absolute inset-0 transition-[background] duration-300 ease-out"
-          style={{
-            background:
-              "radial-gradient(450px circle at var(--mx) var(--my), rgba(43,26,16,0) 0%, rgba(43,26,16,.35) 100%)",
+            WebkitMaskImage:
+              "radial-gradient(450px circle at var(--mx) var(--my), transparent 0%, black 100%)",
+            maskImage:
+              "radial-gradient(450px circle at var(--mx) var(--my), transparent 0%, black 100%)",
           }}
         />
       </div>
