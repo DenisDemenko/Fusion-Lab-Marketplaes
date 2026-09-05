@@ -34,10 +34,16 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
         <Link href="/" className="flex items-center gap-2 whitespace-nowrap">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--foreground)] text-sm font-bold text-white">
-            FL
-          </span>
-          <span className="hidden text-base font-semibold tracking-tight sm:block">
+          {/* Metallic "FL" mark, supplied as an asset — not drawn from the
+              brand tokens like the rest of the UI, so its two halves (the
+              craft-orange F and the tech-blue L) are baked into the file
+              rather than styled here. */}
+          <img
+            src="/fusion-lab-logo.png"
+            alt="Fusion Lab"
+            className="h-9 w-9 object-contain"
+          />
+          <span className="hidden text-base font-semibold tracking-tight text-[var(--accent-craft-dk)] sm:block">
             Fusion&nbsp;Lab
           </span>
         </Link>
