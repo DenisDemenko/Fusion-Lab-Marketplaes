@@ -35,6 +35,17 @@ console.log(
 );
 
 const nextConfig: NextConfig = {
+  // Дефолтний trailingSlash-редирект Next.js спрацьовує РАНІШЕ за
+  // beforeFiles-rewrite вище: /studio/about/ (зі скісною, на яку
+  // Nova навмисно шле через <meta refresh> — див. коментар над
+  // app.get(['/about','/about/']) у server.ts Book_Creality)
+  // 308-редиректилось на /studio/about (без скісної), той знову
+  // віддавав transitional-сторінку з переходом на "about/" — і цикл
+  // повторювався нескінченно. skipTrailingSlashRedirect вимикає
+  // цей редирект для всього застосунку — офіційний обхідний шлях
+  // Next.js саме для проксі-rewrite на чужий origin:
+  // https://nextjs.org/docs/app/api-reference/next-config-js/skipTrailingSlashRedirect
+  skipTrailingSlashRedirect: true,
   async rewrites() {
     if (!novaOrigin) return { beforeFiles: [], afterFiles: [], fallback: [] };
 
