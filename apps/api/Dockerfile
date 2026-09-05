@@ -24,4 +24,30 @@ COPY --from=build /repo/apps/api/prisma.config.ts apps/api/prisma.config.ts
 COPY --from=build /repo/apps/api/tsconfig.json apps/api/tsconfig.json
 COPY --from=build /repo/apps/api/src apps/api/src
 EXPOSE 3001
-CMD ["node", "apps/api/dist/main.js"]
+# --trace-deprecation is deliberate, not leftover debugging. A deprecation
+# warning without a stack ("client.query() when the client is already
+# executing a query", pg@8.23) cost a full investigation that could not
+# attribute it to any call site by reading the code — the adapter's
+# transaction path awaits every statement, and everything outside a
+# transaction goes through pool.query(). The flag only changes how such a
+# warning is printed; it costs nothing at runtime and makes the next one
+# answerable instead of decorative.
+# Міграції застосовуються НА СТАРТІ, а не руками.
+#
+# Досі образ просто запускав сервер, і `prisma migrate deploy` не робив
+# ніхто — тож схема бази лишалась позаду коду. Це не теорія: міграція, що
+# додає `sample` до `MediaKind`, лежала незастосованою, і кожна спроба
+# покласти безкоштовний уривок падала з 500, хоча код для нього був
+# задеплоєний і правильний.
+#
+# Помилка міграції НЕ валить запуск свідомо. Аварійний вихід тут означав
+# би, що крамниця перестає працювати цілком — а сьогоднішній випадок
+# показав, що відставання схеми зазвичай ламає одну можливість, не всі.
+# Тому: гучний рядок у лог і старт; несправність видно, а покупці
+# купують. `migrate deploy` бере advisory-lock, тож паралельні інстанси
+# не заважають один одному.
+#
+# Команда виконується з `apps/api`, бо `prisma.config.ts` вказує шлях до
+# схеми відносно себе; `exec` — щоб node лишився PID 1 і отримував
+# сигнали зупинки.
+CMD ["sh", "-c", "cd apps/api && (npx prisma migrate deploy || echo '!!! MIGRATE DEPLOY FAILED — starting anyway, database schema may be behind the code'); cd /repo && exec node --trace-deprecation apps/api/dist/main.js"]
