@@ -15,7 +15,7 @@ import {
   BRIDGE_MAX_FILE_BYTES,
   type BridgeFileKind,
 } from './bridge.service';
-import { PublishBookDto } from './bridge.dto';
+import { PublishBookDto, PublishCourseDto } from './bridge.dto';
 
 // Called by Book_Creality, never by a browser: authentication is a shared
 // secret header, not a Firebase token. See ADR 0001.
@@ -36,6 +36,18 @@ export class BridgeController {
   ) {
     this.bridge.assertBridgeKey(key);
     return this.bridge.publishBook(dto);
+  }
+
+  // The course twin of POST /bridge/books: same shared-secret auth, same
+  // idempotent (source, externalId) upsert, but `kind` is 'course' and the
+  // payload is the curriculum instead of a book edition.
+  @Post('courses')
+  publishCourse(
+    @Headers('x-bridge-key') key: string | undefined,
+    @Body() dto: PublishCourseDto,
+  ) {
+    this.bridge.assertBridgeKey(key);
+    return this.bridge.publishCourse(dto);
   }
 
   // Multipart, like the seller upload it mirrors: the ceiling is enforced

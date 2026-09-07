@@ -4,13 +4,21 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { uniqueSlug } from '../common/slug';
 import { toListingCard } from '../catalog/listing.mapper';
-import type { PublishBookDto } from './bridge.dto';
+import type { PublishBookDto, PublishCourseDto } from './bridge.dto';
 
 export const BOOK_SOURCE = 'book_creality';
+
+// Courses are their own listing kind and their own bridge source, so the
+// book list (`GET /bridge/books`) stays about books and a re-published
+// course updates the same row without colliding with a book of the same
+// bookId (the studio already disambiguates with the `:course` suffix, but
+// the source keeps the two product types cleanly separated).
+export const COURSE_SOURCE = 'book_creality_course';
 
 // 50 MB, the same ceiling sellers get. A typeset book with images lands
 // well under it; anything above is a sign of an unoptimised export, not of
@@ -157,6 +165,78 @@ export class BridgeService {
             publishedAt: new Date(),
             sellerId: seller.id,
             externalSource: BOOK_SOURCE,
+            externalId: dto.externalId,
+          },
+          include: { seller: true, category: true, media: true },
+        });
+
+    return { created: !existing, listing: toListingCard(listing) };
+  }
+
+  // The course half of the bridge. Books mirror finished editions; a course
+  // mirrors the studio's course-builder output: same idempotent pair
+  // (source, externalId), same trusted skip of moderation, but `kind` is
+  // 'course' and the payload is the curriculum rather than a PDF.
+  async publishCourse(dto: PublishCourseDto) {
+    const seller = await this.prisma.sellerProfile.findUnique({
+      where: { slug: dto.sellerSlug ?? process.env.BRIDGE_SELLER_SLUG ?? '' },
+    });
+
+    if (!seller) {
+      throw new BadRequestException(
+        'Не знайдено продавця для курсів: передайте sellerSlug або задайте BRIDGE_SELLER_SLUG',
+      );
+    }
+
+    const existing = await this.prisma.listing.findUnique({
+      where: {
+        externalSource_externalId: {
+          externalSource: COURSE_SOURCE,
+          externalId: dto.externalId,
+        },
+      },
+    });
+
+    // The studio sends course metadata today (module/lesson counts); the
+    // full nested curriculum arrives later, in the seller cabinet's shape.
+    // Until then the counts keep the storefront card honest about how much
+    // content a buyer gets.
+    const curriculum: Prisma.InputJsonValue =
+      (dto.curriculum as Prisma.InputJsonValue) ??
+      { moduleCount: dto.moduleCount ?? 0, lessonCount: dto.lessonCount ?? 0 };
+
+    const data = {
+      title: dto.title,
+      subtitle: dto.subtitle,
+      summary: dto.summary,
+      description: dto.description,
+      priceMinor: dto.priceMinor,
+      coverUrl: dto.coverUrl,
+      highlights: dto.highlights ?? [],
+      curriculum,
+    };
+
+    const listing = existing
+      ? await this.prisma.listing.update({
+          where: { id: existing.id },
+          data: { ...data, status: 'published' },
+          include: { seller: true, category: true, media: true },
+        })
+      : await this.prisma.listing.create({
+          data: {
+            ...data,
+            slug: await uniqueSlug(dto.title, async (candidate) =>
+              Boolean(
+                await this.prisma.listing.findUnique({
+                  where: { slug: candidate },
+                }),
+              ),
+            ),
+            kind: 'course',
+            status: 'published',
+            publishedAt: new Date(),
+            sellerId: seller.id,
+            externalSource: COURSE_SOURCE,
             externalId: dto.externalId,
           },
           include: { seller: true, category: true, media: true },
