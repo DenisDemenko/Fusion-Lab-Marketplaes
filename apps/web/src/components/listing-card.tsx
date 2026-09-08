@@ -17,7 +17,7 @@ export function ListingCard({ listing }: { listing: ListingCardDto }) {
 
   return (
     <Link
-      href={`/catalog/${listing.slug}`}
+      href={listing.kind === "course" && listing.slug === "furniture-makers" ? `/catalog/${listing.slug}/overview` : `/catalog/${listing.slug}`}
       className={`card group flex h-full flex-col overflow-hidden transition hover:shadow-md ${accentClassForCategory(listing.category?.slug)}`}
       data-testid="listing-card"
     >
